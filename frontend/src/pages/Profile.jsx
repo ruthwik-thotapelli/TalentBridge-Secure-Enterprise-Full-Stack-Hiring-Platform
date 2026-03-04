@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -28,11 +28,20 @@ export default function Profile() {
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const showToast = (msg) => {
+  // ✅ stable toast (fixes Vercel CI build)
+  const toastTimerRef = useRef(null);
+  const showToast = useCallback((msg) => {
     setToast(msg);
-    window.clearTimeout(showToast._t);
-    showToast._t = window.setTimeout(() => setToast(""), 2200);
-  };
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(""), 2200);
+  }, []);
+
+  // cleanup toast timer on unmount (safe)
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
 
   // ---------- PHOTO ----------
   const [photo, setPhoto] = useState(null); // dataURL
@@ -290,7 +299,7 @@ export default function Profile() {
 
     showToast("Profile loaded ✅");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [showToast]);
 
   useEffect(() => {
     if (!dirty) return;
@@ -301,7 +310,7 @@ export default function Profile() {
       showToast("Draft saved 💾");
     }, 1200);
     return () => clearTimeout(t);
-  }, [dirty, form, photo, skills, resumeName, resumeDataUrl, education, experience, projects, certs]);
+  }, [dirty, form, photo, skills, resumeName, resumeDataUrl, education, experience, projects, certs, showToast]);
 
   // ---------- PROFILE STRENGTH ----------
   const strength = useMemo(() => {
@@ -506,7 +515,11 @@ export default function Profile() {
               <div className="flex items-center gap-4">
                 <div className="relative">
                   {photo ? (
-                    <img src={photo} alt="Profile" className="w-24 h-24 rounded-2xl border border-white/20 object-cover" />
+                    <img
+                      src={photo}
+                      alt="Profile"
+                      className="w-24 h-24 rounded-2xl border border-white/20 object-cover"
+                    />
                   ) : (
                     <div className="w-24 h-24 rounded-2xl bg-black/25 border border-white/15 flex items-center justify-center text-white/50">
                       Upload
@@ -559,9 +572,7 @@ export default function Profile() {
 
               {/* Quick actions */}
               <div className="mt-5 flex flex-wrap gap-2">
-                <Badge tone={form.openToWork ? "green" : "gray"}>
-                  {form.openToWork ? "Open to Work" : "Not Searching"}
-                </Badge>
+                <Badge tone={form.openToWork ? "green" : "gray"}>{form.openToWork ? "Open to Work" : "Not Searching"}</Badge>
                 <Badge tone="cyan">{form.preferredLocation}</Badge>
                 {(form.jobType || []).map((t) => (
                   <Badge key={t} tone="purple">
@@ -827,9 +838,7 @@ export default function Profile() {
                                 key={t}
                                 type="button"
                                 onClick={() => {
-                                  const next = active
-                                    ? form.jobType.filter((x) => x !== t)
-                                    : [...form.jobType, t];
+                                  const next = active ? form.jobType.filter((x) => x !== t) : [...form.jobType, t];
                                   setField("jobType", next.length ? next : ["Full Time"]);
                                 }}
                                 className={`px-4 py-2 rounded-xl border text-sm transition ${
@@ -870,9 +879,7 @@ export default function Profile() {
                     {education.map((e, idx) => (
                       <div key={e.id} className="rounded-2xl bg-white/5 border border-white/10 p-5">
                         <div className="flex items-center justify-between mb-3">
-                          <p className="text-sm font-semibold">
-                            Education #{idx + 1}
-                          </p>
+                          <p className="text-sm font-semibold">Education #{idx + 1}</p>
                           <button
                             type="button"
                             onClick={() => removeEducation(e.id)}
@@ -1104,7 +1111,8 @@ export default function Profile() {
                   <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
                     <p className="text-sm font-semibold">ATS Boost Tip</p>
                     <p className="text-xs text-white/70 mt-1">
-                      Add GitHub + LinkedIn and include keywords like <b>REST APIs</b>, <b>JWT</b>, <b>RBAC</b>, <b>AWS</b>, <b>CI/CD</b> in summary/experience.
+                      Add GitHub + LinkedIn and include keywords like <b>REST APIs</b>, <b>JWT</b>, <b>RBAC</b>, <b>AWS</b>, <b>CI/CD</b>{" "}
+                      in summary/experience.
                     </p>
                   </div>
                 </>
@@ -1134,9 +1142,7 @@ export default function Profile() {
                 </button>
               </div>
 
-              <p className="text-xs text-white/45 mt-4">
-                Auto-save draft enabled • Stored in localStorage (demo). Connect DB later.
-              </p>
+              <p className="text-xs text-white/45 mt-4">Auto-save draft enabled • Stored in localStorage (demo). Connect DB later.</p>
             </div>
           </section>
         </div>
@@ -1153,9 +1159,7 @@ function Tab({ active, children, onClick }) {
       type="button"
       onClick={onClick}
       className={`px-4 py-2 rounded-2xl border transition text-sm font-semibold ${
-        active
-          ? "bg-white/15 border-white/25 text-white"
-          : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
+        active ? "bg-white/15 border-white/25 text-white" : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
       }`}
     >
       {children}
@@ -1221,9 +1225,7 @@ function Badge({ children, tone }) {
 
 function CardMini({ title, value, tone }) {
   const c =
-    tone === "green"
-      ? "bg-green-500/10 border-green-400/20 text-green-200"
-      : "bg-purple-500/10 border-purple-400/20 text-purple-200";
+    tone === "green" ? "bg-green-500/10 border-green-400/20 text-green-200" : "bg-purple-500/10 border-purple-400/20 text-purple-200";
   return (
     <div className={`rounded-2xl border p-4 ${c}`}>
       <p className="text-xs text-white/70">{title}</p>
