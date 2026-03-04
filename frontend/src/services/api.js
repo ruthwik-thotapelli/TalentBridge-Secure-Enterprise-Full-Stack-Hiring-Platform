@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://talentbridge-secure-enterprise-full-stack-hiring-production.up.railway.app",
+ baseURL: "https://talentbridge-secure-enterprise-full-stack-hiring-production.up.railway.app/api",
   withCredentials: true
 });
 
