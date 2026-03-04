@@ -17,6 +17,11 @@ const Login = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ✅ IMPORTANT: Use Railway backend in production
+  const API_BASE =
+    process.env.REACT_APP_API_URL ||
+    "https://talentbridge-secure-enterprise-full-stack-hiring-production.up.railway.app";
+
   // ✅ Read success messages from:
   // 1) Register/Reset -> navigate state
   // 2) VerifyEmail -> query param (?verified=1)
@@ -59,12 +64,13 @@ const Login = () => {
     }
   };
 
+  // ✅ OAuth should go to Railway backend (NOT localhost)
   const handleGoogle = () => {
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = `${API_BASE}/api/auth/google`;
   };
 
   const handleGithub = () => {
-    window.location.href = "http://localhost:5000/api/auth/github";
+    window.location.href = `${API_BASE}/api/auth/github`;
   };
 
   return (
@@ -138,16 +144,34 @@ const Login = () => {
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83" />
                     <path d="M9.88 5.09A10.43 10.43 0 0 1 12 5c5 0 9.27 3.11 11 7-1 2.34-2.73 4.31-4.84 5.58" />
                     <path d="M6.61 6.61A13.53 13.53 0 0 0 1 12c1.73 3.89 6 7 11 7a10.43 10.43 0 0 0 2.12-.21" />
                     <line x1="2" y1="2" x2="22" y2="22" />
                   </svg>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>

@@ -1,16 +1,19 @@
 import axios from "axios";
 
-/*
-  API configuration for TalentBridge frontend
-  This connects React (Vercel) → Backend (Railway)
-*/
+/**
+ * ✅ API BASE URL
+ * - Local: http://localhost:5000
+ * - Production: REACT_APP_API_URL (Railway backend domain)
+ *
+ * NOTE:
+ * REACT_APP_API_URL should be like:
+ * https://your-backend.up.railway.app
+ * (no /api at end)
+ */
 
-// Backend URL (Railway)
 const API_BASE_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://talentbridge-secure-enterprise-full-stack-hiring-production.up.railway.app";
+  process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-// Create axios instance
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
   withCredentials: true,
@@ -19,33 +22,26 @@ const api = axios.create({
   },
 });
 
-// Automatically attach JWT token if available
+// ✅ Attach token (JWT)
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Handle response errors globally
+// ✅ Global error handler
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error("API Error:", error?.response?.data || error.message);
 
-    // Auto logout if token expired
-    if (error.response && error.response.status === 401) {
+    // auto logout if token invalid/expired
+    if (error?.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("currentUser");
-      window.location.href = "/login";
     }
 
     return Promise.reject(error);
