@@ -5,6 +5,8 @@ import { registerUser } from "../services/authService";
 import googleLogo from "../assets/GoogleF.png";
 import githubLogo from "../assets/GithubF.png";
 
+const unwrap = (res) => res?.data ?? res;
+
 const Register = () => {
   const navigate = useNavigate();
 
@@ -37,8 +39,15 @@ const Register = () => {
         password: password.trim(),
       });
 
-      // ✅ Backend message (verify email / resend verify)
-      setSuccess(res?.message || "Account created! Please verify your email, then login.");
+      const data = unwrap(res);
+
+      const msg =
+        data?.message ||
+        "Account created! Please verify your email, then login.";
+
+      setSuccess(msg);
+
+      const nextEmail = email.trim();
 
       // clear form
       setName("");
@@ -46,8 +55,15 @@ const Register = () => {
       setPassword("");
       setAgree(false);
 
-      // ✅ Go to login page (user will verify then login)
-      setTimeout(() => navigate("/login"), 1200);
+      // ✅ Send success + email to login page
+      setTimeout(() => {
+        navigate("/login", {
+          state: {
+            success: msg,
+            email: nextEmail,
+          },
+        });
+      }, 900);
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Registration failed");
     } finally {
@@ -199,11 +215,11 @@ const Register = () => {
           <button
             type="button"
             onClick={handleGithub}
-         className="w-full py-3 rounded-xl bg-white text-slate-900
+            className="w-full py-3 rounded-xl bg-white text-slate-900
                        font-semibold flex items-center justify-center gap-3
                        hover:bg-slate-100 transition"
           >
-            <span className="">
+            <span>
               <img src={githubLogo} alt="GitHub" className="w-12 h-8" />
             </span>
             Sign up with GitHub

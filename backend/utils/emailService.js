@@ -1,24 +1,76 @@
 import nodemailer from "nodemailer";
 
+const {
+  SMTP_HOST,
+  SMTP_PORT,
+  SMTP_USER,
+  SMTP_PASS,
+  SMTP_FROM_NAME,
+  SMTP_FROM_EMAIL,
+  NODE_ENV,
+} = process.env;
+
 const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,                 // smtp.gmail.com
-    port: Number(process.env.SMTP_PORT) || 587,  // 587 for TLS
-    secure: false,                               // true only for 465
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    throw new Error("SMTP env missing: SMTP_HOST / SMTP_USER / SMTP_PASS");
+  }
+
+  const port = Number(SMTP_PORT) || 587;
+  const secure = port === 465; // ✅ 465 = SSL true, 587 = TLS false
+
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST, // smtp.gmail.com
+    port,
+    secure,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,               // 16-char app password (no spaces)
+      user: SMTP_USER,
+      pass: SMTP_PASS, // ✅ Gmail App Password
     },
+
+    // ✅ Helps avoid random connection issues
+    pool: true,
+    maxConnections: 3,
+    maxMessages: 50,
+
+    // ✅ Important for Gmail TLS on 587
     tls: {
       rejectUnauthorized: false,
     },
   });
+
+  return transporter;
 };
+
+const FROM_NAME = SMTP_FROM_NAME || "TalentBridge";
+const FROM_EMAIL = SMTP_FROM_EMAIL || SMTP_USER;
+const FROM = `"${FROM_NAME}" <${FROM_EMAIL}>`;
+
+const sendMail = async ({ to, subject, text, html }) => {
+  const transporter = createTransporter();
+
+  // ✅ Verify transporter in dev to see SMTP errors immediately
+  if (NODE_ENV !== "production") {
+    await transporter.verify();
+  }
+
+  const info = await transporter.sendMail({
+    from: FROM,
+    to,
+    subject,
+    text,
+    html,
+  });
+
+  console.log("✅ Email sent:", subject, "=>", info.messageId);
+  return info;
+};
+
+/* =========================
+   EMAIL TEMPLATES
+========================= */
 
 // ✅ Email Verification
 export const sendVerificationEmail = async (toEmail, name, verifyLink) => {
-  const transporter = createTransporter();
-
   const subject = "TalentBridge - Verify your email";
 
   const text = `Hi ${name || "User"},
@@ -45,30 +97,22 @@ If you didn't create this account, ignore this email.
           Verify Email
         </a>
       </p>
-      <p>If you didn’t create this account, ignore this email.</p>
+      <p style="font-size:12px;color:#555">If you didn’t create this account, ignore this email.</p>
       <p>— TalentBridge Team</p>
     </div>
   `;
 
-  await transporter.sendMail({
-    from: `"TalentBridge" <${process.env.SMTP_USER}>`,
-    to: toEmail,
-    subject,
-    text,
-    html,
-  });
+  return sendMail({ to: toEmail, subject, text, html });
 };
 
-// ✅ Welcome Email (after registration)
+// ✅ Welcome Email
 export const sendWelcomeEmail = async (toEmail, name) => {
-  const transporter = createTransporter();
-
   const subject = "Welcome to TalentBridge 🎉";
 
   const text = `Hi ${name || "User"},
 
-Your account is created successfully on TalentBridge.
-Please verify your email to activate your account.
+Your email is verified successfully ✅
+Welcome to TalentBridge!
 
 — TalentBridge Team
 `;
@@ -77,25 +121,17 @@ Please verify your email to activate your account.
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
       <h2>Welcome to TalentBridge 🎉</h2>
       <p>Hi ${name || "User"},</p>
-      <p>Your account has been created successfully.</p>
-      <p>Please verify your email to activate your account.</p>
+      <p>Your email is verified successfully ✅</p>
+      <p>Now you can login and apply for jobs.</p>
       <p>— TalentBridge Team</p>
     </div>
   `;
 
-  await transporter.sendMail({
-    from: `"TalentBridge" <${process.env.SMTP_USER}>`,
-    to: toEmail,
-    subject,
-    text,
-    html,
-  });
+  return sendMail({ to: toEmail, subject, text, html });
 };
 
-// ✅ Login Success / Alert Email (after login)
+// ✅ Login Alert Email
 export const sendLoginAlertEmail = async (toEmail, name, meta = {}) => {
-  const transporter = createTransporter();
-
   const subject = "TalentBridge - Login Successful ✅";
 
   const text = `Hi ${name || "User"},
@@ -119,24 +155,16 @@ If this wasn't you, reset your password immediately.
         <li><b>IP:</b> ${meta.ip || "N/A"}</li>
         <li><b>Time:</b> ${meta.time || "N/A"}</li>
       </ul>
-      <p>If this wasn’t you, reset your password immediately.</p>
+      <p style="font-size:12px;color:#555">If this wasn’t you, reset your password immediately.</p>
       <p>— TalentBridge Team</p>
     </div>
   `;
 
-  await transporter.sendMail({
-    from: `"TalentBridge" <${process.env.SMTP_USER}>`,
-    to: toEmail,
-    subject,
-    text,
-    html,
-  });
+  return sendMail({ to: toEmail, subject, text, html });
 };
 
-// ✅ Password Reset
+// ✅ Password Reset Email (USED BY ADMIN + USER)
 export const sendResetEmail = async (toEmail, name, resetLink) => {
-  const transporter = createTransporter();
-
   const subject = "TalentBridge - Reset your password";
 
   const text = `Hi ${name || "User"},
@@ -154,23 +182,22 @@ If you didn’t request this, ignore this email.
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
       <h2>Password Reset</h2>
       <p>Hi ${name || "User"},</p>
-      <p>Click below to reset your password (valid for limited time):</p>
+      <p>We received a request to reset your password.</p>
       <p>
         <a href="${resetLink}"
-           style="display:inline-block;padding:10px 16px;background:#4f46e5;color:white;text-decoration:none;border-radius:8px">
+           style="display:inline-block;padding:10px 16px;background:#4f46e5;color:white;text-decoration:none;border-radius:10px">
           Reset Password
         </a>
       </p>
-      <p>If you didn’t request this, ignore this email.</p>
+      <p style="font-size:12px;color:#555">
+        If the button doesn't work, copy this link:
+        <br />
+        <span style="color:#4f46e5">${resetLink}</span>
+      </p>
+      <p style="font-size:12px;color:#555">If you didn’t request this, ignore this email.</p>
       <p>— TalentBridge Team</p>
     </div>
   `;
 
-  await transporter.sendMail({
-    from: `"TalentBridge" <${process.env.SMTP_USER}>`,
-    to: toEmail,
-    subject,
-    text,
-    html,
-  });
+  return sendMail({ to: toEmail, subject, text, html });
 };

@@ -1,10 +1,6 @@
+// src/App.jsx
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 
@@ -22,7 +18,7 @@ import JobDetails from "./pages/JobDetails";
 import Dashboard from "./pages/Dashboard";
 import Resume from "./pages/Resume";
 import Profile from "./pages/Profile";
-import Shortlisted from "./pages/Shortlisted"; // ✅ USER SHORTLISTED PAGE
+import Shortlisted from "./pages/Shortlisted";
 
 // ✅ Auth Extra Pages
 import ForgotPassword from "./pages/ForgotPassword";
@@ -35,7 +31,11 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageJobs from "./pages/admin/ManageJobs";
 import Applicants from "./pages/admin/Applicants";
-import ShortlistedCandidates from "./pages/admin/ShortlistedCandidates"; // ✅ ADMIN PAGE
+import ShortlistedCandidates from "./pages/admin/ShortlistedCandidates";
+
+// ✅ Admin Forgot/Reset Pages
+import AdminForgotPassword from "./pages/admin/AdminForgotPassword";
+import AdminResetPassword from "./pages/admin/AdminResetPassword";
 
 import "./App.css";
 
@@ -44,8 +44,7 @@ function Layout() {
   const location = useLocation();
 
   // Hide Navbar on Welcome & Admin pages
-  const hideNavbar =
-    location.pathname === "/" || location.pathname.startsWith("/admin");
+  const hideNavbar = location.pathname === "/" || location.pathname.startsWith("/admin");
 
   return (
     <>
@@ -67,7 +66,7 @@ function Layout() {
         {/* ✅ Email Verification */}
         <Route path="/verify-email" element={<VerifyEmail />} />
 
-        {/* ✅ Forgot Password Flow */}
+        {/* ✅ Forgot Password Flow (USER) */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
@@ -79,11 +78,19 @@ function Layout() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/resume" element={<Resume />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/shortlisted" element={<Shortlisted />} /> {/* ✅ ADD */}
+          <Route path="/shortlisted" element={<Shortlisted />} />
         </Route>
+
+        {/* ========================= */}
+        {/* ✅ ADMIN ROUTES */}
+        {/* ========================= */}
 
         {/* Admin Login (Public) */}
         <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* ✅ Admin Forgot/Reset (Public) */}
+        <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+        <Route path="/admin/reset-password" element={<AdminResetPassword />} />
 
         {/* ✅ ADMIN PROTECTED */}
         <Route element={<PrivateRoute />}>

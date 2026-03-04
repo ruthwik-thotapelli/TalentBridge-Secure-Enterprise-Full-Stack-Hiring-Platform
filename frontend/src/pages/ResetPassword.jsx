@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { resetPassword } from "../services/authService";
 
+const unwrap = (res) => res?.data ?? res;
+
 export default function ResetPassword() {
   const { search } = useLocation();
   const navigate = useNavigate();
@@ -67,10 +69,16 @@ export default function ResetPassword() {
     setLoading(true);
     try {
       const res = await resetPassword({ token, email, newPassword });
-      setMsg(res?.message || "Password updated successfully!");
-      setTimeout(() => navigate("/login"), 1200);
+      const data = unwrap(res);
+
+      const successMsg = data?.message || "Password updated successfully!";
+      setMsg(successMsg);
+
+      setTimeout(() => {
+        navigate("/login", { state: { success: successMsg, email } });
+      }, 900);
     } catch (e2) {
-      setErr(e2.response?.data?.message || "Reset failed");
+      setErr(e2.response?.data?.message || e2.message || "Reset failed");
     } finally {
       setLoading(false);
     }

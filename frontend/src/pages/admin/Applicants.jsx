@@ -16,22 +16,35 @@ export default function Applicants() {
   const [noteId, setNoteId] = useState(null);
   const [noteText, setNoteText] = useState("");
 
+  // ✅ NEW: refresh loading state (so Refresh feels like it works)
+  const [refreshing, setRefreshing] = useState(false);
+
   const load = async () => {
-    const data = await getApplications();
+    try {
+      setRefreshing(true);
 
-    // ✅ Load notes from localStorage
-    const savedNotes = JSON.parse(localStorage.getItem("appNotes") || "{}");
+      const data = await getApplications();
 
-    const withNotes = (data || []).map((a) => ({
-      ...a,
-      note: savedNotes[a.id] || a.note || "",
-    }));
+      // ✅ Load notes from localStorage
+      const savedNotes = JSON.parse(localStorage.getItem("appNotes") || "{}");
 
-    setApps(withNotes);
+      const withNotes = (data || []).map((a) => ({
+        ...a,
+        note: savedNotes[a.id] || a.note || "",
+      }));
+
+      setApps(withNotes);
+    } catch (e) {
+      console.error(e);
+      alert("Failed to load applications. Please try again.");
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = useMemo(() => {
@@ -52,13 +65,18 @@ export default function Applicants() {
 
   // ✅ Update status (single)
   const setStatus = async (id, status) => {
-    const updated = await updateApplicationStatus(id, status);
-    setApps(updated);
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
+    try {
+      const updated = await updateApplicationStatus(id, status);
+      setApps(updated);
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    } catch (e) {
+      console.error(e);
+      alert("Failed to update status. Try again.");
+    }
   };
 
   // ✅ Bulk update
@@ -66,12 +84,16 @@ export default function Applicants() {
     if (selected.size === 0) return alert("Select at least 1 candidate.");
     let updated = apps;
 
-    for (const id of selected) {
-      updated = await updateApplicationStatus(id, status);
+    try {
+      for (const id of selected) {
+        updated = await updateApplicationStatus(id, status);
+      }
+      setApps(updated);
+      setSelected(new Set());
+    } catch (e) {
+      console.error(e);
+      alert("Bulk update failed. Try again.");
     }
-
-    setApps(updated);
-    setSelected(new Set());
   };
 
   const toggleSelect = (id) => {
@@ -131,18 +153,30 @@ export default function Applicants() {
           </button>
 
           <div className="flex flex-wrap gap-2">
+            {/* ✅ Updated View Shortlisted button (arrow removed + better UI) */}
             <button
               onClick={() => navigate("/admin/shortlisted")}
-              className="px-5 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition font-semibold"
+              className="px-5 py-3 rounded-xl font-semibold
+                         bg-gradient-to-r from-fuchsia-600 to-indigo-600
+                         shadow-lg shadow-fuchsia-500/20
+                         hover:from-fuchsia-500 hover:to-indigo-500 hover:shadow-fuchsia-500/30
+                         active:scale-[0.98] transition"
             >
-              View Shortlisted →
+              View Shortlisted
             </button>
 
+            {/* ✅ Refresh button upgraded + shows loading state */}
             <button
               onClick={load}
-              className="px-5 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition"
+              disabled={refreshing}
+              className={`px-5 py-3 rounded-xl font-semibold border transition active:scale-[0.98]
+                ${
+                  refreshing
+                    ? "bg-white/5 border-white/10 text-white/50 cursor-not-allowed"
+                    : "bg-white/10 border-white/20 hover:bg-white/15 hover:border-white/30"
+                }`}
             >
-              Refresh
+              {refreshing ? "Refreshing..." : "Refresh"}
             </button>
           </div>
         </div>

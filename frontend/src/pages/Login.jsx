@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
 
 import googleLogo from "../assets/GoogleF.png";
@@ -7,17 +7,46 @@ import githubLogo from "../assets/GithubF.png";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ✅ Read success messages from:
+  // 1) Register/Reset -> navigate state
+  // 2) VerifyEmail -> query param (?verified=1)
+  useEffect(() => {
+    const state = location.state;
+
+    // from Register/Reset navigate state
+    if (state?.success) setSuccess(state.success);
+    if (state?.email) setEmail(state.email);
+
+    // from verify email redirect: /login?verified=1
+    const params = new URLSearchParams(location.search);
+    if (params.get("verified") === "1") {
+      setSuccess("Email verified successfully ✅ Now you can login.");
+    }
+
+    // ✅ clear URL query so it won't repeat after refresh
+    if (location.search) {
+      navigate("/login", { replace: true, state: state || {} });
+    } else if (state?.success || state?.email) {
+      // ✅ clear state so it won't repeat when going back
+      navigate("/login", { replace: true, state: {} });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
@@ -51,6 +80,13 @@ const Login = () => {
           <h1 className="text-3xl font-extrabold mb-2">Welcome Back</h1>
           <p className="text-white/80">Login to continue to TalentBridge</p>
         </div>
+
+        {/* ✅ Success */}
+        {success && (
+          <div className="mb-5 text-sm text-green-200 bg-green-500/15 border border-green-500/25 rounded-xl px-4 py-3">
+            {success}
+          </div>
+        )}
 
         {/* Error */}
         {error && (
@@ -102,36 +138,16 @@ const Login = () => {
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
-                  // eye-off
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83" />
                     <path d="M9.88 5.09A10.43 10.43 0 0 1 12 5c5 0 9.27 3.11 11 7-1 2.34-2.73 4.31-4.84 5.58" />
                     <path d="M6.61 6.61A13.53 13.53 0 0 0 1 12c1.73 3.89 6 7 11 7a10.43 10.43 0 0 0 2.12-.21" />
                     <line x1="2" y1="2" x2="22" y2="22" />
                   </svg>
                 ) : (
-                  // eye
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
@@ -178,7 +194,6 @@ const Login = () => {
 
         {/* Social Buttons */}
         <div className="space-y-3">
-          {/* Google */}
           <button
             type="button"
             onClick={handleGoogle}
@@ -190,7 +205,6 @@ const Login = () => {
             Sign in with Google
           </button>
 
-          {/* GitHub */}
           <button
             type="button"
             onClick={handleGithub}
@@ -198,8 +212,7 @@ const Login = () => {
                        font-semibold flex items-center justify-center gap-3
                        hover:bg-slate-100 transition"
           >
-            {/* GitHub logo always visible */}
-            <span className="">
+            <span>
               <img src={githubLogo} alt="GitHub" className="w-12 h-8" />
             </span>
             Sign in with GitHub

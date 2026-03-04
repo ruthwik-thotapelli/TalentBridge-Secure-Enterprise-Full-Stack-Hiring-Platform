@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { forgotPassword } from "../services/authService";
 
+const unwrap = (res) => res?.data ?? res;
+
 export default function ForgotPassword() {
   const navigate = useNavigate();
 
@@ -37,10 +39,11 @@ export default function ForgotPassword() {
     setLoading(true);
     try {
       const res = await forgotPassword(clean);
-      setMsg(res?.message || "Reset link sent. Please check your email.");
+      const data = unwrap(res);
+      setMsg(data?.message || "Reset link sent. Please check your email.");
       setCooldown(30);
     } catch (e2) {
-      setErr(e2.response?.data?.message || "Failed to send reset link");
+      setErr(e2.response?.data?.message || e2.message || "Failed to send reset link");
     } finally {
       setLoading(false);
     }
@@ -179,7 +182,11 @@ export default function ForgotPassword() {
                          hover:scale-[1.02] transition
                          ${(loading || cooldown > 0) ? "opacity-70 cursor-not-allowed" : ""}`}
             >
-              {cooldown > 0 ? `Resend in ${cooldown}s` : loading ? "Resending..." : "Resend Email"}
+              {cooldown > 0
+                ? `Resend in ${cooldown}s`
+                : loading
+                ? "Resending..."
+                : "Resend Email"}
             </button>
 
             <button
