@@ -16,30 +16,32 @@ dotenv.config();
 const app = express();
 
 /* =====================================================
-   ✅ CORS CONFIGURATION
-   Allows:
-   - Vercel frontend
-   - Localhost development
-   - Postman / curl
+   ✅ CORS (Works with Vercel + localhost + Railway)
+   - Allows your FRONTEND_URL
+   - Allows any *.vercel.app preview deployments
+   - Allows localhost dev
 ===================================================== */
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL, // Vercel frontend
-  "http://localhost:3000",  // React dev
-  "http://localhost:5173",  // Vite dev
+  process.env.FRONTEND_URL, // e.g. https://talentbridge.vercel.app
+  "http://localhost:3000",
+  "http://localhost:5173",
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // allow Postman / curl
+      // allow Postman/curl/no-origin requests
+      if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+      // allow exact matches
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+
+      // allow any vercel preview domains
+      if (origin.endsWith(".vercel.app")) return callback(null, true);
 
       console.warn("⚠️ CORS blocked for:", origin);
-      return callback(new Error("CORS not allowed"), false);
+      return callback(null, false); // don't throw hard error
     },
     credentials: true,
   })
@@ -48,82 +50,64 @@ app.use(
 /* =====================================================
    ✅ BODY PARSERS
 ===================================================== */
-
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 /* =====================================================
    ✅ STATIC FILES (UPLOADS)
 ===================================================== */
-
 const uploadsPath = path.join(process.cwd(), "uploads");
-
-// create uploads folder if missing
-if (!fs.existsSync(uploadsPath)) {
-  fs.mkdirSync(uploadsPath);
-}
-
+if (!fs.existsSync(uploadsPath)) fs.mkdirSync(uploadsPath, { recursive: true });
 app.use("/uploads", express.static(uploadsPath));
 
 /* =====================================================
-   ✅ PASSPORT AUTH INITIALIZATION
+   ✅ PASSPORT
 ===================================================== */
-
 app.use(passport.initialize());
 initPassport();
 
 /* =====================================================
-   ✅ HEALTH CHECK
-   Used by Railway to check if server is alive
+   ✅ HEALTH + DEBUG (IMPORTANT FOR RAILWAY)
 ===================================================== */
+app.get("/", (req, res) => res.send("✅ TalentBridge Backend running"));
 
-app.get("/", (req, res) => {
-  res.send("✅ TalentBridge Backend running");
+// ✅ Railway check
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", service: "TalentBridge API" });
 });
 
-app.get("/health", (req, res) => {
+// ✅ Debug: check if Railway is running latest code
+app.get("/__debug", (req, res) => {
   res.json({
-    status: "OK",
-    service: "TalentBridge API",
+    ok: true,
+    message: "✅ Latest server.js running",
+    frontendUrl: process.env.FRONTEND_URL || null,
+    nodeEnv: process.env.NODE_ENV || null,
+    time: new Date().toISOString(),
   });
 });
 
 /* =====================================================
-   ✅ API ROUTES
+   ✅ ROUTES
 ===================================================== */
-
 app.use("/api/auth", authRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/resume", resumeRoutes);
 
-/*
-Admin endpoints example:
-
-POST /api/admin/auth/login
-POST /api/admin/auth/forgot-password
-POST /api/admin/auth/reset-password
-*/
-
 /* =====================================================
-   ❌ GLOBAL ERROR HANDLER
+   ✅ GLOBAL ERROR HANDLER
 ===================================================== */
-
 app.use((err, req, res, next) => {
   console.error("❌ SERVER ERROR:", err);
-
-  res.status(err.status || 500).json({
+  res.status(500).json({
     success: false,
     message: err.message || "Internal Server Error",
   });
 });
 
 /* =====================================================
-   🚀 START SERVER
+   ✅ START SERVER
 ===================================================== */
-
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 TalentBridge backend running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 TalentBridge backend running on port ${PORT}`));
