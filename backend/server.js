@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import passport from "passport";
 import path from "path";
+import fs from "fs";
 
 import authRoutes from "./routes/authRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
@@ -14,60 +15,115 @@ dotenv.config();
 
 const app = express();
 
-/**
- * ✅ CORS
- * - supports localhost:3000 (CRA) and localhost:5173 (Vite)
- * - supports PROD via FRONTEND_URL in .env
- */
+/* =====================================================
+   ✅ CORS CONFIGURATION
+   Allows:
+   - Vercel frontend
+   - Localhost development
+   - Postman / curl
+===================================================== */
+
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "http://localhost:3000",
-  "http://localhost:5173",
+  process.env.FRONTEND_URL, // Vercel frontend
+  "http://localhost:3000",  // React dev
+  "http://localhost:5173",  // Vite dev
 ].filter(Boolean);
 
 app.use(
   cors({
-    origin: (origin, cb) => {
-      // allow requests like Postman/curl (no origin)
-      if (!origin) return cb(null, true);
-      if (allowedOrigins.includes(origin)) return cb(null, true);
-      return cb(new Error(`CORS blocked for origin: ${origin}`), false);
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow Postman / curl
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.warn("⚠️ CORS blocked for:", origin);
+      return callback(new Error("CORS not allowed"), false);
     },
     credentials: true,
   })
 );
 
-// ✅ Body parsers
-app.use(express.json());
+/* =====================================================
+   ✅ BODY PARSERS
+===================================================== */
+
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Serve uploads
+/* =====================================================
+   ✅ STATIC FILES (UPLOADS)
+===================================================== */
+
 const uploadsPath = path.join(process.cwd(), "uploads");
+
+// create uploads folder if missing
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath);
+}
+
 app.use("/uploads", express.static(uploadsPath));
 
-// ✅ Passport init
+/* =====================================================
+   ✅ PASSPORT AUTH INITIALIZATION
+===================================================== */
+
 app.use(passport.initialize());
 initPassport();
 
-// ✅ Health check
-app.get("/", (req, res) => res.send("✅ TalentBridge Backend running"));
+/* =====================================================
+   ✅ HEALTH CHECK
+   Used by Railway to check if server is alive
+===================================================== */
 
-// ✅ Routes
+app.get("/", (req, res) => {
+  res.send("✅ TalentBridge Backend running");
+});
+
+app.get("/health", (req, res) => {
+  res.json({
+    status: "OK",
+    service: "TalentBridge API",
+  });
+});
+
+/* =====================================================
+   ✅ API ROUTES
+===================================================== */
+
 app.use("/api/auth", authRoutes);
-app.use("/api/admin/auth", adminAuthRoutes); // ✅ your admin endpoints:
-                                             // POST /api/admin/auth/forgot-password
-                                             // POST /api/admin/auth/reset-password
+app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/resume", resumeRoutes);
 
-// ✅ Error handler (helps debugging)
+/*
+Admin endpoints example:
+
+POST /api/admin/auth/login
+POST /api/admin/auth/forgot-password
+POST /api/admin/auth/reset-password
+*/
+
+/* =====================================================
+   ❌ GLOBAL ERROR HANDLER
+===================================================== */
+
 app.use((err, req, res, next) => {
-  console.error("❌ ERROR:", err.message);
-  res.status(500).json({ message: err.message || "Server error" });
+  console.error("❌ SERVER ERROR:", err);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
 });
 
-// ✅ Start server
+/* =====================================================
+   🚀 START SERVER
+===================================================== */
+
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`🚀 TalentBridge backend running on port ${PORT}`);
 });
