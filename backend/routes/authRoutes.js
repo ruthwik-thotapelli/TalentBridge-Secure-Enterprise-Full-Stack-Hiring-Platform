@@ -12,7 +12,7 @@ import {
 
 const router = express.Router();
 
-// Local auth
+// ---------------- LOCAL AUTH ----------------
 router.post("/register", register);
 router.post("/login", login);
 
@@ -24,40 +24,66 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 
 // ---------------- OAUTH (GOOGLE) ----------------
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+// ✅ IMPORTANT: session:false here too
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false,
+  })
+);
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { session: false, failureRedirect: `${process.env.FRONTEND_URL}/login` }),
+  passport.authenticate("google", {
+    session: false,
+    failureRedirect: `${process.env.FRONTEND_URL}/login?oauth=failed`,
+  }),
   (req, res) => {
-    // ✅ Generate JWT token and send to frontend
     const user = req.user;
+
+    // ✅ JWT
     const token = signToken({ id: user.id, email: user.email, role: user.role });
 
-    // ✅ Redirect to frontend with token + basic user info
-    const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}&name=${encodeURIComponent(
-      user.name || ""
-    )}&email=${encodeURIComponent(user.email || "")}&provider=${encodeURIComponent(user.provider || "google")}`;
+    // ✅ Redirect to frontend with token + optional info
+    const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${encodeURIComponent(
+      token
+    )}&name=${encodeURIComponent(user.name || "")}&email=${encodeURIComponent(
+      user.email || ""
+    )}&provider=${encodeURIComponent(user.provider || "google")}`;
 
-    res.redirect(redirectUrl);
+    return res.redirect(redirectUrl);
   }
 );
 
 // ---------------- OAUTH (GITHUB) ----------------
-router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
+// ✅ IMPORTANT: session:false here too
+router.get(
+  "/github",
+  passport.authenticate("github", {
+    scope: ["user:email"],
+    session: false,
+  })
+);
 
 router.get(
   "/github/callback",
-  passport.authenticate("github", { session: false, failureRedirect: `${process.env.FRONTEND_URL}/login` }),
+  passport.authenticate("github", {
+    session: false,
+    failureRedirect: `${process.env.FRONTEND_URL}/login?oauth=failed`,
+  }),
   (req, res) => {
     const user = req.user;
+
     const token = signToken({ id: user.id, email: user.email, role: user.role });
 
-    const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}&name=${encodeURIComponent(
-      user.name || ""
-    )}&email=${encodeURIComponent(user.email || "")}&provider=${encodeURIComponent(user.provider || "github")}`;
+    const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${encodeURIComponent(
+      token
+    )}&name=${encodeURIComponent(user.name || "")}&email=${encodeURIComponent(
+      user.email || ""
+    )}&provider=${encodeURIComponent(user.provider || "github")}`;
 
-    res.redirect(redirectUrl);
+    return res.redirect(redirectUrl);
   }
 );
 

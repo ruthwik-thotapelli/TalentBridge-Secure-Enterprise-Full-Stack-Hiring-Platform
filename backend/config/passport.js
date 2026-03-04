@@ -60,13 +60,36 @@ export const initPassport = () => {
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
         callbackURL: process.env.GITHUB_CALLBACK_URL,
         scope: ["user:email"],
-        userProfileURL: "https://api.github.com/user",
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          const email = profile.emails?.find((e) => e?.value)?.value?.toLowerCase() || null;
           const providerId = profile.id;
           const name = profile.displayName || profile.username || "GitHub User";
+
+          // ✅ Try profile first
+          let email =
+            profile.emails?.find((e) => e?.value)?.value?.toLowerCase() || null;
+
+          // ✅ If missing, fetch emails from GitHub API
+          if (!email) {
+            const resp = await fetch("https://api.github.com/user/emails", {
+              headers: {
+                Authorization: `token ${accessToken}`,
+                "User-Agent": "TalentBridge",
+                Accept: "application/vnd.github+json",
+              },
+            });
+
+            if (resp.ok) {
+              const emails = await resp.json();
+              const selected =
+                emails.find((e) => e.primary && e.verified)?.email ||
+                emails.find((e) => e.verified)?.email ||
+                emails[0]?.email;
+
+              email = selected ? selected.toLowerCase() : null;
+            }
+          }
 
           if (!email) return done(null, false);
 
