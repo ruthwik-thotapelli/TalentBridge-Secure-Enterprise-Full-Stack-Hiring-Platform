@@ -24,41 +24,93 @@ const transporter = nodemailer.createTransport({
     user: SMTP_USER,
     pass: SMTP_PASS,
   },
+
+  // ✅ Prevent hanging forever
   connectionTimeout: 8000,
   greetingTimeout: 8000,
   socketTimeout: 12000,
 });
 
 const sendMail = async ({ to, subject, text, html }) => {
-  const info = await transporter.sendMail({
-    from: FROM,
-    to,
-    subject,
-    text,
-    html,
-  });
-  console.log("✅ Email sent:", subject, "=>", info.messageId);
-  return info;
+  try {
+    const info = await transporter.sendMail({
+      from: FROM,
+      to,
+      subject,
+      text,
+      html,
+    });
+
+    console.log("✅ Email sent:", subject, "=>", info.messageId);
+    return info;
+  } catch (err) {
+    console.error("❌ Email send failed:", subject, err.message);
+    throw err;
+  }
 };
 
-export const sendVerificationEmail = async (toEmail, name, verifyLink) => {
-  return sendMail({
-    to: toEmail,
-    subject: "TalentBridge - Verify your email",
-    text: `Hi ${name || "User"}, verify: ${verifyLink}`,
-    html: `<p>Hi ${name || "User"},</p><p><a href="${verifyLink}">Verify Email</a></p>`,
-  });
-};
-
+// ✅ Password Reset Email (USED BY ADMIN + USER)
 export const sendResetEmail = async (toEmail, name, resetLink) => {
-  return sendMail({
-    to: toEmail,
-    subject: "TalentBridge - Reset your password",
-    text: `Hi ${name || "User"}, reset: ${resetLink}`,
-    html: `<p>Hi ${name || "User"},</p><p><a href="${resetLink}">Reset Password</a></p>`,
-  });
+  const subject = "TalentBridge - Reset your password";
+
+  const text = `Hi ${name || "User"},
+
+Reset your password using this link (valid for limited time):
+${resetLink}
+
+If you didn’t request this, ignore.
+
+— TalentBridge Team
+`;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
+      <h2>Password Reset</h2>
+      <p>Hi ${name || "User"},</p>
+      <p>Click below to reset your password:</p>
+      <p>
+        <a href="${resetLink}"
+           style="display:inline-block;padding:10px 16px;background:#4f46e5;color:white;text-decoration:none;border-radius:10px">
+          Reset Password
+        </a>
+      </p>
+      <p style="font-size:12px;color:#555">If you didn't request this, ignore.</p>
+      <p>— TalentBridge Team</p>
+    </div>
+  `;
+
+  return sendMail({ to: toEmail, subject, text, html });
 };
 
-// non-blocking helpers
+// ✅ Verification Email (USER)
+export const sendVerificationEmail = async (toEmail, name, verifyLink) => {
+  const subject = "TalentBridge - Verify your email";
+
+  const text = `Hi ${name || "User"},
+
+Verify your email:
+${verifyLink}
+
+— TalentBridge Team
+`;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
+      <h2>Verify Email</h2>
+      <p>Hi ${name || "User"},</p>
+      <p>
+        <a href="${verifyLink}"
+           style="display:inline-block;padding:10px 16px;background:#16a34a;color:white;text-decoration:none;border-radius:8px">
+          Verify Email
+        </a>
+      </p>
+      <p>— TalentBridge Team</p>
+    </div>
+  `;
+
+  return sendMail({ to: toEmail, subject, text, html });
+};
+
+// ✅ Optional (non-blocking emails)
 export const sendWelcomeEmail = async () => Promise.resolve();
 export const sendLoginAlertEmail = async () => Promise.resolve();

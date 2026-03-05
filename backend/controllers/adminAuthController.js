@@ -3,7 +3,7 @@ import crypto from "crypto";
 import db from "../config/db.js";
 import { sendResetEmail } from "../utils/emailService.js";
 
-// ✅ ADMIN FORGOT PASSWORD (only role='admin' can reset)
+// ✅ ADMIN FORGOT PASSWORD
 export const adminForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -28,17 +28,16 @@ export const adminForgotPassword = async (req, res) => {
       return res.json({ message: "If the email exists, reset link sent ✅" });
     }
 
-    // ✅ If local admin but not verified, block
+    // ✅ If local admin but not verified
     if (user.provider === "local" && Number(user.is_verified) === 0) {
       return res.status(403).json({ message: "Admin email is not verified yet." });
     }
 
     const rawToken = crypto.randomBytes(32).toString("hex");
     const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
-    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+    const expires = new Date(Date.now() + 15 * 60 * 1000);
 
     await db.query("DELETE FROM password_resets WHERE user_id=?", [user.id]);
-
     await db.query(
       "INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?,?,?)",
       [user.id, tokenHash, expires]
@@ -48,12 +47,14 @@ export const adminForgotPassword = async (req, res) => {
       user.email
     )}`;
 
-    // ✅ IMPORTANT: non-blocking email (prevents "Server error" + hanging)
-    sendResetEmail(user.email, user.name || "Admin", resetLink)
-      .then(() => console.log("✅ Admin reset email sent"))
-      .catch((e) => console.error("❌ Admin reset email failed:", e.message));
+    // ✅ EMAIL MUST NOT BREAK API
+    try {
+      await sendResetEmail(user.email, user.name || "Admin", resetLink);
+    } catch (e) {
+      console.error("❌ ADMIN reset email failed:", e.message);
+      // still continue
+    }
 
-    // ✅ Return immediately
     return res.json({ message: "If the email exists, reset link sent ✅" });
   } catch (err) {
     console.error("ADMIN FORGOT PASSWORD ERROR:", err);
@@ -72,19 +73,14 @@ export const adminResetPassword = async (req, res) => {
 
     const cleanEmail = String(email).trim().toLowerCase();
 
-    const [users] = await db.query(
-      "SELECT id, role FROM users WHERE email=? LIMIT 1",
-      [cleanEmail]
-    );
+    const [users] = await db.query("SELECT id, role FROM users WHERE email=? LIMIT 1", [
+      cleanEmail,
+    ]);
 
     if (users.length === 0) return res.status(400).json({ message: "Invalid request" });
 
     const user = users[0];
-
-    // ✅ only admin can reset here
-    if (user.role !== "admin") {
-      return res.status(400).json({ message: "Invalid request" });
-    }
+    if (user.role !== "admin") return res.status(400).json({ message: "Invalid request" });
 
     const userTokenHash = crypto.createHash("sha256").update(String(token)).digest("hex");
 

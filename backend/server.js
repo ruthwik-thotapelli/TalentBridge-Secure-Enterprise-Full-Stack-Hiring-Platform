@@ -1,10 +1,13 @@
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first"); // ✅ force IPv4 first (helps Gmail IPv6 ENETUNREACH)
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import passport from "passport";
 import path from "path";
 
-import db from "./config/db.js"; // ✅ DB import for health check
+import db from "./config/db.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
@@ -16,87 +19,62 @@ dotenv.config();
 
 const app = express();
 
-/* ===============================
-   CORS
-================================ */
+// ---------------- CORS ----------------
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:3000",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
   })
 );
 
-/* ===============================
-   Body Parser
-================================ */
+// ---------------- PARSERS ----------------
 app.use(express.json());
 
-/* ===============================
-   Static Uploads
-================================ */
+// ---------------- STATIC UPLOADS ----------------
 const uploadsPath = path.join(process.cwd(), "uploads");
 app.use("/uploads", express.static(uploadsPath));
 
-/* ===============================
-   Passport OAuth
-================================ */
+// ---------------- PASSPORT ----------------
 app.use(passport.initialize());
 initPassport();
 
-/* ===============================
-   Root Route
-================================ */
+// ---------------- ROOT ----------------
 app.get("/", (req, res) => {
   res.send("✅ TalentBridge Backend running");
 });
 
-/* ===============================
-   HEALTH CHECK (DB TEST)
-================================ */
+// ✅ DB health check
 app.get("/api/health", async (req, res) => {
   try {
     const [rows] = await db.query("SELECT 1 AS ok");
-
-    res.json({
-      status: "ok",
-      db: rows?.[0]?.ok === 1,
-      message: "Database connected successfully",
-    });
-  } catch (error) {
-    console.error("❌ Health check failed:", error);
-
-    res.status(500).json({
-      status: "error",
-      db: false,
-      message: error.message,
-    });
+    return res.json({ status: "ok", db: rows?.[0]?.ok === 1 });
+  } catch (e) {
+    console.error("❌ /api/health error:", e.message);
+    return res.status(500).json({ status: "fail", error: e.message });
   }
 });
 
-/* ===============================
-   API ROUTES
-================================ */
+// ---------------- ROUTES ----------------
 app.use("/api/auth", authRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/resume", resumeRoutes);
 
-/* ===============================
-   Global Error Handler
-================================ */
+// ---------------- ERROR HANDLER ----------------
 app.use((err, req, res, next) => {
-  console.error("❌ Global error:", err);
-
-  res.status(500).json({
-    message: err.message || "Server error",
-  });
+  console.error("❌ ERROR:", err);
+  res.status(500).json({ message: err.message || "Internal Server Error" });
 });
 
-/* ===============================
-   Server Start
-================================ */
+// ---------------- START ----------------
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 TalentBridge backend running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 TalentBridge backend running on port ${PORT}`));ad
