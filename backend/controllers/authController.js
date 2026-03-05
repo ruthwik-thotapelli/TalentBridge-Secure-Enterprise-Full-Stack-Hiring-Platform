@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import db from "../config/db.js";
 import { signToken } from "../utils/tokenUtil.js";
+
 import {
   sendResetEmail,
   sendVerificationEmail,
@@ -9,7 +10,7 @@ import {
   sendLoginAlertEmail,
 } from "../utils/emailService.js";
 
-// ✅ REGISTER
+// ✅ REGISTER (creates account, sends verify email, DOES NOT auto-login)
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -18,30 +19,31 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "Name, email, password required" });
     }
 
-    const cleanName = name.trim();
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPass = password.trim();
+    const cleanName = String(name).trim();
+    const cleanEmail = String(email).trim().toLowerCase();
+    const cleanPass = String(password).trim();
 
     const [rows] = await db.query(
       "SELECT id, name, is_verified, provider FROM users WHERE email=?",
       [cleanEmail]
     );
 
-    // ✅ If already exists
+    // ✅ If user exists
     if (rows.length > 0) {
       const user = rows[0];
 
-      if (user.provider !== "local") {
+      if (user.provider && user.provider !== "local") {
         return res.status(409).json({
           message: `This email is already registered using ${user.provider}. Please login using ${user.provider}.`,
         });
       }
 
+      // already verified
       if (user.is_verified === 1) {
         return res.status(409).json({ message: "Email already registered" });
       }
 
-      // ✅ resend verification link
+      // not verified => resend verification
       const rawToken = crypto.randomBytes(32).toString("hex");
       const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
       const expires = new Date(Date.now() + 30 * 60 * 1000);
@@ -153,12 +155,13 @@ export const login = async (req, res) => {
     if (!email || !password)
       return res.status(400).json({ message: "Email and password required" });
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail = String(email).trim().toLowerCase();
 
     const [rows] = await db.query(
       "SELECT id,name,email,password,role,provider,is_verified FROM users WHERE email=?",
       [cleanEmail]
     );
+
     if (rows.length === 0) return res.status(401).json({ message: "Invalid email or password" });
 
     const user = rows[0];
@@ -171,7 +174,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Use Google/GitHub login for this account" });
     }
 
-    const ok = await bcrypt.compare(password, user.password);
+    const ok = await bcrypt.compare(String(password), user.password);
     if (!ok) return res.status(401).json({ message: "Invalid email or password" });
 
     const token = signToken({ id: user.id, email: user.email, role: user.role });
@@ -209,7 +212,7 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required" });
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail = String(email).trim().toLowerCase();
 
     const [users] = await db.query(
       "SELECT id, name, email, is_verified, provider FROM users WHERE email=?",
@@ -225,9 +228,7 @@ export const forgotPassword = async (req, res) => {
       return res.status(403).json({ message: "Please verify your email first" });
     }
 
-    // ✅ FIXED LINE HERE (your file was broken)
     const rawToken = crypto.randomBytes(32).toString("hex");
-
     const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
     const expires = new Date(Date.now() + 15 * 60 * 1000);
 
@@ -260,8 +261,8 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "token, email, newPassword required" });
     }
 
-    const cleanEmail = email.trim().toLowerCase();
-    const userTokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const cleanEmail = String(email).trim().toLowerCase();
+    const userTokenHash = crypto.createHash("sha256").update(String(token)).digest("hex");
 
     const [users] = await db.query("SELECT id FROM users WHERE email=?", [cleanEmail]);
     if (users.length === 0) return res.status(400).json({ message: "Invalid request" });

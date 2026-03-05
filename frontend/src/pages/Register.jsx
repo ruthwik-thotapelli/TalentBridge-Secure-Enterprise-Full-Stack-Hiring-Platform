@@ -5,7 +5,9 @@ import { registerUser } from "../services/authService";
 import googleLogo from "../assets/GoogleF.png";
 import githubLogo from "../assets/GithubF.png";
 
-const unwrap = (res) => res?.data ?? res;
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL ||
+  "https://talentbridge-secure-enterprise-full-stack-hiring-production.up.railway.app";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -33,21 +35,19 @@ const Register = () => {
 
     setLoading(true);
     try {
-      const res = await registerUser({
+      const msgEmail = email.trim();
+
+      const data = await registerUser({
         name: name.trim(),
-        email: email.trim(),
+        email: msgEmail,
         password: password.trim(),
       });
-
-      const data = unwrap(res);
 
       const msg =
         data?.message ||
         "Account created! Please verify your email, then login.";
 
       setSuccess(msg);
-
-      const nextEmail = email.trim();
 
       // clear form
       setName("");
@@ -60,35 +60,36 @@ const Register = () => {
         navigate("/login", {
           state: {
             success: msg,
-            email: nextEmail,
+            email: msgEmail,
           },
         });
       }, 900);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Registration failed");
+      setError(
+        err?.response?.data?.message || err?.message || "Registration failed"
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ FIXED: Works on Vercel + Local (uses env)
   const handleGoogle = () => {
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = `${API_BASE_URL}/api/auth/google`;
   };
 
   const handleGithub = () => {
-    window.location.href = "http://localhost:5000/api/auth/github";
+    window.location.href = `${API_BASE_URL}/api/auth/github`;
   };
 
   return (
-    <div
-      className="min-h-screen flex items-start justify-center
-                 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900
-                 px-6 py-20 text-white"
-    >
+    <div className="min-h-screen flex items-start justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 px-6 py-20 text-white">
       <div className="w-full max-w-md bg-[#4b2a79] border border-white/15 rounded-3xl shadow-2xl px-10 py-10 mt-6">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold mb-2">Create Account</h1>
-          <p className="text-white/80">Join TalentBridge and start your journey</p>
+          <p className="text-white/80">
+            Join TalentBridge and start your journey
+          </p>
         </div>
 
         {success && (
@@ -105,35 +106,37 @@ const Register = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm mb-2 text-white/85">Full Name</label>
+            <label className="block text-sm mb-2 text-white/85">
+              Full Name
+            </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
               required
-              className="w-full px-4 py-3 rounded-xl bg-white/15
-                         border border-white/20 placeholder-white/50
-                         focus:outline-none focus:ring-2 focus:ring-purple-300"
+              className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-300"
             />
           </div>
 
           <div>
-            <label className="block text-sm mb-2 text-white/85">Email Address</label>
+            <label className="block text-sm mb-2 text-white/85">
+              Email Address
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="w-full px-4 py-3 rounded-xl bg-white/15
-                         border border-white/20 placeholder-white/50
-                         focus:outline-none focus:ring-2 focus:ring-purple-300"
+              className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-300"
             />
           </div>
 
           <div>
-            <label className="block text-sm mb-2 text-white/85">Password</label>
+            <label className="block text-sm mb-2 text-white/85">
+              Password
+            </label>
 
             <div className="relative">
               <input
@@ -142,9 +145,7 @@ const Register = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full px-4 py-3 pr-12 rounded-xl bg-white/15
-                           border border-white/20 placeholder-white/50
-                           focus:outline-none focus:ring-2 focus:ring-purple-300"
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-white/15 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-300"
               />
 
               <button
@@ -154,16 +155,34 @@ const Register = () => {
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83" />
                     <path d="M9.88 5.09A10.43 10.43 0 0 1 12 5c5 0 9.27 3.11 11 7-1 2.34-2.73 4.31-4.84 5.58" />
                     <path d="M6.61 6.61A13.53 13.53 0 0 0 1 12c1.73 3.89 6 7 11 7a10.43 10.43 0 0 0 2.12-.21" />
                     <line x1="2" y1="2" x2="22" y2="22" />
                   </svg>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
@@ -185,10 +204,9 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-xl text-lg font-semibold
-                       bg-gradient-to-r from-green-400 to-emerald-500
-                       hover:scale-[1.02] transition
-                       ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+            className={`w-full py-3 rounded-xl text-lg font-semibold bg-gradient-to-r from-green-400 to-emerald-500 hover:scale-[1.02] transition ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
             {loading ? "Creating..." : "Create Account"}
           </button>
@@ -204,9 +222,7 @@ const Register = () => {
           <button
             type="button"
             onClick={handleGoogle}
-            className="w-full py-3 rounded-xl bg-white text-slate-900
-                       font-semibold flex items-center justify-center gap-3
-                       hover:bg-slate-100 transition"
+            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition"
           >
             <img src={googleLogo} alt="Google" className="w-10 h-8" />
             Sign up with Google
@@ -215,13 +231,9 @@ const Register = () => {
           <button
             type="button"
             onClick={handleGithub}
-            className="w-full py-3 rounded-xl bg-white text-slate-900
-                       font-semibold flex items-center justify-center gap-3
-                       hover:bg-slate-100 transition"
+            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition"
           >
-            <span>
-              <img src={githubLogo} alt="GitHub" className="w-12 h-8" />
-            </span>
+            <img src={githubLogo} alt="GitHub" className="w-12 h-8" />
             Sign up with GitHub
           </button>
         </div>
