@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import db from "../config/db.js";
 import { signToken } from "../utils/tokenUtil.js";
-
 import {
   sendResetEmail,
   sendVerificationEmail,
@@ -10,7 +9,19 @@ import {
   sendLoginAlertEmail,
 } from "../utils/emailService.js";
 
-// ✅ REGISTER (creates account, sends verify email, DOES NOT auto-login)
+/**
+ * Helper: run a promise with timeout so email sending can't hang forever
+ */
+const withTimeout = (promise, ms = 8000, label = "Operation") => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+};
+
+// ✅ REGISTER
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -28,7 +39,7 @@ export const register = async (req, res) => {
       [cleanEmail]
     );
 
-    // ✅ If user exists
+    // ✅ If already exists
     if (rows.length > 0) {
       const user = rows[0];
 
@@ -38,12 +49,11 @@ export const register = async (req, res) => {
         });
       }
 
-      // already verified
       if (user.is_verified === 1) {
         return res.status(409).json({ message: "Email already registered" });
       }
 
-      // not verified => resend verification
+      // ✅ resend verification link
       const rawToken = crypto.randomBytes(32).toString("hex");
       const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
       const expires = new Date(Date.now() + 30 * 60 * 1000);
@@ -57,11 +67,23 @@ export const register = async (req, res) => {
         cleanEmail
       )}`;
 
-      await sendVerificationEmail(cleanEmail, user.name || cleanName, verifyLink);
-
-      return res.status(200).json({
-        message: "Account exists but not verified. Verification email re-sent ✅",
-      });
+      // ✅ Do not hang if SMTP is slow/down
+      try {
+        await withTimeout(
+          sendVerificationEmail(cleanEmail, user.name || cleanName, verifyLink),
+          8000,
+          "sendVerificationEmail"
+        );
+        return res.status(200).json({
+          message: "Account exists but not verified. Verification email re-sent ✅",
+        });
+      } catch (e) {
+        console.error("RESEND VERIFY EMAIL FAILED:", e.message);
+        return res.status(200).json({
+          message:
+            "Account exists but not verified. Email sending failed right now. Try again later.",
+        });
+      }
     }
 
     // ✅ Create new user (not verified)
@@ -86,11 +108,26 @@ export const register = async (req, res) => {
       cleanEmail
     )}`;
 
-    await sendVerificationEmail(cleanEmail, cleanName, verifyLink);
+    // ✅ Do not hang if SMTP is slow/down
+    try {
+      await withTimeout(
+        sendVerificationEmail(cleanEmail, cleanName, verifyLink),
+        8000,
+        "sendVerificationEmail"
+      );
 
-    return res.status(201).json({
-      message: "Account created! Please verify your email, then login.",
-    });
+      return res.status(201).json({
+        message: "Account created! Please verify your email, then login.",
+      });
+    } catch (e) {
+      console.error("VERIFY EMAIL SEND FAILED:", e.message);
+
+      // ✅ Still return success so UI won't be stuck
+      return res.status(201).json({
+        message:
+          "Account created ✅ but verification email could not be sent. Please try again later.",
+      });
+    }
   } catch (err) {
     console.error("REGISTER ERROR:", err);
     return res.status(500).json({ message: "Server error" });
@@ -137,7 +174,7 @@ export const verifyEmail = async (req, res) => {
       [user.id]
     );
 
-    // ✅ welcome email after verify
+    // ✅ welcome email after verify (non-blocking)
     sendWelcomeEmail(cleanEmail, user.name).catch(() => {});
 
     return res.redirect(`${process.env.FRONTEND_URL}/login?verified=1`);
@@ -161,7 +198,6 @@ export const login = async (req, res) => {
       "SELECT id,name,email,password,role,provider,is_verified FROM users WHERE email=?",
       [cleanEmail]
     );
-
     if (rows.length === 0) return res.status(401).json({ message: "Invalid email or password" });
 
     const user = rows[0];
@@ -187,6 +223,7 @@ export const login = async (req, res) => {
       time: new Date().toLocaleString(),
     };
 
+    // non-blocking
     sendLoginAlertEmail(user.email, user.name, meta).catch(() => {});
 
     return res.json({
@@ -232,6 +269,7 @@ export const forgotPassword = async (req, res) => {
     const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
     const expires = new Date(Date.now() + 15 * 60 * 1000);
 
+    // Ensure table exists? (optional) — but better to create via SQL migration
     await db.query("DELETE FROM password_resets WHERE user_id=?", [user.id]);
 
     await db.query(
@@ -243,9 +281,20 @@ export const forgotPassword = async (req, res) => {
       user.email
     )}`;
 
-    await sendResetEmail(user.email, user.name, resetLink);
-
-    return res.json({ message: "If the email exists, reset link sent ✅" });
+    // ✅ Do not hang if SMTP is slow/down
+    try {
+      await withTimeout(
+        sendResetEmail(user.email, user.name, resetLink),
+        8000,
+        "sendResetEmail"
+      );
+      return res.json({ message: "If the email exists, reset link sent ✅" });
+    } catch (e) {
+      console.error("RESET EMAIL SEND FAILED:", e.message);
+      return res.status(500).json({
+        message: "Unable to send reset email right now. Please try again later.",
+      });
+    }
   } catch (err) {
     console.error("FORGOT PASSWORD ERROR:", err);
     return res.status(500).json({ message: "Server error" });

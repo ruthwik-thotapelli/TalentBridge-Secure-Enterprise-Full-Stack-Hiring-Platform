@@ -7,62 +7,61 @@ const {
   SMTP_PASS,
   SMTP_FROM_NAME,
   SMTP_FROM_EMAIL,
-  NODE_ENV,
 } = process.env;
 
-const createTransporter = () => {
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
-    throw new Error("SMTP env missing: SMTP_HOST / SMTP_USER / SMTP_PASS");
-  }
-
-  const port = Number(SMTP_PORT) || 587;
-  const secure = port === 465; // ✅ 465 = SSL true, 587 = TLS false
-
-  const transporter = nodemailer.createTransport({
-    host: SMTP_HOST, // smtp.gmail.com
-    port,
-    secure,
-    auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS, // ✅ Gmail App Password
-    },
-
-    // ✅ Helps avoid random connection issues
-    pool: true,
-    maxConnections: 3,
-    maxMessages: 50,
-
-    // ✅ Important for Gmail TLS on 587
-    tls: {
-      rejectUnauthorized: false,
-    },
+if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+  console.error("❌ SMTP env missing:", {
+    SMTP_HOST: !!SMTP_HOST,
+    SMTP_USER: !!SMTP_USER,
+    SMTP_PASS: !!SMTP_PASS,
   });
+}
 
-  return transporter;
-};
+const port = Number(SMTP_PORT || 587);
+const secure = port === 465; // 465 = SSL true, 587 = TLS false
 
 const FROM_NAME = SMTP_FROM_NAME || "TalentBridge";
 const FROM_EMAIL = SMTP_FROM_EMAIL || SMTP_USER;
 const FROM = `"${FROM_NAME}" <${FROM_EMAIL}>`;
 
+// ✅ Create ONE transporter (do NOT recreate per email)
+const transporter = nodemailer.createTransport({
+  host: SMTP_HOST,
+  port,
+  secure,
+  auth: {
+    user: SMTP_USER,
+    pass: SMTP_PASS,
+  },
+
+  // ✅ Prevent hanging forever (THIS FIXES “Creating…”)
+  connectionTimeout: 8000,
+  greetingTimeout: 8000,
+  socketTimeout: 12000,
+
+  // ✅ Gmail (587) works fine without rejectUnauthorized false
+  // tls: { rejectUnauthorized: false },  // ❌ remove
+});
+
 const sendMail = async ({ to, subject, text, html }) => {
-  const transporter = createTransporter();
+  try {
+    // ✅ verify once (optional)
+    // await transporter.verify(); // enable if you want extra strict check
 
-  // ✅ Verify transporter in dev to see SMTP errors immediately
-  if (NODE_ENV !== "production") {
-    await transporter.verify();
+    const info = await transporter.sendMail({
+      from: FROM,
+      to,
+      subject,
+      text,
+      html,
+    });
+
+    console.log("✅ Email sent:", subject, "=>", info.messageId);
+    return info;
+  } catch (err) {
+    console.error("❌ Email send failed:", subject, err.message);
+    throw err; // important
   }
-
-  const info = await transporter.sendMail({
-    from: FROM,
-    to,
-    subject,
-    text,
-    html,
-  });
-
-  console.log("✅ Email sent:", subject, "=>", info.messageId);
-  return info;
 };
 
 /* =========================
@@ -163,7 +162,7 @@ If this wasn't you, reset your password immediately.
   return sendMail({ to: toEmail, subject, text, html });
 };
 
-// ✅ Password Reset Email (USED BY ADMIN + USER)
+// ✅ Password Reset Email
 export const sendResetEmail = async (toEmail, name, resetLink) => {
   const subject = "TalentBridge - Reset your password";
 
