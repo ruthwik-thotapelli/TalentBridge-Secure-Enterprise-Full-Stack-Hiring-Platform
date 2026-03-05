@@ -6,12 +6,17 @@ import {
 
 const router = express.Router();
 
-/*
-  Final endpoints will be:
-
-  POST /api/admin/auth/forgot-password
-  POST /api/admin/auth/reset-password
-*/
+/**
+ * Admin Auth Routes
+ *
+ * Mounted in server.js:
+ * app.use("/api/admin/auth", adminAuthRoutes);
+ *
+ * 
+ * So endpoints:
+ * POST /api/admin/auth/forgot-password
+ * POST /api/admin/auth/reset-password
+ */
 
 // 🔐 Admin Forgot Password
 router.post("/forgot-password", adminForgotPassword);

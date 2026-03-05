@@ -9,7 +9,7 @@ export const adminForgotPassword = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required" });
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail = String(email).trim().toLowerCase();
 
     const [rows] = await db.query(
       "SELECT id, name, email, role, provider, is_verified FROM users WHERE email=? LIMIT 1",
@@ -23,13 +23,13 @@ export const adminForgotPassword = async (req, res) => {
 
     const user = rows[0];
 
-    // ✅ Only admins
+    // ✅ Only admins (still don’t reveal)
     if (user.role !== "admin") {
       return res.json({ message: "If the email exists, reset link sent ✅" });
     }
 
     // ✅ If local admin but not verified, block
-    if (user.provider === "local" && user.is_verified === 0) {
+    if (user.provider === "local" && Number(user.is_verified) === 0) {
       return res.status(403).json({ message: "Admin email is not verified yet." });
     }
 
@@ -48,9 +48,12 @@ export const adminForgotPassword = async (req, res) => {
       user.email
     )}`;
 
-    // ✅ same email function is fine (it will send link)
-    await sendResetEmail(user.email, user.name || "Admin", resetLink);
+    // ✅ IMPORTANT: non-blocking email (prevents "Server error" + hanging)
+    sendResetEmail(user.email, user.name || "Admin", resetLink)
+      .then(() => console.log("✅ Admin reset email sent"))
+      .catch((e) => console.error("❌ Admin reset email failed:", e.message));
 
+    // ✅ Return immediately
     return res.json({ message: "If the email exists, reset link sent ✅" });
   } catch (err) {
     console.error("ADMIN FORGOT PASSWORD ERROR:", err);
@@ -67,7 +70,7 @@ export const adminResetPassword = async (req, res) => {
       return res.status(400).json({ message: "token, email, newPassword required" });
     }
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail = String(email).trim().toLowerCase();
 
     const [users] = await db.query(
       "SELECT id, role FROM users WHERE email=? LIMIT 1",
