@@ -24,12 +24,13 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 
 // ---------------- OAUTH (GOOGLE) ----------------
-// ✅ IMPORTANT: session:false here too
+// ✅ FIX: force account chooser screen every time
 router.get(
   "/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
+    prompt: "consent select_account", // ✅ THIS IS THE MAIN CHANGE
   })
 );
 
@@ -45,7 +46,7 @@ router.get(
     // ✅ JWT
     const token = signToken({ id: user.id, email: user.email, role: user.role });
 
-    // ✅ Redirect to frontend with token + optional info
+    // ✅ Redirect to frontend with token
     const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${encodeURIComponent(
       token
     )}&name=${encodeURIComponent(user.name || "")}&email=${encodeURIComponent(
@@ -57,7 +58,6 @@ router.get(
 );
 
 // ---------------- OAUTH (GITHUB) ----------------
-// ✅ IMPORTANT: session:false here too
 router.get(
   "/github",
   passport.authenticate("github", {
