@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import passport from "passport";
 import path from "path";
 
+import db from "./config/db.js"; // ✅ Added for health route
+
 import authRoutes from "./routes/authRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
@@ -14,33 +16,25 @@ dotenv.config();
 
 const app = express();
 
-// ---------------- PARSERS ----------------
-app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // ✅ IMPORTANT for register body
-
 // ---------------- CORS ----------------
 const allowedOrigins = [
-  process.env.FRONTEND_URL, // ✅ Vercel production URL
-  "http://localhost:3000",
+  process.env.FRONTEND_URL, // ✅ Vercel
+  "http://localhost:3000", // ✅ local dev
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, cb) => {
-      // Allow requests with no origin (Postman/curl)
-      if (!origin) return cb(null, true);
-
-      // ✅ Allow exact matches
+      if (!origin) return cb(null, true); // Postman / curl
       if (allowedOrigins.includes(origin)) return cb(null, true);
-
-      // ✅ Allow Vercel preview domains also (optional but useful)
-      if (origin.endsWith(".vercel.app")) return cb(null, true);
-
-      return cb(null, false); // ✅ Do not throw error object here
+      return cb(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
   })
 );
+
+// ---------------- PARSERS ----------------
+app.use(express.json());
 
 // ---------------- STATIC UPLOADS ----------------
 const uploadsPath = path.join(process.cwd(), "uploads");
@@ -50,9 +44,20 @@ app.use("/uploads", express.static(uploadsPath));
 app.use(passport.initialize());
 initPassport();
 
-// ---------------- HEALTH CHECK ----------------
+// ---------------- HEALTH CHECKS ----------------
 app.get("/", (req, res) => {
   res.send("✅ TalentBridge Backend running");
+});
+
+// ✅ DB health check (IMPORTANT)
+app.get("/api/health", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT 1 AS ok");
+    res.json({ status: "ok", db: rows?.[0]?.ok === 1 });
+  } catch (e) {
+    console.error("❌ HEALTH DB ERROR:", e.message);
+    res.status(500).json({ status: "fail", error: e.message });
+  }
 });
 
 // ---------------- ROUTES ----------------
@@ -61,15 +66,10 @@ app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/resume", resumeRoutes);
 
-// ---------------- 404 HANDLER ----------------
-app.use((req, res) => {
-  res.status(404).json({ message: `Route not found: ${req.originalUrl}` });
-});
-
 // ---------------- ERROR HANDLER ----------------
 app.use((err, req, res, next) => {
   console.error("❌ ERROR:", err);
-  res.status(err.status || 500).json({
+  res.status(500).json({
     message: err.message || "Internal Server Error",
   });
 });

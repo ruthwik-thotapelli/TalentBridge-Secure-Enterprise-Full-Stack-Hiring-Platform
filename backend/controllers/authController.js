@@ -9,19 +9,7 @@ import {
   sendLoginAlertEmail,
 } from "../utils/emailService.js";
 
-/**
- * Helper: run a promise with timeout so email sending can't hang forever
- */
-const withTimeout = (promise, ms = 8000, label = "Operation") => {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
-    ),
-  ]);
-};
-
-// ✅ REGISTER
+// ✅ REGISTER (fast response, email in background)
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -67,23 +55,14 @@ export const register = async (req, res) => {
         cleanEmail
       )}`;
 
-      // ✅ Do not hang if SMTP is slow/down
-      try {
-        await withTimeout(
-          sendVerificationEmail(cleanEmail, user.name || cleanName, verifyLink),
-          8000,
-          "sendVerificationEmail"
-        );
-        return res.status(200).json({
-          message: "Account exists but not verified. Verification email re-sent ✅",
-        });
-      } catch (e) {
-        console.error("RESEND VERIFY EMAIL FAILED:", e.message);
-        return res.status(200).json({
-          message:
-            "Account exists but not verified. Email sending failed right now. Try again later.",
-        });
-      }
+      // ✅ Send email in background (do NOT block API)
+      sendVerificationEmail(cleanEmail, user.name || cleanName, verifyLink).catch((e) =>
+        console.error("RESEND VERIFY EMAIL FAILED:", e.message)
+      );
+
+      return res.status(200).json({
+        message: "Account exists but not verified. Verification email re-sent ✅",
+      });
     }
 
     // ✅ Create new user (not verified)
@@ -108,26 +87,14 @@ export const register = async (req, res) => {
       cleanEmail
     )}`;
 
-    // ✅ Do not hang if SMTP is slow/down
-    try {
-      await withTimeout(
-        sendVerificationEmail(cleanEmail, cleanName, verifyLink),
-        8000,
-        "sendVerificationEmail"
-      );
+    // ✅ Send verification email in background (do NOT block API)
+    sendVerificationEmail(cleanEmail, cleanName, verifyLink).catch((e) =>
+      console.error("VERIFY EMAIL SEND FAILED:", e.message)
+    );
 
-      return res.status(201).json({
-        message: "Account created! Please verify your email, then login.",
-      });
-    } catch (e) {
-      console.error("VERIFY EMAIL SEND FAILED:", e.message);
-
-      // ✅ Still return success so UI won't be stuck
-      return res.status(201).json({
-        message:
-          "Account created ✅ but verification email could not be sent. Please try again later.",
-      });
-    }
+    return res.status(201).json({
+      message: "Account created! Please verify your email, then login.",
+    });
   } catch (err) {
     console.error("REGISTER ERROR:", err);
     return res.status(500).json({ message: "Server error" });
@@ -223,7 +190,6 @@ export const login = async (req, res) => {
       time: new Date().toLocaleString(),
     };
 
-    // non-blocking
     sendLoginAlertEmail(user.email, user.name, meta).catch(() => {});
 
     return res.json({
@@ -243,7 +209,7 @@ export const login = async (req, res) => {
   }
 };
 
-// ✅ FORGOT PASSWORD
+// ✅ FORGOT PASSWORD (fast response, email in background)
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -256,7 +222,6 @@ export const forgotPassword = async (req, res) => {
       [cleanEmail]
     );
 
-    // don’t reveal existence
     if (users.length === 0) return res.json({ message: "If the email exists, reset link sent ✅" });
 
     const user = users[0];
@@ -269,9 +234,7 @@ export const forgotPassword = async (req, res) => {
     const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
     const expires = new Date(Date.now() + 15 * 60 * 1000);
 
-    // Ensure table exists? (optional) — but better to create via SQL migration
     await db.query("DELETE FROM password_resets WHERE user_id=?", [user.id]);
-
     await db.query(
       "INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?,?,?)",
       [user.id, tokenHash, expires]
@@ -281,20 +244,12 @@ export const forgotPassword = async (req, res) => {
       user.email
     )}`;
 
-    // ✅ Do not hang if SMTP is slow/down
-    try {
-      await withTimeout(
-        sendResetEmail(user.email, user.name, resetLink),
-        8000,
-        "sendResetEmail"
-      );
-      return res.json({ message: "If the email exists, reset link sent ✅" });
-    } catch (e) {
-      console.error("RESET EMAIL SEND FAILED:", e.message);
-      return res.status(500).json({
-        message: "Unable to send reset email right now. Please try again later.",
-      });
-    }
+    // ✅ Send email in background
+    sendResetEmail(user.email, user.name, resetLink).catch((e) =>
+      console.error("RESET EMAIL SEND FAILED:", e.message)
+    );
+
+    return res.json({ message: "If the email exists, reset link sent ✅" });
   } catch (err) {
     console.error("FORGOT PASSWORD ERROR:", err);
     return res.status(500).json({ message: "Server error" });
