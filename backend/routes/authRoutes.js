@@ -24,13 +24,13 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 
 // ---------------- OAUTH (GOOGLE) ----------------
-// ✅ FIX: force account chooser screen every time
+// ✅ Force account chooser every time
 router.get(
   "/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
-    prompt: "consent select_account", // ✅ THIS IS THE MAIN CHANGE
+    prompt: "select_account", // ✅ show choose account screen
   })
 );
 
@@ -43,10 +43,8 @@ router.get(
   (req, res) => {
     const user = req.user;
 
-    // ✅ JWT
     const token = signToken({ id: user.id, email: user.email, role: user.role });
 
-    // ✅ Redirect to frontend with token
     const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${encodeURIComponent(
       token
     )}&name=${encodeURIComponent(user.name || "")}&email=${encodeURIComponent(
@@ -58,11 +56,13 @@ router.get(
 );
 
 // ---------------- OAUTH (GITHUB) ----------------
+// ✅ Force GitHub to show login screen every time (prevents auto-login)
 router.get(
   "/github",
   passport.authenticate("github", {
     scope: ["user:email"],
     session: false,
+    prompt: "login", // ✅ THIS FIXES “directly logging in”
   })
 );
 
