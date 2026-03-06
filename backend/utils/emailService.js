@@ -29,7 +29,6 @@ const appButton = (label, url, bg = "#6d28d9") => `
 const baseTemplate = ({ title, subtitle, content, buttonHtml = "", footer = "" }) => `
   <div style="margin:0;padding:24px;background:#f5f3ff;font-family:Arial,Helvetica,sans-serif;">
     <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:22px;overflow:hidden;box-shadow:0 12px 40px rgba(76,29,149,0.18);">
-      
       <div style="background:linear-gradient(135deg,#312e81,#6d28d9,#9333ea);padding:34px 28px;text-align:center;">
         <div style="font-size:34px;font-weight:900;color:#ffffff;letter-spacing:0.4px;">
           TalentBridge
@@ -113,10 +112,8 @@ export const verifyMailConnection = async () => {
   console.log("✅ Brevo API key detected");
 };
 
-// ---------------- VERIFY EMAIL ----------------
 export const sendVerificationEmail = async (toEmail, name, verifyLink) => {
   const subject = "Verify your TalentBridge email";
-
   const text = `Hi ${name || "User"},
 
 Welcome to TalentBridge.
@@ -138,18 +135,15 @@ If you did not create this account, you can ignore this email.
     buttonHtml: appButton("Verify Email", verifyLink, "#16a34a"),
     footer: `
       If the button does not work, copy and paste this link into your browser:<br/>
-      <span style="word-break:break-all;color:#4f46e5;">${verifyLink}</span><br/><br/>
-      This verification link expires automatically after some time for security.
+      <span style="word-break:break-all;color:#4f46e5;">${verifyLink}</span>
     `,
   });
 
   return sendMail({ to: toEmail, subject, text, html });
 };
 
-// ---------------- RESET PASSWORD ----------------
 export const sendResetEmail = async (toEmail, name, resetLink) => {
   const subject = "Reset your TalentBridge password";
-
   const text = `Hi ${name || "User"},
 
 We received a request to reset your TalentBridge password.
@@ -172,23 +166,18 @@ If you did not request this, you can ignore this email.
     buttonHtml: appButton("Reset Password", resetLink, "#4f46e5"),
     footer: `
       If the button does not work, copy and paste this link into your browser:<br/>
-      <span style="word-break:break-all;color:#4f46e5;">${resetLink}</span><br/><br/>
-      Also check your Spam / Promotions folder if you do not see this email in Inbox.
+      <span style="word-break:break-all;color:#4f46e5;">${resetLink}</span>
     `,
   });
 
   return sendMail({ to: toEmail, subject, text, html });
 };
 
-// ---------------- WELCOME EMAIL ----------------
 export const sendWelcomeEmail = async (toEmail, name) => {
   const subject = "Welcome to TalentBridge 🎉";
-
   const text = `Hi ${name || "User"},
 
 Your email has been verified successfully.
-
-Welcome to TalentBridge. Your account is ready and you can now log in and start exploring jobs, profile features, and ATS tools.
 
 Open TalentBridge:
 ${FRONTEND_URL}
@@ -200,21 +189,16 @@ ${FRONTEND_URL}
     subtitle: `Hi ${name || "User"}, your email has been verified successfully and your account is now active.`,
     content: `
       <p>We’re excited to have you on TalentBridge.</p>
-      <p>You can now log in, complete your profile, upload your resume, and start using powerful features designed to help you get hired faster.</p>
+      <p>You can now log in, complete your profile, upload your resume, and start using TalentBridge features.</p>
     `,
     buttonHtml: appButton("Open TalentBridge", `${FRONTEND_URL}/login`, "#22c55e"),
-    footer: `
-      Need help? Reply to this email or contact TalentBridge support.
-    `,
   });
 
   return sendMail({ to: toEmail, subject, text, html });
 };
 
-// ---------------- LOGIN ALERT EMAIL ----------------
 export const sendLoginAlertEmail = async (toEmail, name, meta = {}) => {
   const subject = "New login to your TalentBridge account";
-
   const text = `Hi ${name || "User"},
 
 A new login was detected for your TalentBridge account.
@@ -222,10 +206,7 @@ A new login was detected for your TalentBridge account.
 IP Address: ${meta.ip || "N/A"}
 Time: ${meta.time || "N/A"}
 
-If this was you, no action is needed.
-If this was not you, please reset your password immediately.
-
-Reset password:
+If this was not you, reset your password:
 ${FRONTEND_URL}/forgot-password
 
 - TalentBridge Team`;
@@ -236,13 +217,9 @@ ${FRONTEND_URL}/forgot-password
     content: `
       <p><strong>IP Address:</strong> ${meta.ip || "N/A"}</p>
       <p><strong>Time:</strong> ${meta.time || "N/A"}</p>
-      <p>If this was you, you can ignore this email.</p>
-      <p>If this was not you, please reset your password immediately to secure your account.</p>
+      <p>If this was not you, please reset your password immediately.</p>
     `,
     buttonHtml: appButton("Reset Password", `${FRONTEND_URL}/forgot-password`, "#dc2626"),
-    footer: `
-      Security tip: never share your password or OTP with anyone.
-    `,
   });
 
   return sendMail({ to: toEmail, subject, text, html });

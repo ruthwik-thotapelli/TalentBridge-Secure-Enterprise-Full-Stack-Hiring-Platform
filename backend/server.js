@@ -10,6 +10,7 @@ import profileRoutes from "./routes/profileRoutes.js";
 import resumeRoutes from "./routes/resumeRoutes.js";
 import { initPassport } from "./config/passport.js";
 import { verifyMailConnection } from "./utils/emailService.js";
+import { testDBConnection } from "./config/db.js";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/resume", resumeRoutes);
 
+testDBConnection?.();
 verifyMailConnection();
 
 const PORT = process.env.PORT || 8080;
