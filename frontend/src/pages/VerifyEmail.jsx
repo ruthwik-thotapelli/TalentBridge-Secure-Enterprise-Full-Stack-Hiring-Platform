@@ -7,7 +7,7 @@ const API_BASE_URL =
 
 export default function VerifyEmail() {
   const { search } = useLocation();
-  const [msg, setMsg] = useState("Verifying your email...");
+  const [msg, setMsg] = useState("🔄 Verifying your email...");
 
   useEffect(() => {
     const params = new URLSearchParams(search);
@@ -15,17 +15,28 @@ export default function VerifyEmail() {
     const email = params.get("email");
 
     if (!token || !email) {
-      setMsg("Invalid verification link.");
+      setMsg("❌ Invalid verification link.");
       return;
     }
 
+    // Redirect to backend verification endpoint
     window.location.href = `${API_BASE_URL}/api/auth/verify-email?token=${encodeURIComponent(
       token
     )}&email=${encodeURIComponent(email)}`;
   }, [search]);
 
   return (
-    <div style={{ padding: 30, textAlign: "center", color: "white" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg,#1e1b4b,#4c1d95,#6d28d9)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontFamily: "sans-serif",
+      }}
+    >
       <h2>{msg}</h2>
     </div>
   );
