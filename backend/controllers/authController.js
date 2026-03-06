@@ -9,7 +9,7 @@ import {
   sendLoginAlertEmail,
 } from "../utils/emailService.js";
 
-// ✅ REGISTER (fast response, email in background)
+// ✅ REGISTER
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -27,7 +27,6 @@ export const register = async (req, res) => {
       [cleanEmail]
     );
 
-    // ✅ If already exists
     if (rows.length > 0) {
       const user = rows[0];
 
@@ -41,7 +40,6 @@ export const register = async (req, res) => {
         return res.status(409).json({ message: "Email already registered" });
       }
 
-      // ✅ resend verification link
       const rawToken = crypto.randomBytes(32).toString("hex");
       const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
       const expires = new Date(Date.now() + 30 * 60 * 1000);
@@ -55,17 +53,13 @@ export const register = async (req, res) => {
         cleanEmail
       )}`;
 
-      // ✅ Send email in background (do NOT block API)
-      sendVerificationEmail(cleanEmail, user.name || cleanName, verifyLink).catch((e) =>
-        console.error("RESEND VERIFY EMAIL FAILED:", e.message)
-      );
+      await sendVerificationEmail(cleanEmail, user.name || cleanName, verifyLink);
 
       return res.status(200).json({
         message: "Account exists but not verified. Verification email re-sent ✅",
       });
     }
 
-    // ✅ Create new user (not verified)
     const hashed = await bcrypt.hash(cleanPass, 10);
 
     const [result] = await db.query(
@@ -73,7 +67,6 @@ export const register = async (req, res) => {
       [cleanName, cleanEmail, hashed, "user", "local", 0]
     );
 
-    // generate verify token
     const rawToken = crypto.randomBytes(32).toString("hex");
     const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
     const expires = new Date(Date.now() + 30 * 60 * 1000);
@@ -87,17 +80,17 @@ export const register = async (req, res) => {
       cleanEmail
     )}`;
 
-    // ✅ Send verification email in background (do NOT block API)
-    sendVerificationEmail(cleanEmail, cleanName, verifyLink).catch((e) =>
-      console.error("VERIFY EMAIL SEND FAILED:", e.message)
-    );
+    await sendVerificationEmail(cleanEmail, cleanName, verifyLink);
 
     return res.status(201).json({
       message: "Account created! Please verify your email, then login.",
     });
   } catch (err) {
     console.error("REGISTER ERROR:", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({
+      message: "Failed to register user",
+      error: err.message,
+    });
   }
 };
 
@@ -106,18 +99,23 @@ export const verifyEmail = async (req, res) => {
   try {
     const { token, email } = req.query;
 
-    if (!token || !email) return res.status(400).send("Invalid verification link");
+    if (!token || !email) {
+      return res.status(400).send("Invalid verification link");
+    }
 
     const cleanEmail = String(email).trim().toLowerCase();
     const tokenHash = crypto.createHash("sha256").update(String(token)).digest("hex");
 
     const [rows] = await db.query(
       `SELECT id, name, is_verified, verify_token_hash, verify_token_expiry
-       FROM users WHERE email=?`,
+       FROM users
+       WHERE email=?`,
       [cleanEmail]
     );
 
-    if (rows.length === 0) return res.status(400).send("Invalid verification link");
+    if (rows.length === 0) {
+      return res.status(400).send("Invalid verification link");
+    }
 
     const user = rows[0];
 
@@ -132,7 +130,9 @@ export const verifyEmail = async (req, res) => {
     const expired = new Date(user.verify_token_expiry).getTime() < Date.now();
     const mismatch = user.verify_token_hash !== tokenHash;
 
-    if (expired || mismatch) return res.status(400).send("Verification link expired or invalid");
+    if (expired || mismatch) {
+      return res.status(400).send("Verification link expired or invalid");
+    }
 
     await db.query(
       `UPDATE users
@@ -141,8 +141,11 @@ export const verifyEmail = async (req, res) => {
       [user.id]
     );
 
-    // ✅ welcome email after verify (non-blocking)
-    sendWelcomeEmail(cleanEmail, user.name).catch(() => {});
+    try {
+      await sendWelcomeEmail(cleanEmail, user.name);
+    } catch (mailErr) {
+      console.error("WELCOME EMAIL FAILED:", mailErr.message);
+    }
 
     return res.redirect(`${process.env.FRONTEND_URL}/login?verified=1`);
   } catch (err) {
@@ -156,8 +159,9 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password)
+    if (!email || !password) {
       return res.status(400).json({ message: "Email and password required" });
+    }
 
     const cleanEmail = String(email).trim().toLowerCase();
 
@@ -165,7 +169,10 @@ export const login = async (req, res) => {
       "SELECT id,name,email,password,role,provider,is_verified FROM users WHERE email=?",
       [cleanEmail]
     );
-    if (rows.length === 0) return res.status(401).json({ message: "Invalid email or password" });
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
 
     const user = rows[0];
 
@@ -178,9 +185,16 @@ export const login = async (req, res) => {
     }
 
     const ok = await bcrypt.compare(String(password), user.password);
-    if (!ok) return res.status(401).json({ message: "Invalid email or password" });
 
-    const token = signToken({ id: user.id, email: user.email, role: user.role });
+    if (!ok) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const token = signToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
 
     const meta = {
       ip:
@@ -190,7 +204,11 @@ export const login = async (req, res) => {
       time: new Date().toLocaleString(),
     };
 
-    sendLoginAlertEmail(user.email, user.name, meta).catch(() => {});
+    try {
+      await sendLoginAlertEmail(user.email, user.name, meta);
+    } catch (mailErr) {
+      console.error("LOGIN ALERT EMAIL FAILED:", mailErr.message);
+    }
 
     return res.json({
       message: "Login successful",
@@ -205,15 +223,21 @@ export const login = async (req, res) => {
     });
   } catch (err) {
     console.error("LOGIN ERROR:", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
   }
 };
 
-// ✅ FORGOT PASSWORD (fast response, email in background)
+// ✅ FORGOT PASSWORD
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
 
     const cleanEmail = String(email).trim().toLowerCase();
 
@@ -222,7 +246,9 @@ export const forgotPassword = async (req, res) => {
       [cleanEmail]
     );
 
-    if (users.length === 0) return res.json({ message: "If the email exists, reset link sent ✅" });
+    if (users.length === 0) {
+      return res.json({ message: "If the email exists, reset link sent ✅" });
+    }
 
     const user = users[0];
 
@@ -235,6 +261,7 @@ export const forgotPassword = async (req, res) => {
     const expires = new Date(Date.now() + 15 * 60 * 1000);
 
     await db.query("DELETE FROM password_resets WHERE user_id=?", [user.id]);
+
     await db.query(
       "INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?,?,?)",
       [user.id, tokenHash, expires]
@@ -244,15 +271,17 @@ export const forgotPassword = async (req, res) => {
       user.email
     )}`;
 
-    // ✅ Send email in background
-    sendResetEmail(user.email, user.name, resetLink).catch((e) =>
-      console.error("RESET EMAIL SEND FAILED:", e.message)
-    );
+    await sendResetEmail(user.email, user.name, resetLink);
 
-    return res.json({ message: "If the email exists, reset link sent ✅" });
+    return res.json({
+      message: "If the email exists, reset link sent ✅",
+    });
   } catch (err) {
     console.error("FORGOT PASSWORD ERROR:", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({
+      message: "Failed to send reset email",
+      error: err.message,
+    });
   }
 };
 
@@ -262,34 +291,49 @@ export const resetPassword = async (req, res) => {
     const { token, email, newPassword } = req.body;
 
     if (!token || !email || !newPassword) {
-      return res.status(400).json({ message: "token, email, newPassword required" });
+      return res.status(400).json({
+        message: "token, email, newPassword required",
+      });
     }
 
     const cleanEmail = String(email).trim().toLowerCase();
     const userTokenHash = crypto.createHash("sha256").update(String(token)).digest("hex");
 
     const [users] = await db.query("SELECT id FROM users WHERE email=?", [cleanEmail]);
-    if (users.length === 0) return res.status(400).json({ message: "Invalid request" });
+
+    if (users.length === 0) {
+      return res.status(400).json({ message: "Invalid request" });
+    }
 
     const userId = users[0].id;
 
     const [rows] = await db.query(
       `SELECT id FROM password_resets
        WHERE user_id=? AND token_hash=? AND expires_at > NOW()
-       ORDER BY id DESC LIMIT 1`,
+       ORDER BY id DESC
+       LIMIT 1`,
       [userId, userTokenHash]
     );
 
-    if (rows.length === 0) return res.status(400).json({ message: "Token invalid or expired" });
+    if (rows.length === 0) {
+      return res.status(400).json({ message: "Token invalid or expired" });
+    }
 
     const hashed = await bcrypt.hash(String(newPassword), 10);
 
-    await db.query("UPDATE users SET password=?, provider='local' WHERE id=?", [hashed, userId]);
+    await db.query("UPDATE users SET password=?, provider='local' WHERE id=?", [
+      hashed,
+      userId,
+    ]);
+
     await db.query("DELETE FROM password_resets WHERE user_id=?", [userId]);
 
     return res.json({ message: "Password updated successfully ✅" });
   } catch (err) {
     console.error("RESET PASSWORD ERROR:", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
   }
 };
