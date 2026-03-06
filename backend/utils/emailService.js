@@ -1,3 +1,4 @@
+console.log("✅ USING BREVO API EMAIL SERVICE v3");
 const {
   BREVO_API_KEY,
   SMTP_FROM_NAME,
