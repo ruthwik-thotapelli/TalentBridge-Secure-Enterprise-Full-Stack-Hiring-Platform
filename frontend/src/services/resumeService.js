@@ -1,7 +1,7 @@
-const API = "http://localhost:5000";
+import api from "./api";
 
 function getToken() {
-  return localStorage.getItem("token"); // your OAuth/Login token storage
+  return localStorage.getItem("token");
 }
 
 export async function scoreResume(file, jobDescription = "") {
@@ -9,33 +9,22 @@ export async function scoreResume(file, jobDescription = "") {
   fd.append("resume", file);
   fd.append("jobDescription", jobDescription);
 
-  const res = await fetch(`${API}/api/resume/score`, {
-    method: "POST",
+  const res = await api.post("/resume/score", fd, {
     headers: {
       Authorization: `Bearer ${getToken() || ""}`,
+      "Content-Type": "multipart/form-data",
     },
-    body: fd,
   });
 
-  const text = await res.text();
-  try {
-    return JSON.parse(text);
-  } catch {
-    return { ok: false, message: text || `HTTP ${res.status}` };
-  }
+  return res.data;
 }
 
 export async function getATSHistory() {
-  const res = await fetch(`${API}/api/resume/history`, {
+  const res = await api.get("/resume/history", {
     headers: {
       Authorization: `Bearer ${getToken() || ""}`,
     },
   });
 
-  const text = await res.text();
-  try {
-    return JSON.parse(text);
-  } catch {
-    return { ok: false, message: text || `HTTP ${res.status}` };
-  }
+  return res.data;
 }
