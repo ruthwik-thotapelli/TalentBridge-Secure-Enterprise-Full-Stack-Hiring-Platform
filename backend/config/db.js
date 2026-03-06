@@ -23,7 +23,7 @@ const db = mysql.createPool({
   keepAliveInitialDelay: 0,
 });
 
-(async () => {
+export const testDBConnection = async () => {
   try {
     const conn = await db.getConnection();
     console.log("✅ MySQL connected successfully");
@@ -31,6 +31,6 @@ const db = mysql.createPool({
   } catch (err) {
     console.error("❌ MySQL connection failed:", err);
   }
-})();
+};
 
 export default db;
