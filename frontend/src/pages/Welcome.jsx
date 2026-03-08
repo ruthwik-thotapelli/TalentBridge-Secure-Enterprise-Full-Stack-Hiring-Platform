@@ -155,60 +155,59 @@ export default function Welcome() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-slate-950" />
 
-        <div className="absolute -top-24 -left-24 w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-28 -right-28 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-64 h-64 sm:w-80 sm:h-80 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-28 -right-28 w-72 h-72 sm:w-96 sm:h-96 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-14 pb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/10 border border-white/15 text-sm backdrop-blur">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-14 pb-12">
+          <div className="inline-flex flex-wrap items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-white/10 border border-white/15 text-xs sm:text-sm backdrop-blur max-w-full">
             <span className="inline-block h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
-            Smart Hiring Platform • <span className="text-white/70">Students + Professionals</span>
+            <span>Smart Hiring Platform • </span>
+            <span className="text-white/70">Students + Professionals</span>
           </div>
 
           <div className="mt-8 max-w-3xl">
-            <h1 className="text-5xl sm:text-6xl font-extrabold leading-tight">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-tight break-words">
               Build a{" "}
               <span className="bg-gradient-to-r from-indigo-300 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
                 brand-ready
               </span>{" "}
-              career profile <br />
+              career profile <br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>
               and get hired faster
             </h1>
 
-            <p className="mt-6 text-lg text-white/85 leading-relaxed max-w-2xl">
+            <p className="mt-6 text-base sm:text-lg text-white/85 leading-relaxed max-w-2xl">
               TalentBridge helps you create a strong profile, boost ATS score, and discover real opportunities.
               Recruiters hire faster with modern dashboards and workflows.
             </p>
 
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-10 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
               <Link
                 to="/jobs"
-                className="group relative px-10 py-4 rounded-2xl font-bold text-lg bg-indigo-600 hover:bg-indigo-700 transition
-                           shadow-[0_18px_60px_rgba(79,70,229,0.45)] hover:scale-[1.02]"
+                className="group relative w-full sm:w-auto text-center px-6 sm:px-10 py-4 rounded-2xl font-bold text-base sm:text-lg bg-indigo-600 hover:bg-indigo-700 transition shadow-[0_18px_60px_rgba(79,70,229,0.45)] hover:scale-[1.02]"
               >
                 <span className="absolute inset-0 rounded-2xl blur-xl bg-indigo-500/25 opacity-0 group-hover:opacity-100 transition" />
-                <span className="relative inline-flex items-center gap-2">
+                <span className="relative inline-flex items-center gap-2 justify-center">
                   Explore Jobs <Chevron />
                 </span>
               </Link>
 
               <Link
                 to="/profile"
-                className="group relative px-10 py-4 rounded-2xl font-bold text-lg
-                           bg-white/10 border border-white/15 hover:bg-white/15 transition"
+                className="group relative w-full sm:w-auto text-center px-6 sm:px-10 py-4 rounded-2xl font-bold text-base sm:text-lg bg-white/10 border border-white/15 hover:bg-white/15 transition"
               >
                 <span className="absolute inset-0 rounded-2xl blur-xl bg-white/10 opacity-0 group-hover:opacity-100 transition" />
-                <span className="relative inline-flex items-center gap-2">
+                <span className="relative inline-flex items-center gap-2 justify-center">
                   Create Profile <Chevron />
                 </span>
               </Link>
 
               <Link
                 to="/login"
-                className="group relative px-10 py-4 rounded-2xl font-bold text-lg
-                           border border-white/15 hover:bg-white/10 transition"
+                className="group relative w-full sm:w-auto text-center px-6 sm:px-10 py-4 rounded-2xl font-bold text-base sm:text-lg border border-white/15 hover:bg-white/10 transition"
               >
                 <span className="absolute inset-0 rounded-2xl blur-xl bg-purple-500/10 opacity-0 group-hover:opacity-100 transition" />
-                <span className="relative inline-flex items-center gap-2">
+                <span className="relative inline-flex items-center gap-2 justify-center">
                   Get Started <Chevron />
                 </span>
               </Link>
@@ -232,7 +231,7 @@ export default function Welcome() {
               ))}
             </div>
 
-            <div className="mt-10 flex items-center gap-2 text-sm text-white/60">
+            <div className="mt-10 flex items-center gap-2 text-xs sm:text-sm text-white/60">
               <span className="h-2 w-2 rounded-full bg-indigo-400" />
               Scroll down to see features, profile builder, testimonials & more
             </div>
@@ -241,8 +240,8 @@ export default function Welcome() {
       </section>
 
       {/* ================= BRAND STRIP ================= */}
-      <section className="max-w-7xl mx-auto px-6 py-10 overflow-hidden">
-        <div className="rounded-3xl bg-white/[0.05] border border-white/10 p-6">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 overflow-hidden">
+        <div className="rounded-3xl bg-white/[0.05] border border-white/10 p-4 sm:p-6">
           <p className="text-xs text-white/60">Trusted-style demo brand strip</p>
           <div className="mt-4 flex flex-wrap gap-3">
             {brandLogos.map((x) => (
@@ -258,8 +257,8 @@ export default function Welcome() {
       </section>
 
       {/* ================= TRUST SIGNALS ================= */}
-      <section className="max-w-7xl mx-auto px-6 pb-10 overflow-hidden">
-        <div className="grid md:grid-cols-4 gap-4">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-10 overflow-hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {trustSignals.map((t) => (
             <div key={t.title} className="rounded-3xl bg-white/[0.06] border border-white/10 p-6 hover:border-white/20 transition">
               <div className="text-2xl">{t.icon}</div>
@@ -271,30 +270,30 @@ export default function Welcome() {
       </section>
 
       {/* ================= FEATURES GRID ================= */}
-      <section className="max-w-7xl mx-auto px-6 py-16 overflow-hidden">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 overflow-hidden">
         <SectionTitle
           title="Power features built for real hiring"
           subtitle="Everything you need — from ATS score to recruiter workflows."
         />
 
-        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {featureCards.map((f) => (
             <div
               key={f.title}
-              className="group rounded-3xl bg-white/[0.06] border border-white/10 p-7
+              className="group rounded-3xl bg-white/[0.06] border border-white/10 p-5 sm:p-7
                          shadow-[0_20px_70px_rgba(0,0,0,0.35)]
                          hover:bg-white/[0.08] hover:border-white/20 transition relative overflow-hidden"
             >
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition pointer-events-none" />
 
               <div className="flex items-start justify-between gap-4">
-                <div>
+                <div className="min-w-0">
                   <div className="text-3xl">{f.icon}</div>
-                  <h3 className="mt-4 text-xl font-bold">{f.title}</h3>
+                  <h3 className="mt-4 text-xl font-bold break-words">{f.title}</h3>
                   <p className="mt-2 text-white/75">{f.desc}</p>
                 </div>
 
-                <div className="shrink-0">
+                <div className="shrink-0 hidden sm:block">
                   <span className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/10 border border-white/10 text-xs text-white/80 group-hover:bg-white/15 group-hover:border-white/20 transition">
                     Explore <Chevron small />
                   </span>
@@ -302,7 +301,7 @@ export default function Welcome() {
               </div>
 
               <div className="mt-6 h-[1px] bg-white/10" />
-              <div className="mt-5 flex items-center justify-between">
+              <div className="mt-5 flex items-center justify-between gap-3">
                 <span className="text-xs text-white/55">Premium UI • Smooth UX</span>
                 <span className="text-xs text-indigo-200/80">Details</span>
               </div>
@@ -312,12 +311,12 @@ export default function Welcome() {
       </section>
 
       {/* ================= PROFILE BUILDER (MIDDLE) ================= */}
-      <section className="max-w-7xl mx-auto px-6 pb-16 overflow-hidden">
-        <div className="rounded-3xl bg-gradient-to-br from-indigo-600/25 via-purple-600/20 to-white/5 border border-white/10 p-8 overflow-hidden">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 overflow-hidden">
+        <div className="rounded-3xl bg-gradient-to-br from-indigo-600/25 via-purple-600/20 to-white/5 border border-white/10 p-5 sm:p-8 overflow-hidden">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div>
               <p className="text-xs text-white/70">Profile Builder</p>
-              <h2 className="text-3xl sm:text-4xl font-extrabold mt-2">
+              <h2 className="text-2xl sm:text-4xl font-extrabold mt-2">
                 Build your profile like a pro
               </h2>
               <p className="text-white/80 mt-3 max-w-xl">
@@ -325,42 +324,42 @@ export default function Welcome() {
                 experience and upload resume.
               </p>
 
-              <div className="mt-7 flex flex-wrap gap-4">
+              <div className="mt-7 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
                 <Link
                   to="/profile"
-                  className="group relative px-8 py-3 rounded-2xl font-semibold bg-white text-slate-950 hover:opacity-90 transition"
+                  className="group relative w-full sm:w-auto text-center px-6 sm:px-8 py-3 rounded-2xl font-semibold bg-white text-slate-950 hover:opacity-90 transition"
                 >
                   <span className="absolute inset-0 rounded-2xl blur-xl bg-white/25 opacity-0 group-hover:opacity-100 transition" />
-                  <span className="relative inline-flex items-center gap-2">
+                  <span className="relative inline-flex items-center gap-2 justify-center">
                     Create Profile <Chevron dark />
                   </span>
                 </Link>
 
                 <Link
                   to="/jobs"
-                  className="group relative px-8 py-3 rounded-2xl font-semibold bg-white/10 border border-white/10 hover:bg-white/15 transition"
+                  className="group relative w-full sm:w-auto text-center px-6 sm:px-8 py-3 rounded-2xl font-semibold bg-white/10 border border-white/10 hover:bg-white/15 transition"
                 >
                   <span className="absolute inset-0 rounded-2xl blur-xl bg-indigo-500/15 opacity-0 group-hover:opacity-100 transition" />
-                  <span className="relative inline-flex items-center gap-2">
+                  <span className="relative inline-flex items-center gap-2 justify-center">
                     Browse Jobs <Chevron />
                   </span>
                 </Link>
 
                 <Link
                   to="/dashboard"
-                  className="group relative px-8 py-3 rounded-2xl font-semibold bg-white/10 border border-white/10 hover:bg-white/15 transition"
+                  className="group relative w-full sm:w-auto text-center px-6 sm:px-8 py-3 rounded-2xl font-semibold bg-white/10 border border-white/10 hover:bg-white/15 transition"
                 >
                   <span className="absolute inset-0 rounded-2xl blur-xl bg-purple-500/15 opacity-0 group-hover:opacity-100 transition" />
-                  <span className="relative inline-flex items-center gap-2">
+                  <span className="relative inline-flex items-center gap-2 justify-center">
                     Open Dashboard <Chevron />
                   </span>
                 </Link>
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white/[0.06] border border-white/10 p-6">
+            <div className="rounded-3xl bg-white/[0.06] border border-white/10 p-5 sm:p-6">
               <p className="text-sm font-semibold text-white/85">What you get</p>
-              <div className="mt-4 grid sm:grid-cols-2 gap-3">
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {profileProChecklist.map((x) => (
                   <Check key={x} text={x} />
                 ))}
@@ -377,9 +376,9 @@ export default function Welcome() {
       </section>
 
       {/* ================= CATEGORIES ================= */}
-      <section className="max-w-7xl mx-auto px-6 pb-16 overflow-hidden">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 overflow-hidden">
         <SectionTitle title="Popular categories" subtitle="Choose your path and start applying." />
-        <div className="mt-8 rounded-3xl bg-white/[0.05] border border-white/10 p-8 overflow-hidden">
+        <div className="mt-8 rounded-3xl bg-white/[0.05] border border-white/10 p-5 sm:p-8 overflow-hidden">
           <div className="flex flex-wrap gap-3">
             {categories.map((c) => (
               <span
@@ -390,10 +389,10 @@ export default function Welcome() {
               </span>
             ))}
           </div>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-col sm:flex-row sm:flex-wrap gap-3">
             <Link
               to="/jobs"
-              className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold
+              className="group relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-semibold
                          bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition"
             >
               <span className="absolute inset-0 rounded-2xl blur-xl bg-indigo-500/25 opacity-0 group-hover:opacity-100 transition" />
@@ -403,7 +402,7 @@ export default function Welcome() {
 
             <Link
               to="/profile"
-              className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold
+              className="group relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-semibold
                          bg-white/10 border border-white/10 hover:bg-white/15 transition"
             >
               <span className="absolute inset-0 rounded-2xl blur-xl bg-white/10 opacity-0 group-hover:opacity-100 transition" />
@@ -415,9 +414,9 @@ export default function Welcome() {
       </section>
 
       {/* ================= HOW IT WORKS ================= */}
-      <section className="max-w-7xl mx-auto px-6 pb-16 overflow-hidden">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 overflow-hidden">
         <SectionTitle title="How TalentBridge works" subtitle="Three steps to go from profile → interview." />
-        <div className="mt-10 grid md:grid-cols-3 gap-6">
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
           {steps.map((s) => (
             <StepCard key={s.n} n={s.n} title={s.title} desc={s.desc} />
           ))}
@@ -425,11 +424,11 @@ export default function Welcome() {
       </section>
 
       {/* ================= TESTIMONIALS ================= */}
-      <section className="max-w-7xl mx-auto px-6 pb-16 overflow-hidden">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 overflow-hidden">
         <SectionTitle title="Loved by job seekers & recruiters" subtitle="Real feedback from real users." />
-        <div className="mt-10 grid md:grid-cols-3 gap-6">
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t) => (
-            <div key={t.name} className="rounded-3xl bg-white/[0.06] border border-white/10 p-7 hover:border-white/20 transition">
+            <div key={t.name} className="rounded-3xl bg-white/[0.06] border border-white/10 p-5 sm:p-7 hover:border-white/20 transition">
               <p className="text-white/80 leading-relaxed">“{t.text}”</p>
               <div className="mt-6 flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 grid place-items-center font-bold">
@@ -446,11 +445,11 @@ export default function Welcome() {
       </section>
 
       {/* ================= FAQ + CTA ================= */}
-      <section className="max-w-7xl mx-auto px-6 pb-20 overflow-hidden">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-20 overflow-hidden">
         <SectionTitle title="Frequently asked questions" subtitle="Quick answers about TalentBridge." />
 
         <div className="mt-10 grid lg:grid-cols-2 gap-6">
-          <div className="rounded-3xl bg-white/[0.06] border border-white/10 p-6 overflow-hidden">
+          <div className="rounded-3xl bg-white/[0.06] border border-white/10 p-5 sm:p-6 overflow-hidden">
             {faqs.map((f, idx) => {
               const active = idx === faqOpen;
               return (
@@ -458,10 +457,10 @@ export default function Welcome() {
                   <button
                     type="button"
                     onClick={() => setFaqOpen(active ? -1 : idx)}
-                    className="w-full py-4 flex items-center justify-between text-left"
+                    className="w-full py-4 flex items-center justify-between text-left gap-4"
                   >
                     <span className="font-semibold">{f.q}</span>
-                    <span className="text-white/60">{active ? "−" : "+"}</span>
+                    <span className="text-white/60 shrink-0">{active ? "−" : "+"}</span>
                   </button>
                   {active && <p className="pb-4 text-white/75">{f.a}</p>}
                 </div>
@@ -469,17 +468,17 @@ export default function Welcome() {
             })}
           </div>
 
-          <div className="rounded-3xl bg-gradient-to-br from-indigo-600/25 via-purple-600/20 to-white/5 border border-white/10 p-8 overflow-hidden">
+          <div className="rounded-3xl bg-gradient-to-br from-indigo-600/25 via-purple-600/20 to-white/5 border border-white/10 p-5 sm:p-8 overflow-hidden">
             <p className="text-sm text-white/70">Ready to start?</p>
-            <h3 className="text-3xl font-extrabold mt-2">Make your profile recruiter-ready.</h3>
+            <h3 className="text-2xl sm:text-3xl font-extrabold mt-2">Make your profile recruiter-ready.</h3>
             <p className="text-white/80 mt-3 max-w-xl">
               Create your profile, upload resume, save jobs and apply confidently.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
               <Link
                 to="/profile"
-                className="group relative inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition"
+                className="group relative inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 rounded-2xl font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition"
               >
                 <span className="absolute inset-0 rounded-2xl blur-xl bg-indigo-500/25 opacity-0 group-hover:opacity-100 transition" />
                 <span className="relative">Create Profile</span>
@@ -488,7 +487,7 @@ export default function Welcome() {
 
               <Link
                 to="/jobs"
-                className="group relative inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-semibold bg-white/10 border border-white/10 hover:bg-white/15 transition"
+                className="group relative inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 rounded-2xl font-semibold bg-white/10 border border-white/10 hover:bg-white/15 transition"
               >
                 <span className="absolute inset-0 rounded-2xl blur-xl bg-white/10 opacity-0 group-hover:opacity-100 transition" />
                 <span className="relative">Explore Jobs</span>
@@ -497,7 +496,7 @@ export default function Welcome() {
 
               <Link
                 to="/login"
-                className="group relative inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-semibold bg-white/10 border border-white/10 hover:bg-white/15 transition"
+                className="group relative inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 rounded-2xl font-semibold bg-white/10 border border-white/10 hover:bg-white/15 transition"
               >
                 <span className="absolute inset-0 rounded-2xl blur-xl bg-purple-500/15 opacity-0 group-hover:opacity-100 transition" />
                 <span className="relative">Login</span>
@@ -516,8 +515,8 @@ export default function Welcome() {
 
       {/* ================= PREMIUM FOOTER ================= */}
       <footer className="border-t border-white/10 bg-slate-950 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 py-14">
-          <div className="grid lg:grid-cols-12 gap-10 items-start">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             <div className="lg:col-span-4">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 shadow-[0_18px_60px_rgba(79,70,229,0.35)] grid place-items-center font-extrabold">
@@ -531,7 +530,7 @@ export default function Welcome() {
                 </div>
               </div>
 
-              <div className="mt-6 grid grid-cols-2 gap-3">
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <BrandPill icon="⚡" text="Fast Apply" />
                 <BrandPill icon="📄" text="ATS Score" />
                 <BrandPill icon="🔐" text="Secure RBAC" />
@@ -540,19 +539,19 @@ export default function Welcome() {
 
               <div className="mt-6 rounded-3xl bg-white/[0.06] border border-white/10 p-5">
                 <p className="text-sm font-semibold">Get job updates</p>
-                <p className="text-xs text-white/60 mt-1">Weekly top jobs + tips (demo UI).</p>
-                <div className="mt-3 flex gap-2">
-                  <input
-                    className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 outline-none placeholder:text-white/30"
-                    placeholder="Enter your email"
-                  />
-                  <button
-                    type="button"
-                    className="px-5 py-3 rounded-2xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 transition"
-                  >
-                    Subscribe
-                  </button>
-                </div>
+               <div className="mt-3 flex flex-col sm:flex-row gap-2 sm:justify-center">
+  <input
+    className="w-full min-w-0 px-4 py-3 rounded-2xl bg-white/5 border border-white/10 outline-none placeholder:text-white/30"
+    placeholder="Enter your email"
+  />
+
+  <button
+    type="button"
+    className="px-8 py-3 rounded-2xl  flex-items-center font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 transition whitespace-nowrap"
+  >
+    Subscribe
+  </button>
+</div>
               </div>
             </div>
 
@@ -652,8 +651,8 @@ function Chevron({ small = false, dark = false }) {
 function SectionTitle({ title, subtitle }) {
   return (
     <div>
-      <h2 className="text-3xl sm:text-4xl font-extrabold">{title}</h2>
-      {subtitle && <p className="mt-2 text-white/70">{subtitle}</p>}
+      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold">{title}</h2>
+      {subtitle && <p className="mt-2 text-white/70 text-sm sm:text-base">{subtitle}</p>}
     </div>
   );
 }
@@ -661,15 +660,15 @@ function SectionTitle({ title, subtitle }) {
 function Stat({ value, label }) {
   return (
     <div className="rounded-2xl bg-white/10 border border-white/10 px-4 py-3 hover:bg-white/15 transition">
-      <h3 className="text-2xl font-extrabold">{value}</h3>
-      <p className="text-sm text-white/70">{label}</p>
+      <h3 className="text-xl sm:text-2xl font-extrabold">{value}</h3>
+      <p className="text-xs sm:text-sm text-white/70">{label}</p>
     </div>
   );
 }
 
 function StepCard({ n, title, desc }) {
   return (
-    <div className="rounded-3xl bg-white/[0.06] border border-white/10 p-7 hover:border-white/20 transition">
+    <div className="rounded-3xl bg-white/[0.06] border border-white/10 p-5 sm:p-7 hover:border-white/20 transition">
       <div className="text-sm text-white/60 font-semibold">STEP {n}</div>
       <h3 className="mt-3 text-xl font-bold">{title}</h3>
       <p className="mt-2 text-white/75">{desc}</p>
@@ -680,7 +679,7 @@ function StepCard({ n, title, desc }) {
 function Check({ text }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="mt-0.5 h-6 w-6 rounded-xl bg-white/10 border border-white/10 grid place-items-center text-green-300">
+      <span className="mt-0.5 h-6 w-6 rounded-xl bg-white/10 border border-white/10 grid place-items-center text-green-300 shrink-0">
         ✓
       </span>
       <span className="text-sm text-white/80 leading-relaxed">{text}</span>

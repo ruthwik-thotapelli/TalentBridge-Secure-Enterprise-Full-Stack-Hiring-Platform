@@ -17,32 +17,24 @@ const Login = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ IMPORTANT: Use Railway backend in production
   const API_BASE =
     process.env.REACT_APP_API_URL ||
     "https://talentbridge-secure-enterprise-full-stack-hiring-production.up.railway.app";
 
-  // ✅ Read success messages from:
-  // 1) Register/Reset -> navigate state
-  // 2) VerifyEmail -> query param (?verified=1)
   useEffect(() => {
     const state = location.state;
 
-    // from Register/Reset navigate state
     if (state?.success) setSuccess(state.success);
     if (state?.email) setEmail(state.email);
 
-    // from verify email redirect: /login?verified=1
     const params = new URLSearchParams(location.search);
     if (params.get("verified") === "1") {
       setSuccess("Email verified successfully ✅ Now you can login.");
     }
 
-    // ✅ clear URL query so it won't repeat after refresh
     if (location.search) {
       navigate("/login", { replace: true, state: state || {} });
     } else if (state?.success || state?.email) {
-      // ✅ clear state so it won't repeat when going back
       navigate("/login", { replace: true, state: {} });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,7 +56,6 @@ const Login = () => {
     }
   };
 
-  // ✅ OAuth should go to Railway backend (NOT localhost)
   const handleGoogle = () => {
     window.location.href = `${API_BASE}/api/auth/google`;
   };
@@ -74,53 +65,40 @@ const Login = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-start justify-center
-                 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900
-                 px-6 py-20 text-white"
-    >
-      {/* Card (NO glass, solid) */}
-      <div className="w-full max-w-md bg-[#4b2a79] border border-white/15 rounded-3xl shadow-2xl px-10 py-10 mt-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold mb-2">Welcome Back</h1>
-          <p className="text-white/80">Login to continue to TalentBridge</p>
+    <div className="min-h-screen flex items-start justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 px-4 sm:px-6 py-10 sm:py-16 lg:py-20 text-white overflow-x-hidden">
+      <div className="w-full max-w-md bg-[#4b2a79] border border-white/15 rounded-3xl shadow-2xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 mt-4 sm:mt-6">
+        <div className="text-center mb-7 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold mb-2">Welcome Back</h1>
+          <p className="text-sm sm:text-base text-white/80">
+            Login to continue to TalentBridge
+          </p>
         </div>
 
-        {/* ✅ Success */}
         {success && (
           <div className="mb-5 text-sm text-green-200 bg-green-500/15 border border-green-500/25 rounded-xl px-4 py-3">
             {success}
           </div>
         )}
 
-        {/* Error */}
         {error && (
           <div className="mb-5 text-sm text-red-200 bg-red-500/15 border border-red-500/25 rounded-xl px-4 py-3">
             {error}
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email */}
+        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           <div>
-            <label className="block text-sm mb-2 text-white/85">
-              Email Address
-            </label>
+            <label className="block text-sm mb-2 text-white/85">Email Address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="w-full px-4 py-3 rounded-xl bg-white/15
-                         border border-white/20 placeholder-white/50
-                         focus:outline-none focus:ring-2 focus:ring-purple-300"
+              className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-300"
             />
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-sm mb-2 text-white/85">Password</label>
 
@@ -131,12 +109,9 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full px-4 py-3 pr-12 rounded-xl bg-white/15
-                           border border-white/20 placeholder-white/50
-                           focus:outline-none focus:ring-2 focus:ring-purple-300"
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-white/15 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-300"
               />
 
-              {/* Eye */}
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
@@ -180,70 +155,58 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Options */}
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between gap-3 text-sm">
             <label className="flex items-center gap-2 text-white/80">
               <input type="checkbox" className="accent-purple-300" />
-              Remember me
+              <span className="whitespace-nowrap">Remember me</span>
             </label>
 
             <button
               type="button"
               onClick={() => navigate("/forgot-password")}
-              className="text-purple-200 hover:underline"
+              className="text-purple-200 hover:underline text-right"
             >
               Forgot password?
             </button>
           </div>
 
-          {/* Login Button */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-xl text-lg font-semibold
-                       bg-gradient-to-r from-green-400 to-emerald-500
-                       hover:scale-[1.02] transition
-                       ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+            className={`w-full py-3 rounded-xl text-base sm:text-lg font-semibold bg-gradient-to-r from-green-400 to-emerald-500 hover:scale-[1.02] transition ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        {/* Divider */}
-        <div className="flex items-center my-7">
+        <div className="flex items-center my-6 sm:my-7">
           <div className="flex-1 h-px bg-white/20"></div>
           <span className="px-3 text-sm text-white/70">OR</span>
           <div className="flex-1 h-px bg-white/20"></div>
         </div>
 
-        {/* Social Buttons */}
         <div className="space-y-3">
           <button
             type="button"
             onClick={handleGoogle}
-            className="w-full py-3 rounded-xl bg-white text-slate-900
-                       font-semibold flex items-center justify-center gap-3
-                       hover:bg-slate-100 transition"
+            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition text-sm sm:text-base"
           >
-            <img src={googleLogo} alt="Google" className="w-10 h-8" />
+            <img src={googleLogo} alt="Google" className="w-8 h-8 object-contain" />
             Sign in with Google
           </button>
 
           <button
             type="button"
             onClick={handleGithub}
-            className="w-full py-3 rounded-xl bg-white text-slate-900
-                       font-semibold flex items-center justify-center gap-3
-                       hover:bg-slate-100 transition"
+            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition text-sm sm:text-base"
           >
-            <span>
-              <img src={githubLogo} alt="GitHub" className="w-12 h-8" />
-            </span>
+            <img src={githubLogo} alt="GitHub" className="w-8 h-8 object-contain" />
             Sign in with GitHub
           </button>
         </div>
 
-        {/* Footer */}
         <p className="text-center text-sm text-white/75 mt-7">
           Don’t have an account?{" "}
           <button

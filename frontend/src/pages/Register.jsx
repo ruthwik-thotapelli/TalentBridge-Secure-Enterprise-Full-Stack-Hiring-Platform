@@ -49,13 +49,11 @@ const Register = () => {
 
       setSuccess(msg);
 
-      // clear form
       setName("");
       setEmail("");
       setPassword("");
       setAgree(false);
 
-      // ✅ Send success + email to login page
       setTimeout(() => {
         navigate("/login", {
           state: {
@@ -73,7 +71,6 @@ const Register = () => {
     }
   };
 
-  // ✅ FIXED: Works on Vercel + Local (uses env)
   const handleGoogle = () => {
     window.location.href = `${API_BASE_URL}/api/auth/google`;
   };
@@ -83,11 +80,11 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-start justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 px-6 py-20 text-white">
-      <div className="w-full max-w-md bg-[#4b2a79] border border-white/15 rounded-3xl shadow-2xl px-10 py-10 mt-6">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold mb-2">Create Account</h1>
-          <p className="text-white/80">
+    <div className="min-h-screen flex items-start justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 px-4 sm:px-6 py-10 sm:py-16 lg:py-20 text-white overflow-x-hidden">
+      <div className="w-full max-w-md bg-[#4b2a79] border border-white/15 rounded-3xl shadow-2xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 mt-4 sm:mt-6">
+        <div className="text-center mb-7 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold mb-2">Create Account</h1>
+          <p className="text-sm sm:text-base text-white/80">
             Join TalentBridge and start your journey
           </p>
         </div>
@@ -104,11 +101,9 @@ const Register = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           <div>
-            <label className="block text-sm mb-2 text-white/85">
-              Full Name
-            </label>
+            <label className="block text-sm mb-2 text-white/85">Full Name</label>
             <input
               type="text"
               value={name}
@@ -120,9 +115,7 @@ const Register = () => {
           </div>
 
           <div>
-            <label className="block text-sm mb-2 text-white/85">
-              Email Address
-            </label>
+            <label className="block text-sm mb-2 text-white/85">Email Address</label>
             <input
               type="email"
               value={email}
@@ -134,9 +127,7 @@ const Register = () => {
           </div>
 
           <div>
-            <label className="block text-sm mb-2 text-white/85">
-              Password
-            </label>
+            <label className="block text-sm mb-2 text-white/85">Password</label>
 
             <div className="relative">
               <input
@@ -191,20 +182,20 @@ const Register = () => {
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-white/80">
+          <label className="flex items-start gap-2 text-sm text-white/80">
             <input
               type="checkbox"
               checked={agree}
               onChange={(e) => setAgree(e.target.checked)}
-              className="accent-purple-300"
+              className="accent-purple-300 mt-1"
             />
-            I agree to the Terms & Conditions
+            <span>I agree to the Terms & Conditions</span>
           </label>
 
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-xl text-lg font-semibold bg-gradient-to-r from-green-400 to-emerald-500 hover:scale-[1.02] transition ${
+            className={`w-full py-3 rounded-xl text-base sm:text-lg font-semibold bg-gradient-to-r from-green-400 to-emerald-500 hover:scale-[1.02] transition ${
               loading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
@@ -212,7 +203,7 @@ const Register = () => {
           </button>
         </form>
 
-        <div className="flex items-center my-7">
+        <div className="flex items-center my-6 sm:my-7">
           <div className="flex-1 h-px bg-white/20"></div>
           <span className="px-3 text-sm text-white/70">OR</span>
           <div className="flex-1 h-px bg-white/20"></div>
@@ -222,18 +213,18 @@ const Register = () => {
           <button
             type="button"
             onClick={handleGoogle}
-            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition"
+            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition text-sm sm:text-base"
           >
-            <img src={googleLogo} alt="Google" className="w-10 h-8" />
+            <img src={googleLogo} alt="Google" className="w-8 h-8 object-contain" />
             Sign up with Google
           </button>
 
           <button
             type="button"
             onClick={handleGithub}
-            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition"
+            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition text-sm sm:text-base"
           >
-            <img src={githubLogo} alt="GitHub" className="w-12 h-8" />
+            <img src={githubLogo} alt="GitHub" className="w-8 h-8 object-contain" />
             Sign up with GitHub
           </button>
         </div>

@@ -5,19 +5,16 @@ import { scoreResume } from "../services/resumeService";
 export default function Resume() {
   const navigate = useNavigate();
 
-  // Upload
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
   const [hasSavedResume, setHasSavedResume] = useState(false);
 
-  // ATS
   const [ats, setAts] = useState(null);
   const [loadingATS, setLoadingATS] = useState(false);
   const [jobDesc, setJobDesc] = useState("");
 
-  // UI state
   const [activeSection, setActiveSection] = useState("overview");
   const [sevFilter, setSevFilter] = useState("all");
   const [issueQuery, setIssueQuery] = useState("");
@@ -26,18 +23,16 @@ export default function Resume() {
   const [expanded, setExpanded] = useState({});
   const [plan, setPlan] = useState([]);
 
-  // refs
   const refOverview = useRef(null);
   const refMistakes = useRef(null);
   const refKeywords = useRef(null);
   const refChecklist = useRef(null);
   const refPlan = useRef(null);
 
-  // Load saved resume
   useEffect(() => {
     const savedResume = localStorage.getItem("resumeName");
     if (savedResume) {
-      setFile({ name: savedResume }); // only name
+      setFile({ name: savedResume });
       setSaved(true);
       setHasSavedResume(true);
     } else {
@@ -89,15 +84,9 @@ export default function Resume() {
     }
   };
 
-  // ----------------------------
-  // ✅ PROFILE STRENGTH (CHECKLIST BASED)
-  // ----------------------------
   const strength = useMemo(() => {
-    // Goals list with weights
-    // total weight = 100
     const goals = [];
 
-    // Base upload/save
     goals.push({
       key: "resume_uploaded",
       label: "Resume uploaded",
@@ -112,7 +101,6 @@ export default function Resume() {
       pass: !!hasSavedResume,
     });
 
-    // ATS availability
     goals.push({
       key: "ats_generated",
       label: "ATS report generated",
@@ -120,7 +108,6 @@ export default function Resume() {
       pass: !!ats,
     });
 
-    // From ATS detected (if present)
     const emails = ats?.detected?.emails || [];
     const phones = ats?.detected?.phones || [];
     const links = ats?.detected?.links || [];
@@ -146,7 +133,6 @@ export default function Resume() {
       pass: links.length > 0,
     });
 
-    // From ATS sections (if present)
     goals.push({
       key: "education_section",
       label: "Education section",
@@ -175,11 +161,9 @@ export default function Resume() {
       pass: !!ats?.sectionStatus?.projects,
     });
 
-    // ATS formatting checklist (if present)
-    // take first 5 checklist items for weight distribution
     const checklist = ats?.checklist || [];
     const checklistSubset = checklist.slice(0, 5);
-    const checklistWeightTotal = 19; // keep total nice
+    const checklistWeightTotal = 19;
     const per = checklistSubset.length > 0 ? checklistWeightTotal / checklistSubset.length : 0;
 
     checklistSubset.forEach((c, idx) => {
@@ -191,7 +175,6 @@ export default function Resume() {
       });
     });
 
-    // Keyword match (if present)
     const kw = ats?.keywordMatchPercent;
     goals.push({
       key: "keyword_match",
@@ -210,7 +193,6 @@ export default function Resume() {
     return { percent, goals, done, missing };
   }, [file, hasSavedResume, ats]);
 
-  // Derived: issues filtered + searched
   const filteredIssues = useMemo(() => {
     const issues = ats?.issues || [];
     const q = issueQuery.trim().toLowerCase();
@@ -285,17 +267,16 @@ export default function Resume() {
   const level = ats?.level ?? "-";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 text-white">
-      <div className="max-w-7xl mx-auto px-6 py-24">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 text-white overflow-x-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-24">
         <button
           onClick={() => navigate("/dashboard")}
-          className="mb-8 px-6 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition"
+          className="mb-6 sm:mb-8 px-5 sm:px-6 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition w-full sm:w-auto"
         >
           Back to Dashboard
         </button>
 
-        <div className="grid lg:grid-cols-[280px_1fr] gap-8">
-          {/* LEFT NAV */}
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 sm:gap-8">
           <aside className="lg:sticky lg:top-24 h-fit">
             <div className="rounded-3xl bg-white/[0.07] backdrop-blur-2xl border border-white/10 p-5 shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
               <div className="flex items-center justify-between gap-3">
@@ -310,7 +291,6 @@ export default function Resume() {
                 )}
               </div>
 
-              {/* Strength */}
               <div className="mt-5 rounded-2xl bg-white/10 border border-white/10 p-4">
                 <p className="text-white/70 text-sm">Profile Strength</p>
                 <div className="flex items-center justify-between mt-2">
@@ -374,14 +354,12 @@ export default function Resume() {
             </div>
           </aside>
 
-          {/* RIGHT CONTENT */}
           <main className="space-y-8">
-            {/* Upload */}
-            <section className="rounded-3xl bg-white/[0.07] backdrop-blur-2xl border border-white/10 p-8 shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
+            <section className="rounded-3xl bg-white/[0.07] backdrop-blur-2xl border border-white/10 p-5 sm:p-6 lg:p-8 shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                 <div>
-                  <h1 className="text-4xl font-extrabold mb-2">Resume Manager</h1>
-                  <p className="text-white/70">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-2">Resume Manager</h1>
+                  <p className="text-white/70 text-sm sm:text-base">
                     Upload, preview, and generate an interactive ATS report (mistakes + fixes).
                   </p>
                 </div>
@@ -391,7 +369,7 @@ export default function Resume() {
                     <ScoreGauge value={score} />
                     <div>
                       <p className="text-white/70 text-sm">ATS Score</p>
-                      <p className="text-3xl font-extrabold">
+                      <p className="text-2xl sm:text-3xl font-extrabold">
                         <span className="text-green-300">{score}</span>/100
                       </p>
                       <p className="text-white/70 text-sm">Level: {level}</p>
@@ -402,9 +380,9 @@ export default function Resume() {
 
               <div className="mt-8">
                 <label className="block cursor-pointer">
-                  <div className="border-2 border-dashed border-white/25 rounded-2xl p-10 text-center hover:bg-white/10 transition">
-                    <p className="text-xl mb-2">📄 Upload Resume</p>
-                    <p className="text-white/60 mb-4">PDF / DOCX supported</p>
+                  <div className="border-2 border-dashed border-white/25 rounded-2xl p-6 sm:p-10 text-center hover:bg-white/10 transition">
+                    <p className="text-lg sm:text-xl mb-2">📄 Upload Resume</p>
+                    <p className="text-white/60 mb-4 text-sm sm:text-base">PDF / DOCX supported</p>
                     <span className="inline-block bg-indigo-600 px-6 py-2 rounded-xl font-semibold">
                       Browse File
                     </span>
@@ -414,23 +392,23 @@ export default function Resume() {
 
                 {file && (
                   <div className="mt-5 bg-white/10 border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center shrink-0">
                         📎
                       </div>
-                      <div>
-                        <p className="font-semibold">{file.name}</p>
+                      <div className="min-w-0">
+                        <p className="font-semibold truncate">{file.name}</p>
                         <p className="text-white/60 text-sm">
                           {file instanceof File ? "Ready for ATS analysis" : "Saved name only (upload file for ATS)"}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full md:w-auto">
                       <button
                         onClick={() => setOpen(true)}
                         disabled={!preview}
-                        className="px-5 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition disabled:opacity-60"
+                        className="px-5 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition disabled:opacity-60 w-full sm:w-auto"
                       >
                         Preview
                       </button>
@@ -446,7 +424,7 @@ export default function Resume() {
                           setPlan([]);
                           localStorage.removeItem("resumeName");
                         }}
-                        className="px-5 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition"
+                        className="px-5 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition w-full sm:w-auto"
                       >
                         Remove
                       </button>
@@ -455,10 +433,10 @@ export default function Resume() {
                 )}
               </div>
 
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-3">
                 <button
                   onClick={saveResume}
-                  className="px-7 py-3 rounded-xl font-semibold bg-gradient-to-r from-green-400 to-emerald-500 hover:opacity-95"
+                  className="px-7 py-3 rounded-xl font-semibold bg-gradient-to-r from-green-400 to-emerald-500 hover:opacity-95 w-full sm:w-auto"
                 >
                   {saved ? "Saved ✓" : "Save Resume"}
                 </button>
@@ -466,7 +444,7 @@ export default function Resume() {
                 <button
                   onClick={() => setOpen(true)}
                   disabled={!preview}
-                  className="px-7 py-3 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition disabled:opacity-60"
+                  className="px-7 py-3 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition disabled:opacity-60 w-full sm:w-auto"
                 >
                   Live Preview
                 </button>
@@ -474,13 +452,12 @@ export default function Resume() {
                 <button
                   onClick={checkATS}
                   disabled={!file || !(file instanceof File) || loadingATS}
-                  className="px-7 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition disabled:opacity-60"
+                  className="px-7 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition disabled:opacity-60 w-full sm:w-auto"
                 >
                   {loadingATS ? "Checking ATS..." : "Check ATS Score"}
                 </button>
               </div>
 
-              {/* JD */}
               <div className="mt-8">
                 <p className="text-sm text-white/70 mb-2">
                   Job Description (recommended for real ATS)
@@ -495,14 +472,13 @@ export default function Resume() {
               </div>
             </section>
 
-            {/* OVERVIEW */}
             <section ref={refOverview} className="scroll-mt-28">
               <HeaderRow
                 title="Overview"
                 subtitle="Your strength breakdown (what is missing)."
               />
               <Panel>
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <h3 className="font-semibold mb-3">✅ Completed</h3>
                     <div className="space-y-2">
@@ -532,30 +508,29 @@ export default function Resume() {
               </Panel>
             </section>
 
-            {/* MISTAKES */}
             <section ref={refMistakes} className="scroll-mt-28">
               <HeaderRow
                 title="Mistakes"
                 subtitle="Search + filter + expand + add to plan."
                 right={
                   ats ? (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full md:w-auto">
                       <select
                         value={sevFilter}
                         onChange={(e) => setSevFilter(e.target.value)}
-                        className="bg-white/10 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none"
+                        className="bg-white/10 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none w-full sm:w-auto"
                       >
-                        <option value="all">All</option>
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
+                        <option value="all" className="text-black">All</option>
+                        <option value="high" className="text-black">High</option>
+                        <option value="medium" className="text-black">Medium</option>
+                        <option value="low" className="text-black">Low</option>
                       </select>
 
                       <input
                         value={issueQuery}
                         onChange={(e) => setIssueQuery(e.target.value)}
                         placeholder="Search mistakes..."
-                        className="bg-white/10 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none"
+                        className="bg-white/10 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none w-full sm:w-auto"
                       />
                     </div>
                   ) : null
@@ -584,7 +559,7 @@ export default function Resume() {
                               Category: {iss.type} • Field: {iss.field}
                             </p>
                           </div>
-                          <span className="text-white/60">{expanded[idx] ? "▲" : "▼"}</span>
+                          <span className="text-white/60 shrink-0">{expanded[idx] ? "▲" : "▼"}</span>
                         </button>
 
                         {expanded[idx] && (
@@ -594,16 +569,16 @@ export default function Resume() {
                                 <p className="text-white/70 text-sm mb-2">Recommended Fix</p>
                                 <p className="text-white/90">{iss.fix}</p>
 
-                                <div className="mt-3 flex flex-wrap gap-2">
+                                <div className="mt-3 flex flex-col sm:flex-row flex-wrap gap-2">
                                   <button
                                     onClick={() => copyText(iss.fix)}
-                                    className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition text-sm"
+                                    className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition text-sm w-full sm:w-auto"
                                   >
                                     Copy Fix
                                   </button>
                                   <button
                                     onClick={() => addToPlan(iss)}
-                                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition text-sm"
+                                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition text-sm w-full sm:w-auto"
                                   >
                                     Add to My Plan
                                   </button>
@@ -619,13 +594,12 @@ export default function Resume() {
               </Panel>
             </section>
 
-            {/* KEYWORDS */}
             <section ref={refKeywords} className="scroll-mt-28">
               <HeaderRow
                 title="Keywords"
                 subtitle="Search missing & matched keywords."
                 right={
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full md:w-auto">
                     <button
                       onClick={() => setKwTab("missing")}
                       className={`px-4 py-2 rounded-xl border text-sm transition ${
@@ -651,7 +625,7 @@ export default function Resume() {
                       value={keywordQuery}
                       onChange={(e) => setKeywordQuery(e.target.value)}
                       placeholder="Search keywords..."
-                      className="bg-white/10 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none"
+                      className="bg-white/10 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none w-full sm:w-auto"
                     />
                   </div>
                 }
@@ -688,14 +662,13 @@ export default function Resume() {
               </Panel>
             </section>
 
-            {/* CHECKLIST */}
             <section ref={refChecklist} className="scroll-mt-28">
               <HeaderRow title="Checklist" subtitle="ATS formatting checklist summary." />
               <Panel>
                 {!ats ? (
                   <p className="text-white/70">Generate ATS report to see checklist.</p>
                 ) : (
-                  <div className="grid md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {(ats.checklist || []).map((c) => (
                       <div
                         key={c.key}
@@ -717,23 +690,22 @@ export default function Resume() {
               </Panel>
             </section>
 
-            {/* PLAN */}
             <section ref={refPlan} className="scroll-mt-28">
               <HeaderRow
                 title="My Plan"
                 subtitle="Build your improvement plan and copy it."
                 right={
                   plan.length > 0 ? (
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                       <button
                         onClick={() => copyText(plan.map((p, i) => `${i + 1}. ${p}`).join("\n"))}
-                        className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition text-sm"
+                        className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition text-sm w-full sm:w-auto"
                       >
                         Copy Plan
                       </button>
                       <button
                         onClick={() => clearPlan()}
-                        className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition text-sm"
+                        className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition text-sm w-full sm:w-auto"
                       >
                         Clear
                       </button>
@@ -751,14 +723,14 @@ export default function Resume() {
                     {plan.map((p, i) => (
                       <div
                         key={i}
-                        className="rounded-2xl bg-white/10 border border-white/10 p-4 flex items-start justify-between gap-4"
+                        className="rounded-2xl bg-white/10 border border-white/10 p-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4"
                       >
                         <p className="font-semibold">
                           {i + 1}. {p}
                         </p>
                         <button
                           onClick={() => removeFromPlan(p)}
-                          className="px-3 py-1 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition text-sm"
+                          className="px-3 py-1 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition text-sm w-full sm:w-auto"
                         >
                           Remove
                         </button>
@@ -771,13 +743,12 @@ export default function Resume() {
           </main>
         </div>
 
-        {/* MODAL */}
         {open && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl w-[80%] h-[80%] relative">
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-3 sm:p-4">
+            <div className="bg-white rounded-xl w-[95%] sm:w-[90%] lg:w-[80%] h-[85%] relative overflow-hidden">
               <button
                 onClick={() => setOpen(false)}
-                className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded"
+                className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded z-10"
               >
                 Close
               </button>
@@ -789,8 +760,6 @@ export default function Resume() {
     </div>
   );
 }
-
-/* ================= UI Components ================= */
 
 function NavBtn({ active, onClick, children }) {
   return (
@@ -809,7 +778,7 @@ function NavBtn({ active, onClick, children }) {
 
 function Panel({ children }) {
   return (
-    <div className="rounded-3xl bg-white/[0.07] backdrop-blur-2xl border border-white/10 p-6 shadow-[0_20px_80px_rgba(0,0,0,0.20)]">
+    <div className="rounded-3xl bg-white/[0.07] backdrop-blur-2xl border border-white/10 p-5 sm:p-6 shadow-[0_20px_80px_rgba(0,0,0,0.20)]">
       {children}
     </div>
   );
@@ -819,8 +788,8 @@ function HeaderRow({ title, subtitle, right }) {
   return (
     <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-4">
       <div>
-        <h2 className="text-2xl font-extrabold">{title}</h2>
-        <p className="text-white/70">{subtitle}</p>
+        <h2 className="text-xl sm:text-2xl font-extrabold">{title}</h2>
+        <p className="text-white/70 text-sm sm:text-base">{subtitle}</p>
       </div>
       {right}
     </div>
@@ -861,7 +830,7 @@ function ScoreGauge({ value }) {
   const dash = (pct / 100) * c;
 
   return (
-    <div className="relative w-16 h-16">
+    <div className="relative w-16 h-16 shrink-0">
       <svg width={size} height={size}>
         <circle
           cx={size / 2}

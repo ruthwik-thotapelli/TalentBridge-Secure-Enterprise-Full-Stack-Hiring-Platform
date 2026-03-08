@@ -7,16 +7,13 @@ export default function ShortlistedCandidates() {
 
   const [apps, setApps] = useState([]);
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("newest"); // newest | oldest | atsHigh | atsLow
+  const [sort, setSort] = useState("newest");
 
-  // ✅ NEW: refresh loading state
   const [refreshing, setRefreshing] = useState(false);
 
-  // ✅ NEW: quick preview modal
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewApp, setPreviewApp] = useState(null);
 
-  // ✅ NEW: selection + bulk actions
   const [selected, setSelected] = useState(new Set());
 
   const load = async () => {
@@ -24,8 +21,6 @@ export default function ShortlistedCandidates() {
       setRefreshing(true);
 
       const data = await getApplications();
-
-      // load notes if you saved them in Applicants page
       const savedNotes = JSON.parse(localStorage.getItem("appNotes") || "{}");
 
       const shortlisted = (data || [])
@@ -43,7 +38,6 @@ export default function ShortlistedCandidates() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = useMemo(() => {
@@ -59,7 +53,6 @@ export default function ShortlistedCandidates() {
       );
     });
 
-    // sort
     list = [...list].sort((a, b) => {
       const aTime = new Date(a.appliedAt || 0).getTime();
       const bTime = new Date(b.appliedAt || 0).getTime();
@@ -83,16 +76,12 @@ export default function ShortlistedCandidates() {
     if (!w) return alert("Popup blocked. Allow popups to view resume.");
     w.document.title = name;
     w.document.body.style.margin = "0";
-    w.document.body.innerHTML = `
-      <iframe src="${dataUrl}" style="border:0;width:100%;height:100vh;"></iframe>
-    `;
+    w.document.body.innerHTML = `<iframe src="${dataUrl}" style="border:0;width:100%;height:100vh;"></iframe>`;
   };
 
   const updateStatus = async (id, status) => {
     try {
       const updated = await updateApplicationStatus(id, status);
-
-      // re-filter shortlisted after update
       const savedNotes = JSON.parse(localStorage.getItem("appNotes") || "{}");
       const shortlisted = (updated || [])
         .filter((a) => a.status === "Shortlisted")
@@ -100,7 +89,6 @@ export default function ShortlistedCandidates() {
 
       setApps(shortlisted);
 
-      // also remove from selection if selected
       setSelected((prev) => {
         const next = new Set(prev);
         next.delete(id);
@@ -112,17 +100,14 @@ export default function ShortlistedCandidates() {
     }
   };
 
-  // ✅ Bulk update (from this page)
   const bulkSetStatus = async (status) => {
     if (selected.size === 0) return alert("Select at least 1 candidate.");
     try {
-      // update one by one (your service returns full list)
       let updated = [];
       for (const id of selected) {
         updated = await updateApplicationStatus(id, status);
       }
 
-      // keep only shortlisted after bulk action
       const savedNotes = JSON.parse(localStorage.getItem("appNotes") || "{}");
       const shortlisted = (updated || [])
         .filter((a) => a.status === "Shortlisted")
@@ -173,30 +158,20 @@ export default function ShortlistedCandidates() {
   };
 
   return (
-    <div className="min-h-screen px-6 py-10 bg-gradient-to-br from-black via-slate-900 to-purple-950 text-white">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          {/* ✅ Updated: remove arrow + colorful premium button */}
+    <div className="min-h-screen px-4 sm:px-6 py-6 sm:py-10 bg-gradient-to-br from-black via-slate-900 to-purple-950 text-white overflow-x-hidden">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-6">
           <button
             onClick={() => navigate("/admin/applicants")}
-            className="px-6 py-3 rounded-xl font-semibold
-                       bg-gradient-to-r from-sky-600 to-cyan-500
-                       shadow-lg shadow-cyan-500/20
-                       hover:from-sky-500 hover:to-cyan-400 hover:shadow-cyan-500/30
-                       active:scale-[0.98] transition"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-sky-600 to-cyan-500 shadow-lg shadow-cyan-500/20 hover:from-sky-500 hover:to-cyan-400 hover:shadow-cyan-500/30 active:scale-[0.98] transition"
           >
             Back to Applicants
           </button>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={() => navigate("/admin/dashboard")}
-              className="px-6 py-3 rounded-xl font-semibold
-                         bg-gradient-to-r from-purple-600 to-indigo-600
-                         shadow-lg shadow-purple-500/20
-                         hover:from-purple-500 hover:to-indigo-500 hover:shadow-purple-500/30
-                         active:scale-[0.98] transition"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg shadow-purple-500/20 hover:from-purple-500 hover:to-indigo-500 hover:shadow-purple-500/30 active:scale-[0.98] transition"
             >
               Admin Dashboard
             </button>
@@ -204,35 +179,31 @@ export default function ShortlistedCandidates() {
             <button
               onClick={load}
               disabled={refreshing}
-              className={`px-6 py-3 rounded-xl font-semibold border transition active:scale-[0.98]
-                ${
-                  refreshing
-                    ? "bg-white/5 border-white/10 text-white/50 cursor-not-allowed"
-                    : "bg-white/10 border border-white/20 hover:bg-white/15 hover:border-white/30"
-                }`}
+              className={`w-full sm:w-auto px-6 py-3 rounded-xl font-semibold border transition active:scale-[0.98] ${
+                refreshing
+                  ? "bg-white/5 border-white/10 text-white/50 cursor-not-allowed"
+                  : "bg-white/10 border border-white/20 hover:bg-white/15 hover:border-white/30"
+              }`}
             >
               {refreshing ? "Refreshing..." : "Refresh"}
             </button>
           </div>
         </div>
 
-        {/* Title */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+        <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-extrabold">Shortlisted Candidates</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold">Shortlisted Candidates</h1>
             <p className="text-white/60 text-sm">
               Candidates marked as <b>Shortlisted</b> from Applicants page.
             </p>
           </div>
 
-          {/* Search / sort */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:w-[760px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 w-full xl:max-w-3xl">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search name/email/job/company..."
-              className="px-4 py-3 rounded-xl bg-white/10 border border-white/20
-                         focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
 
             <select
@@ -246,7 +217,6 @@ export default function ShortlistedCandidates() {
               <option value="atsLow">Sort: ATS Low → High</option>
             </select>
 
-            {/* ✅ NEW: selection helper */}
             <button
               onClick={selectAllVisible}
               className="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 transition"
@@ -256,8 +226,7 @@ export default function ShortlistedCandidates() {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <Stat title="Total Shortlisted" value={stats.total} tone="purple" />
           <Stat title="ATS Available" value={stats.withAts} tone="green" />
           <Stat
@@ -267,7 +236,6 @@ export default function ShortlistedCandidates() {
           />
         </div>
 
-        {/* ✅ NEW: Bulk actions bar */}
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <span className="text-white/70 text-sm">
             Selected: <b className="text-white">{selected.size}</b>
@@ -302,18 +270,15 @@ export default function ShortlistedCandidates() {
           </button>
         </div>
 
-        {/* ✅ List */}
         <div className="space-y-4">
           {filtered.map((a) => (
             <div
               key={a.id}
-              className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-5
-                         hover:bg-white/[0.12] transition"
+              className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-4 sm:p-5 hover:bg-white/[0.12] transition"
             >
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                <div className="flex items-start gap-4">
-                  {/* ✅ NEW: selection checkbox */}
-                  <div className="pt-1">
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                <div className="flex items-start gap-4 min-w-0">
+                  <div className="pt-1 shrink-0">
                     <input
                       type="checkbox"
                       checked={selected.has(a.id)}
@@ -323,21 +288,22 @@ export default function ShortlistedCandidates() {
                     />
                   </div>
 
-                  <div className="w-12 h-12 rounded-full bg-purple-500/30 flex items-center justify-center font-bold text-lg">
+                  <div className="w-12 h-12 rounded-full bg-purple-500/30 flex items-center justify-center font-bold text-lg shrink-0">
                     {(a.fullName || a.userEmail || "U")[0]?.toUpperCase()}
                   </div>
 
-                  <div>
-                    <h3 className="text-xl font-bold">{a.fullName || "Guest User"}</h3>
-                    <p className="text-sm text-white/70">{a.userEmail}</p>
+                  <div className="min-w-0">
+                    <h3 className="text-lg sm:text-xl font-bold break-words">
+                      {a.fullName || "Guest User"}
+                    </h3>
+                    <p className="text-sm text-white/70 break-all">{a.userEmail}</p>
 
-                    <p className="text-sm text-white/70 mt-1">
+                    <p className="text-sm text-white/70 mt-1 break-words">
                       <b>{a.jobTitle}</b> • {a.company}
                     </p>
 
                     <p className="text-xs text-white/50 mt-1">{a.appliedAt}</p>
 
-                    {/* ✅ NEW: show more details if available */}
                     <div className="mt-2 flex flex-wrap gap-2 text-xs text-white/70">
                       {a.phone && (
                         <span className="px-2 py-1 rounded-lg bg-white/5 border border-white/10">
@@ -345,7 +311,7 @@ export default function ShortlistedCandidates() {
                         </span>
                       )}
                       {a.skills && (
-                        <span className="px-2 py-1 rounded-lg bg-white/5 border border-white/10">
+                        <span className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 break-words">
                           🧠 {String(a.skills).slice(0, 40)}
                           {String(a.skills).length > 40 ? "..." : ""}
                         </span>
@@ -358,7 +324,7 @@ export default function ShortlistedCandidates() {
                     </div>
 
                     {a.note && (
-                      <p className="text-xs text-white/70 mt-2">
+                      <p className="text-xs text-white/70 mt-2 break-words">
                         📝 <span className="text-white/80">{a.note}</span>
                       </p>
                     )}
@@ -371,18 +337,17 @@ export default function ShortlistedCandidates() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 md:justify-end">
-                  {/* ✅ NEW: quick preview button */}
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 lg:justify-end lg:max-w-[420px] w-full lg:w-auto">
                   <button
                     onClick={() => openPreview(a)}
-                    className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition text-sm"
+                    className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition text-sm w-full sm:w-auto"
                   >
                     Quick View
                   </button>
 
                   <button
                     onClick={() => openResume(a.resumeDataUrl, a.resumeName)}
-                    className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition text-sm"
+                    className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition text-sm w-full sm:w-auto"
                   >
                     View Resume
                   </button>
@@ -392,7 +357,7 @@ export default function ShortlistedCandidates() {
                       href={a.linkedin}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition text-sm"
+                      className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition text-sm text-center w-full sm:w-auto"
                     >
                       LinkedIn
                     </a>
@@ -400,33 +365,33 @@ export default function ShortlistedCandidates() {
 
                   <button
                     onClick={() => updateStatus(a.id, "Accepted")}
-                    className="px-4 py-2 rounded-xl bg-green-500/20 text-green-200 hover:bg-green-500/30 transition text-sm"
+                    className="px-4 py-2 rounded-xl bg-green-500/20 text-green-200 hover:bg-green-500/30 transition text-sm w-full sm:w-auto"
                   >
                     Mark Accepted
                   </button>
 
                   <button
                     onClick={() => updateStatus(a.id, "Rejected")}
-                    className="px-4 py-2 rounded-xl bg-red-500/20 text-red-200 hover:bg-red-500/30 transition text-sm"
+                    className="px-4 py-2 rounded-xl bg-red-500/20 text-red-200 hover:bg-red-500/30 transition text-sm w-full sm:w-auto"
                   >
                     Reject
                   </button>
 
                   <button
                     onClick={() => updateStatus(a.id, "Pending")}
-                    className="px-4 py-2 rounded-xl bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30 transition text-sm"
+                    className="px-4 py-2 rounded-xl bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30 transition text-sm w-full sm:w-auto"
                   >
                     Move to Pending
                   </button>
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-between">
-                <span className="px-4 py-1 rounded-full text-sm bg-purple-500/20 text-purple-200">
+              <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <span className="px-4 py-1 rounded-full text-sm bg-purple-500/20 text-purple-200 w-fit">
                   Shortlisted
                 </span>
 
-                <span className="text-xs text-white/50">
+                <span className="text-xs text-white/50 break-words">
                   ID: {a.id} {a.resumeName ? `• ${a.resumeName}` : ""}
                 </span>
               </div>
@@ -441,14 +406,14 @@ export default function ShortlistedCandidates() {
         </div>
 
         <p className="text-xs text-white/40 mt-4">
-          Demo mode: data comes from your existing jobService (localStorage). Backend API can be connected later.
+          Demo mode: data comes from your existing jobService (localStorage). Backend API
+          can be connected later.
         </p>
       </div>
 
-      {/* ✅ Quick View Modal */}
       {previewOpen && previewApp && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="w-[92%] max-w-2xl rounded-2xl bg-slate-950 border border-white/10 p-6">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
+          <div className="w-full max-w-2xl rounded-2xl bg-slate-950 border border-white/10 p-5 sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-xl font-bold">Candidate Details</h3>
@@ -459,7 +424,7 @@ export default function ShortlistedCandidates() {
 
               <button
                 onClick={closePreview}
-                className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition"
+                className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition shrink-0"
               >
                 Close
               </button>
@@ -486,7 +451,7 @@ export default function ShortlistedCandidates() {
             {previewApp.skills && (
               <div className="mt-4">
                 <p className="text-sm text-white/70">Skills</p>
-                <div className="mt-2 p-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white/80">
+                <div className="mt-2 p-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white/80 break-words">
                   {String(previewApp.skills)}
                 </div>
               </div>
@@ -495,37 +460,37 @@ export default function ShortlistedCandidates() {
             {previewApp.note && (
               <div className="mt-4">
                 <p className="text-sm text-white/70">Recruiter Notes</p>
-                <div className="mt-2 p-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white/80">
+                <div className="mt-2 p-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white/80 break-words">
                   {previewApp.note}
                 </div>
               </div>
             )}
 
-            <div className="mt-5 flex flex-wrap gap-2 justify-end">
+            <div className="mt-5 flex flex-col sm:flex-row flex-wrap gap-2 justify-end">
               <button
                 onClick={() => openResume(previewApp.resumeDataUrl, previewApp.resumeName)}
-                className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition text-sm"
+                className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition text-sm w-full sm:w-auto"
               >
                 View Resume
               </button>
 
               <button
                 onClick={() => updateStatus(previewApp.id, "Accepted")}
-                className="px-4 py-2 rounded-xl bg-green-500/20 text-green-200 hover:bg-green-500/30 transition text-sm"
+                className="px-4 py-2 rounded-xl bg-green-500/20 text-green-200 hover:bg-green-500/30 transition text-sm w-full sm:w-auto"
               >
                 Mark Accepted
               </button>
 
               <button
                 onClick={() => updateStatus(previewApp.id, "Rejected")}
-                className="px-4 py-2 rounded-xl bg-red-500/20 text-red-200 hover:bg-red-500/30 transition text-sm"
+                className="px-4 py-2 rounded-xl bg-red-500/20 text-red-200 hover:bg-red-500/30 transition text-sm w-full sm:w-auto"
               >
                 Reject
               </button>
 
               <button
                 onClick={() => updateStatus(previewApp.id, "Pending")}
-                className="px-4 py-2 rounded-xl bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30 transition text-sm"
+                className="px-4 py-2 rounded-xl bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30 transition text-sm w-full sm:w-auto"
               >
                 Move to Pending
               </button>
@@ -546,15 +511,14 @@ function Stat({ title, value, tone }) {
       : "text-purple-200";
 
   return (
-    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6">
+    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4 sm:p-6">
       <p className="text-sm text-white/70">{title}</p>
-      <h2 className={`text-4xl font-bold ${c}`}>{value}</h2>
+      <h2 className={`text-2xl sm:text-4xl font-bold ${c}`}>{value}</h2>
     </div>
   );
 }
 
 function Info({ label, value }) {
-  // if value looks like a link, show as anchor (optional)
   const isLink = typeof value === "string" && value.startsWith("http");
   return (
     <div className="rounded-xl bg-white/5 border border-white/10 p-4">

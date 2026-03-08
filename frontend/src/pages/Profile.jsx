@@ -22,13 +22,11 @@ export default function Profile() {
   const navigate = useNavigate();
   const STORAGE_KEY = "tb_profile_v2";
 
-  // ---------- UI ----------
   const [toast, setToast] = useState("");
-  const [activeTab, setActiveTab] = useState("overview"); // overview | education | experience | projects | links
+  const [activeTab, setActiveTab] = useState("overview");
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // ✅ stable toast (fixes Vercel CI build)
   const toastTimerRef = useRef(null);
   const showToast = useCallback((msg) => {
     setToast(msg);
@@ -36,15 +34,13 @@ export default function Profile() {
     toastTimerRef.current = setTimeout(() => setToast(""), 2200);
   }, []);
 
-  // cleanup toast timer on unmount (safe)
   useEffect(() => {
     return () => {
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     };
   }, []);
 
-  // ---------- PHOTO ----------
-  const [photo, setPhoto] = useState(null); // dataURL
+  const [photo, setPhoto] = useState(null);
   const photoRef = useRef(null);
 
   const handlePhotoUpload = (e) => {
@@ -69,7 +65,6 @@ export default function Profile() {
     showToast("Photo removed");
   };
 
-  // ---------- BASIC FORM ----------
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -90,7 +85,6 @@ export default function Profile() {
     setDirty(true);
   };
 
-  // ---------- SKILLS ----------
   const [skills, setSkills] = useState(["React", "Node.js"]);
   const [skillInput, setSkillInput] = useState("");
   const [skillSearch, setSkillSearch] = useState("");
@@ -139,7 +133,6 @@ export default function Profile() {
     "Linux",
   ];
 
-  // ---------- RESUME ----------
   const [resumeName, setResumeName] = useState("");
   const [resumeDataUrl, setResumeDataUrl] = useState("");
   const [resumeErr, setResumeErr] = useState("");
@@ -170,7 +163,6 @@ export default function Profile() {
     w.document.body.innerHTML = `<iframe src="${resumeDataUrl}" style="border:0;width:100%;height:100vh;"></iframe>`;
   };
 
-  // ---------- MULTI EDUCATION ----------
   const [education, setEducation] = useState([
     { id: Date.now(), college: "", degree: "", passingYear: "", cgpa: "" },
   ]);
@@ -194,7 +186,6 @@ export default function Profile() {
     setDirty(true);
   };
 
-  // ---------- MULTI EXPERIENCE (timeline) ----------
   const [experience, setExperience] = useState([
     {
       id: Date.now() + 11,
@@ -234,7 +225,6 @@ export default function Profile() {
     setDirty(true);
   };
 
-  // ---------- PROJECTS ----------
   const [projects, setProjects] = useState([
     { id: Date.now() + 21, name: "TalentBridge", stack: "React, Node.js, MySQL", bullets: "" },
   ]);
@@ -263,7 +253,6 @@ export default function Profile() {
     showToast("Bullet added ✅");
   };
 
-  // ---------- CERTIFICATIONS ----------
   const [certs, setCerts] = useState([{ id: Date.now() + 31, name: "", org: "", year: "" }]);
 
   const addCert = () => {
@@ -282,7 +271,6 @@ export default function Profile() {
     setDirty(true);
   };
 
-  // ---------- LOAD / AUTOSAVE ----------
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
     if (!saved) return;
@@ -312,9 +300,7 @@ export default function Profile() {
     return () => clearTimeout(t);
   }, [dirty, form, photo, skills, resumeName, resumeDataUrl, education, experience, projects, certs, showToast]);
 
-  // ---------- PROFILE STRENGTH ----------
   const strength = useMemo(() => {
-    // 16 items
     const checks = [
       !!photo,
       !!form.fullName.trim(),
@@ -339,7 +325,6 @@ export default function Profile() {
     return { score, total, percent };
   }, [photo, form, skills.length, resumeDataUrl, education, experience, projects, certs]);
 
-  // ---------- ATS ESTIMATE ----------
   const ats = useMemo(() => {
     const text =
       [
@@ -391,7 +376,6 @@ export default function Profile() {
     return { score, label, hit };
   }, [form, skills, experience, projects, certs, strength.percent]);
 
-  // ---------- TIPS ----------
   const tips = useMemo(() => {
     const t = [];
     if (!resumeDataUrl) t.push("Upload a PDF resume for recruiters.");
@@ -403,7 +387,6 @@ export default function Profile() {
     return t.slice(0, 4);
   }, [resumeDataUrl, form.summary, skills.length, form.linkedin, experience]);
 
-  // ---------- SAVE / EXPORT / CLEAR ----------
   const canSave = useMemo(() => {
     if (!form.fullName.trim()) return false;
     if (!form.email.trim() || !form.email.includes("@")) return false;
@@ -455,48 +438,44 @@ export default function Profile() {
     showToast("Cleared ✅");
   };
 
-  // ---------- UI ----------
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 px-6 py-16 text-white relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute -top-10 -left-10 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl" />
-      <div className="absolute -bottom-10 -right-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[520px] h-[520px] bg-purple-500/10 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 px-4 sm:px-6 py-10 sm:py-16 text-white relative overflow-x-hidden">
+      <div className="absolute -top-10 -left-10 w-72 sm:w-80 h-72 sm:h-80 bg-pink-500/15 rounded-full blur-3xl" />
+      <div className="absolute -bottom-10 -right-10 w-80 sm:w-96 h-80 sm:h-96 bg-cyan-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[320px] sm:w-[520px] h-[320px] sm:h-[520px] bg-purple-500/10 rounded-full blur-3xl" />
 
-      {/* Toast */}
       {toast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl shadow-lg">
-          <p className="text-sm text-white/90">{toast}</p>
+        <div className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 px-4 sm:px-5 py-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl shadow-lg max-w-[calc(100vw-2rem)]">
+          <p className="text-sm text-white/90 text-center">{toast}</p>
         </div>
       )}
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Top bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
           <button
             onClick={() => navigate("/dashboard")}
-            className="px-6 py-3 rounded-2xl bg-white/10 border border-white/20 hover:bg-white/15 transition font-semibold"
+            className="w-full sm:w-auto px-5 sm:px-6 py-3 rounded-2xl bg-white/10 border border-white/20 hover:bg-white/15 transition font-semibold"
           >
             Back to Dashboard
           </button>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <button
               onClick={clearAll}
-              className="px-5 py-3 rounded-2xl bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition"
+              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition"
             >
               Clear
             </button>
             <button
               onClick={exportJson}
-              className="px-5 py-3 rounded-2xl bg-white/10 border border-white/20 hover:bg-white/15 transition"
+              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-white/10 border border-white/20 hover:bg-white/15 transition"
             >
               Export JSON
             </button>
             <button
               onClick={saveProfile}
               disabled={!canSave || saving}
-              className={`px-6 py-3 rounded-2xl font-semibold transition ${
+              className={`w-full sm:w-auto px-6 py-3 rounded-2xl font-semibold transition ${
                 !canSave || saving
                   ? "bg-white/10 border border-white/10 text-white/50 cursor-not-allowed"
                   : "bg-gradient-to-r from-green-400 to-emerald-500 hover:opacity-95"
@@ -508,20 +487,18 @@ export default function Profile() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left sticky panel */}
           <aside className="lg:col-span-1">
-            <div className="bg-white/10 border border-white/20 rounded-3xl p-7 shadow-2xl sticky top-6">
-              {/* Header */}
+            <div className="bg-white/10 border border-white/20 rounded-3xl p-5 sm:p-7 shadow-2xl lg:sticky lg:top-24">
               <div className="flex items-center gap-4">
-                <div className="relative">
+                <div className="relative shrink-0">
                   {photo ? (
                     <img
                       src={photo}
                       alt="Profile"
-                      className="w-24 h-24 rounded-2xl border border-white/20 object-cover"
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border border-white/20 object-cover"
                     />
                   ) : (
-                    <div className="w-24 h-24 rounded-2xl bg-black/25 border border-white/15 flex items-center justify-center text-white/50">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-black/25 border border-white/15 flex items-center justify-center text-white/50 text-sm">
                       Upload
                     </div>
                   )}
@@ -533,7 +510,7 @@ export default function Profile() {
                 </div>
 
                 <div className="min-w-0">
-                  <h1 className="text-2xl font-extrabold truncate">{form.fullName || "Your Name"}</h1>
+                  <h1 className="text-xl sm:text-2xl font-extrabold truncate">{form.fullName || "Your Name"}</h1>
                   <p className="text-sm text-white/70 truncate">{form.headline || "Add a headline to stand out"}</p>
                   <p className="text-xs text-white/50 truncate">{form.email || "your@email.com"}</p>
 
@@ -545,7 +522,6 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Strength + ATS */}
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <CardMini title="Strength" value={`${strength.percent}%`} tone="green" />
                 <CardMini title="ATS" value={`${ats.score}/100`} tone="purple" />
@@ -570,7 +546,6 @@ export default function Profile() {
                 </p>
               </div>
 
-              {/* Quick actions */}
               <div className="mt-5 flex flex-wrap gap-2">
                 <Badge tone={form.openToWork ? "green" : "gray"}>{form.openToWork ? "Open to Work" : "Not Searching"}</Badge>
                 <Badge tone="cyan">{form.preferredLocation}</Badge>
@@ -581,7 +556,6 @@ export default function Profile() {
                 ))}
               </div>
 
-              {/* Tips */}
               {tips.length > 0 && (
                 <div className="mt-6 rounded-2xl bg-white/5 border border-white/10 p-4">
                   <p className="text-sm font-semibold">Next improvements</p>
@@ -593,7 +567,6 @@ export default function Profile() {
                 </div>
               )}
 
-              {/* Resume */}
               <div className="mt-6 rounded-2xl bg-white/5 border border-white/10 p-4">
                 <p className="text-sm font-semibold">Resume (PDF)</p>
                 <p className="text-xs text-white/60 mt-1">Max 3MB • Recruiter quick view</p>
@@ -630,7 +603,6 @@ export default function Profile() {
                 {resumeErr && <p className="text-xs text-red-200 mt-2">{resumeErr}</p>}
               </div>
 
-              {/* Footer mini */}
               <div className="mt-6 grid grid-cols-3 gap-3">
                 <MiniBadge title="Mode" value="Demo" />
                 <MiniBadge title="Storage" value="Local" />
@@ -639,10 +611,8 @@ export default function Profile() {
             </div>
           </aside>
 
-          {/* Right editor */}
           <section className="lg:col-span-2">
-            <div className="bg-white/10 border border-white/20 rounded-3xl p-7 shadow-2xl">
-              {/* Tabs */}
+            <div className="bg-white/10 border border-white/20 rounded-3xl p-5 sm:p-7 shadow-2xl">
               <div className="flex flex-wrap gap-2 mb-6">
                 <Tab active={activeTab === "overview"} onClick={() => setActiveTab("overview")}>
                   Overview
@@ -660,7 +630,7 @@ export default function Profile() {
                   Links
                 </Tab>
 
-                <div className="ml-auto flex items-center gap-2">
+                <div className="sm:ml-auto flex items-center gap-2">
                   {dirty && (
                     <span className="text-xs px-3 py-1 rounded-full bg-yellow-500/15 text-yellow-200 border border-yellow-400/20">
                       Unsaved changes
@@ -669,7 +639,6 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* OVERVIEW */}
               {activeTab === "overview" && (
                 <>
                   <Section title="Basic Information" subtitle="Shown to recruiters and used for ATS matching.">
@@ -696,7 +665,7 @@ export default function Profile() {
                       onChange={(e) => setField("summary", e.target.value)}
                       placeholder="Example: Built secure hiring platform with RBAC, JWT auth, ATS scoring, scalable REST APIs, and MySQL..."
                     />
-                    <div className="mt-2 flex items-center justify-between text-xs text-white/60">
+                    <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-white/60">
                       <span>{(form.summary || "").length} chars</span>
                       <button
                         type="button"
@@ -706,7 +675,7 @@ export default function Profile() {
                           setField("summary", auto);
                           showToast("Auto summary filled ✅");
                         }}
-                        className="px-3 py-1 rounded-lg bg-white/10 border border-white/15 hover:bg-white/15 transition"
+                        className="px-3 py-1 rounded-lg bg-white/10 border border-white/15 hover:bg-white/15 transition w-full sm:w-auto"
                       >
                         Auto-fill
                       </button>
@@ -714,7 +683,7 @@ export default function Profile() {
                   </Section>
 
                   <Section title="Skills" subtitle="Recruiters search by skills. Add more for better ATS.">
-                    <div className="grid md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <input
                         className="input md:col-span-2"
                         value={skillInput}
@@ -730,18 +699,18 @@ export default function Profile() {
                       <button
                         type="button"
                         onClick={() => addSkill()}
-                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-95 font-semibold"
+                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-95 font-semibold w-full"
                       >
                         Add Skill
                       </button>
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between gap-3">
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <p className="text-xs text-white/60">Skills ({skills.length})</p>
                       <input
                         value={skillSearch}
                         onChange={(e) => setSkillSearch(e.target.value)}
-                        className="px-4 py-2 rounded-xl bg-black/20 border border-white/15 focus:outline-none text-sm w-52"
+                        className="px-4 py-2 rounded-xl bg-black/20 border border-white/15 focus:outline-none text-sm w-full sm:w-52"
                         placeholder="Search skills..."
                       />
                     </div>
@@ -858,10 +827,9 @@ export default function Profile() {
                 </>
               )}
 
-              {/* EDUCATION */}
               {activeTab === "education" && (
                 <>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                     <div>
                       <h2 className="text-xl font-extrabold">Education</h2>
                       <p className="text-sm text-white/60">Add multiple entries (latest first).</p>
@@ -869,7 +837,7 @@ export default function Profile() {
                     <button
                       type="button"
                       onClick={addEducation}
-                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-95 font-semibold"
+                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-95 font-semibold w-full sm:w-auto"
                     >
                       + Add Education
                     </button>
@@ -877,13 +845,13 @@ export default function Profile() {
 
                   <div className="space-y-4">
                     {education.map((e, idx) => (
-                      <div key={e.id} className="rounded-2xl bg-white/5 border border-white/10 p-5">
-                        <div className="flex items-center justify-between mb-3">
+                      <div key={e.id} className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-5">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                           <p className="text-sm font-semibold">Education #{idx + 1}</p>
                           <button
                             type="button"
                             onClick={() => removeEducation(e.id)}
-                            className="px-3 py-1 rounded-lg bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition text-xs"
+                            className="px-3 py-1 rounded-lg bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition text-xs w-full sm:w-auto"
                           >
                             Remove
                           </button>
@@ -905,10 +873,9 @@ export default function Profile() {
                 </>
               )}
 
-              {/* EXPERIENCE */}
               {activeTab === "experience" && (
                 <>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                     <div>
                       <h2 className="text-xl font-extrabold">Experience Timeline</h2>
                       <p className="text-sm text-white/60">Add achievements with impact (metrics help!).</p>
@@ -916,7 +883,7 @@ export default function Profile() {
                     <button
                       type="button"
                       onClick={addExperience}
-                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-95 font-semibold"
+                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-95 font-semibold w-full sm:w-auto"
                     >
                       + Add Experience
                     </button>
@@ -924,8 +891,8 @@ export default function Profile() {
 
                   <div className="space-y-4">
                     {experience.map((x, idx) => (
-                      <div key={x.id} className="rounded-2xl bg-white/5 border border-white/10 p-5">
-                        <div className="flex items-start justify-between gap-3 mb-3">
+                      <div key={x.id} className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-5">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                           <div>
                             <p className="text-sm font-semibold">Experience #{idx + 1}</p>
                             <p className="text-xs text-white/60">Tip: use bullets: start with •</p>
@@ -933,7 +900,7 @@ export default function Profile() {
                           <button
                             type="button"
                             onClick={() => removeExperience(x.id)}
-                            className="px-3 py-1 rounded-lg bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition text-xs"
+                            className="px-3 py-1 rounded-lg bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition text-xs w-full sm:w-auto"
                           >
                             Remove
                           </button>
@@ -980,10 +947,9 @@ export default function Profile() {
                 </>
               )}
 
-              {/* PROJECTS */}
               {activeTab === "projects" && (
                 <>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                     <div>
                       <h2 className="text-xl font-extrabold">Projects</h2>
                       <p className="text-sm text-white/60">Show real work. Add 2–4 strong projects.</p>
@@ -991,7 +957,7 @@ export default function Profile() {
                     <button
                       type="button"
                       onClick={addProject}
-                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-95 font-semibold"
+                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-95 font-semibold w-full sm:w-auto"
                     >
                       + Add Project
                     </button>
@@ -999,8 +965,8 @@ export default function Profile() {
 
                   <div className="space-y-4">
                     {projects.map((p, idx) => (
-                      <div key={p.id} className="rounded-2xl bg-white/5 border border-white/10 p-5">
-                        <div className="flex items-start justify-between gap-3 mb-3">
+                      <div key={p.id} className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-5">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                           <div>
                             <p className="text-sm font-semibold">Project #{idx + 1}</p>
                             <p className="text-xs text-white/60">Use bullets with impact.</p>
@@ -1008,7 +974,7 @@ export default function Profile() {
                           <button
                             type="button"
                             onClick={() => removeProject(p.id)}
-                            className="px-3 py-1 rounded-lg bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition text-xs"
+                            className="px-3 py-1 rounded-lg bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition text-xs w-full sm:w-auto"
                           >
                             Remove
                           </button>
@@ -1049,9 +1015,8 @@ export default function Profile() {
                     ))}
                   </div>
 
-                  {/* Certifications */}
                   <div className="mt-8">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                       <div>
                         <h2 className="text-xl font-extrabold">Certifications</h2>
                         <p className="text-sm text-white/60">Optional but boosts credibility.</p>
@@ -1059,7 +1024,7 @@ export default function Profile() {
                       <button
                         type="button"
                         onClick={addCert}
-                        className="px-5 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition font-semibold"
+                        className="px-5 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition font-semibold w-full sm:w-auto"
                       >
                         + Add
                       </button>
@@ -1067,13 +1032,13 @@ export default function Profile() {
 
                     <div className="space-y-3">
                       {certs.map((c, idx) => (
-                        <div key={c.id} className="rounded-2xl bg-white/5 border border-white/10 p-5">
-                          <div className="flex items-center justify-between mb-3">
+                        <div key={c.id} className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-5">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                             <p className="text-sm font-semibold">Certification #{idx + 1}</p>
                             <button
                               type="button"
                               onClick={() => removeCert(c.id)}
-                              className="px-3 py-1 rounded-lg bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition text-xs"
+                              className="px-3 py-1 rounded-lg bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition text-xs w-full sm:w-auto"
                             >
                               Remove
                             </button>
@@ -1091,7 +1056,6 @@ export default function Profile() {
                 </>
               )}
 
-              {/* LINKS */}
               {activeTab === "links" && (
                 <>
                   <Section title="Professional Links" subtitle="These links increase trust and conversion.">
@@ -1118,13 +1082,12 @@ export default function Profile() {
                 </>
               )}
 
-              {/* Bottom buttons */}
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={saveProfile}
                   disabled={!canSave || saving}
-                  className={`px-10 py-3 rounded-2xl font-semibold transition ${
+                  className={`w-full sm:w-auto px-6 sm:px-10 py-3 rounded-2xl font-semibold transition ${
                     !canSave || saving
                       ? "bg-white/10 border border-white/10 text-white/50 cursor-not-allowed"
                       : "bg-gradient-to-r from-green-400 to-emerald-500 hover:opacity-95 hover:scale-[1.01]"
@@ -1136,7 +1099,7 @@ export default function Profile() {
                 <button
                   type="button"
                   onClick={() => navigate("/dashboard")}
-                  className="px-10 py-3 bg-white/10 border border-white/20 rounded-2xl hover:bg-white/15 transition"
+                  className="w-full sm:w-auto px-6 sm:px-10 py-3 bg-white/10 border border-white/20 rounded-2xl hover:bg-white/15 transition"
                 >
                   Cancel
                 </button>
@@ -1150,8 +1113,6 @@ export default function Profile() {
     </div>
   );
 }
-
-/* ---------------- UI Pieces ---------------- */
 
 function Tab({ active, children, onClick }) {
   return (
@@ -1171,7 +1132,7 @@ function Section({ title, subtitle, children }) {
   return (
     <div className="mb-8">
       <div className="mb-3">
-        <h2 className="text-xl font-extrabold">{title}</h2>
+        <h2 className="text-lg sm:text-xl font-extrabold">{title}</h2>
         {subtitle && <p className="text-sm text-white/60 mt-1">{subtitle}</p>}
       </div>
       {children}
@@ -1180,7 +1141,7 @@ function Section({ title, subtitle, children }) {
 }
 
 function Grid({ children }) {
-  return <div className="grid md:grid-cols-2 gap-4">{children}</div>;
+  return <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{children}</div>;
 }
 
 function Input({ label, value, onChange }) {
@@ -1202,7 +1163,7 @@ function Select({ label, value, onChange, options }) {
         onChange={(e) => onChange?.(e.target.value)}
       >
         {options.map((o) => (
-          <option key={o} value={o}>
+          <option key={o} value={o} className="text-black">
             {o}
           </option>
         ))}
@@ -1229,7 +1190,7 @@ function CardMini({ title, value, tone }) {
   return (
     <div className={`rounded-2xl border p-4 ${c}`}>
       <p className="text-xs text-white/70">{title}</p>
-      <p className="text-2xl font-extrabold mt-1">{value}</p>
+      <p className="text-xl sm:text-2xl font-extrabold mt-1 break-words">{value}</p>
     </div>
   );
 }
@@ -1261,10 +1222,3 @@ function LinkBtn({ label, url }) {
     </a>
   );
 }
-
-/* Tailwind utility class (keep in your global css if you already have it)
-.input {
-  @apply w-full px-4 py-3 rounded-xl bg-black/20 border border-white/15
-  placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500;
-}
-*/

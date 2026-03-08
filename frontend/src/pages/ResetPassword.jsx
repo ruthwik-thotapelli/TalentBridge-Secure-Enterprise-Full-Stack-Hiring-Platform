@@ -78,7 +78,7 @@ export default function ResetPassword() {
         navigate("/login", { state: { success: successMsg, email } });
       }, 900);
     } catch (e2) {
-      setErr(e2.response?.data?.message || e2.message || "Reset failed");
+      setErr(e2?.response?.data?.message || e2?.message || "Reset failed");
     } finally {
       setLoading(false);
     }
@@ -91,25 +91,18 @@ export default function ResetPassword() {
     </div>
   );
 
-  // Invalid link UI (same theme, no glass)
   if (!token || !email) {
     return (
-      <div
-        className="min-h-screen flex items-start justify-center
-                   bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900
-                   px-6 py-20 text-white"
-      >
-        <div className="w-full max-w-md bg-[#4b2a79] border border-white/15 rounded-3xl shadow-2xl px-10 py-10 mt-6 text-center">
-          <h2 className="text-2xl font-extrabold mb-2">Invalid Link</h2>
-          <p className="text-white/80 mb-6">
+      <div className="min-h-screen flex items-start justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 px-4 sm:px-6 py-12 sm:py-20 text-white overflow-x-hidden">
+        <div className="w-full max-w-md bg-[#4b2a79] border border-white/15 rounded-3xl shadow-2xl px-6 sm:px-10 py-8 sm:py-10 mt-4 sm:mt-6 text-center">
+          <h2 className="text-2xl sm:text-3xl font-extrabold mb-2">Invalid Link</h2>
+          <p className="text-white/80 mb-6 text-sm sm:text-base">
             This reset link is invalid or expired.
           </p>
 
           <button
             onClick={() => navigate("/forgot-password")}
-            className="w-full py-3 rounded-xl text-lg font-semibold
-                       bg-gradient-to-r from-green-400 to-emerald-500
-                       hover:scale-[1.02] transition"
+            className="w-full py-3 rounded-xl text-base sm:text-lg font-semibold bg-gradient-to-r from-green-400 to-emerald-500 hover:scale-[1.02] transition"
           >
             Request New Link
           </button>
@@ -126,22 +119,15 @@ export default function ResetPassword() {
   }
 
   return (
-    <div
-      className="min-h-screen flex items-start justify-center
-                 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900
-                 px-6 py-20 text-white"
-    >
-      {/* Card (NO glass, solid) */}
-      <div className="w-full max-w-md bg-[#4b2a79] border border-white/15 rounded-3xl shadow-2xl px-10 py-10 mt-6">
-        {/* Header */}
+    <div className="min-h-screen flex items-start justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 px-4 sm:px-6 py-12 sm:py-20 text-white overflow-x-hidden">
+      <div className="w-full max-w-md bg-[#4b2a79] border border-white/15 rounded-3xl shadow-2xl px-6 sm:px-10 py-8 sm:py-10 mt-4 sm:mt-6">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold mb-2">Reset Password</h1>
-          <p className="text-white/80">
+          <h1 className="text-2xl sm:text-3xl font-extrabold mb-2">Reset Password</h1>
+          <p className="text-white/80 text-sm sm:text-base">
             Create a strong new password for your account
           </p>
         </div>
 
-        {/* Alerts */}
         {msg && (
           <div className="mb-5 text-sm text-green-200 bg-green-500/15 border border-green-500/25 rounded-xl px-4 py-3">
             {msg}
@@ -154,11 +140,8 @@ export default function ResetPassword() {
         )}
 
         <form onSubmit={submit} className="space-y-6">
-          {/* New Password */}
           <div>
-            <label className="block text-sm mb-2 text-white/85">
-              New Password
-            </label>
+            <label className="block text-sm mb-2 text-white/85">New Password</label>
 
             <div className="relative">
               <input
@@ -167,9 +150,7 @@ export default function ResetPassword() {
                 placeholder="Enter new password"
                 type={showNew ? "text" : "password"}
                 required
-                className="w-full px-4 py-3 pr-12 rounded-xl bg-white/15
-                           border border-white/20 placeholder-white/50
-                           focus:outline-none focus:ring-2 focus:ring-purple-300"
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-white/15 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-300"
               />
 
               <button
@@ -183,11 +164,8 @@ export default function ResetPassword() {
             </div>
           </div>
 
-          {/* Confirm Password */}
           <div>
-            <label className="block text-sm mb-2 text-white/85">
-              Confirm Password
-            </label>
+            <label className="block text-sm mb-2 text-white/85">Confirm Password</label>
 
             <div className="relative">
               <input
@@ -196,9 +174,7 @@ export default function ResetPassword() {
                 placeholder="Re-enter new password"
                 type={showConfirm ? "text" : "password"}
                 required
-                className="w-full px-4 py-3 pr-12 rounded-xl bg-white/15
-                           border border-white/20 placeholder-white/50
-                           focus:outline-none focus:ring-2 focus:ring-purple-300"
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-white/15 border border-white/20 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-300"
               />
 
               <button
@@ -218,9 +194,8 @@ export default function ResetPassword() {
             )}
           </div>
 
-          {/* Strength box */}
           <div className="rounded-xl bg-white/10 border border-white/15 p-4">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-3 gap-4">
               <span className="text-sm text-white/80">Password strength</span>
               <span
                 className={`text-sm font-semibold ${
@@ -235,7 +210,7 @@ export default function ResetPassword() {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <RuleItem ok={rules.length} label="8+ characters" />
               <RuleItem ok={rules.upper} label="Uppercase" />
               <RuleItem ok={rules.lower} label="Lowercase" />
@@ -244,13 +219,11 @@ export default function ResetPassword() {
             </div>
           </div>
 
-          {/* Submit */}
           <button
             disabled={loading || !canSubmit}
-            className={`w-full py-3 rounded-xl text-lg font-semibold
-                       bg-gradient-to-r from-green-400 to-emerald-500
-                       hover:scale-[1.02] transition
-                       ${(loading || !canSubmit) ? "opacity-70 cursor-not-allowed" : ""}`}
+            className={`w-full py-3 rounded-xl text-base sm:text-lg font-semibold bg-gradient-to-r from-green-400 to-emerald-500 hover:scale-[1.02] transition ${
+              loading || !canSubmit ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
             {loading ? "Updating..." : "Set New Password"}
           </button>

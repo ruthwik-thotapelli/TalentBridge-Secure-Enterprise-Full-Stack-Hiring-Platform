@@ -1,14 +1,11 @@
-// src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 
-// ✅ Protected
-import ProtectedRoute from "./components/ProtectedRoute"; // user token route
-import PrivateRoute from "./components/PrivateRoute"; // admin route
+import ProtectedRoute from "./components/ProtectedRoute";
+import PrivateRoute from "./components/PrivateRoute";
 
-// User Pages
 import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -20,60 +17,47 @@ import Resume from "./pages/Resume";
 import Profile from "./pages/Profile";
 import Shortlisted from "./pages/Shortlisted";
 
-// ✅ Auth Extra Pages
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import VerifyEmail from "./pages/VerifyEmail";
 
-// Admin Pages
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageJobs from "./pages/admin/ManageJobs";
 import Applicants from "./pages/admin/Applicants";
 import ShortlistedCandidates from "./pages/admin/ShortlistedCandidates";
 
-// ✅ Admin Forgot/Reset Pages
 import AdminForgotPassword from "./pages/admin/AdminForgotPassword";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
 
 import "./App.css";
 
-/* Layout Component */
 function Layout() {
   const location = useLocation();
-
-  // Hide Navbar on Welcome & Admin pages
   const hideNavbar = location.pathname === "/" || location.pathname.startsWith("/admin");
 
   return (
-    <>
+    <div className="min-h-screen w-full overflow-x-hidden">
       {!hideNavbar && <Navbar />}
 
       <Routes>
-        {/* Landing */}
         <Route path="/" element={<Welcome />} />
 
-        {/* Public User Pages */}
         <Route path="/home" element={<Home />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/jobs/:id" element={<JobDetails />} />
 
-        {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* ✅ Email Verification */}
         <Route path="/verify-email" element={<VerifyEmail />} />
 
-        {/* ✅ Forgot Password Flow (USER) */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* ✅ OAuth Redirect Success */}
         <Route path="/oauth-success" element={<OAuthSuccess />} />
 
-        {/* ✅ USER PROTECTED */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/resume" element={<Resume />} />
@@ -81,18 +65,10 @@ function Layout() {
           <Route path="/shortlisted" element={<Shortlisted />} />
         </Route>
 
-        {/* ========================= */}
-        {/* ✅ ADMIN ROUTES */}
-        {/* ========================= */}
-
-        {/* Admin Login (Public) */}
         <Route path="/admin/login" element={<AdminLogin />} />
-
-        {/* ✅ Admin Forgot/Reset (Public) */}
         <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
         <Route path="/admin/reset-password" element={<AdminResetPassword />} />
 
-        {/* ✅ ADMIN PROTECTED */}
         <Route element={<PrivateRoute />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/manage-jobs" element={<ManageJobs />} />
@@ -100,17 +76,18 @@ function Layout() {
           <Route path="/admin/shortlisted" element={<ShortlistedCandidates />} />
         </Route>
 
-        {/* 404 */}
         <Route
           path="*"
           element={
-            <h2 style={{ textAlign: "center", marginTop: "40px", color: "white" }}>
-              Page Not Found
-            </h2>
+            <div className="min-h-[60vh] flex items-center justify-center px-4">
+              <h2 className="text-center text-white text-xl sm:text-2xl font-semibold">
+                Page Not Found
+              </h2>
+            </div>
           }
         />
       </Routes>
-    </>
+    </div>
   );
 }
 

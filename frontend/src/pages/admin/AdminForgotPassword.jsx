@@ -41,8 +41,9 @@ export default function AdminForgotPassword() {
     ];
 
     if (domain.includes("gmail")) return [providers[0], providers[1], providers[2]];
-    if (domain.includes("outlook") || domain.includes("hotmail") || domain.includes("live"))
+    if (domain.includes("outlook") || domain.includes("hotmail") || domain.includes("live")) {
       return [providers[1], providers[0], providers[2]];
+    }
     if (domain.includes("yahoo")) return [providers[2], providers[0], providers[1]];
     return providers;
   }, [domain]);
@@ -53,7 +54,9 @@ export default function AdminForgotPassword() {
 
   useEffect(() => {
     if (cooldown <= 0) return;
-    const t = setInterval(() => setCooldown((c) => c - 1), 1000);
+    const t = setInterval(() => {
+      setCooldown((c) => (c <= 1 ? 0 : c - 1));
+    }, 1000);
     return () => clearInterval(t);
   }, [cooldown]);
 
@@ -82,7 +85,7 @@ export default function AdminForgotPassword() {
     setLoading(true);
     try {
       const res = await adminForgotPassword(email.trim());
-      setMsg(res?.message || "Reset link sent. Please check your inbox (and spam).");
+      setMsg(res?.message || "Reset link sent. Please check your inbox and spam folder.");
       setCooldown(30);
       showToast("Email sent ✅");
     } catch (e2) {
@@ -112,14 +115,11 @@ export default function AdminForgotPassword() {
   };
 
   return (
-    <div
-      className="min-h-screen relative flex items-center justify-center overflow-x-hidden px-6 py-14 text-white
-                 bg-gradient-to-br from-slate-950 via-indigo-950 to-fuchsia-950"
-    >
+    <div className="min-h-screen relative flex items-center justify-center overflow-x-hidden px-4 sm:px-6 py-10 sm:py-14 text-white bg-gradient-to-br from-slate-950 via-indigo-950 to-fuchsia-950">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-28 -left-28 w-[520px] h-[520px] rounded-full bg-indigo-500/25 blur-[120px]" />
-        <div className="absolute top-1/3 -right-28 w-[480px] h-[480px] rounded-full bg-fuchsia-500/20 blur-[120px]" />
-        <div className="absolute -bottom-28 left-1/3 w-[520px] h-[520px] rounded-full bg-cyan-500/15 blur-[120px]" />
+        <div className="absolute -top-28 -left-28 w-[320px] sm:w-[520px] h-[320px] sm:h-[520px] rounded-full bg-indigo-500/25 blur-[120px]" />
+        <div className="absolute top-1/3 -right-28 w-[300px] sm:w-[480px] h-[300px] sm:h-[480px] rounded-full bg-fuchsia-500/20 blur-[120px]" />
+        <div className="absolute -bottom-28 left-1/3 w-[320px] sm:w-[520px] h-[320px] sm:h-[520px] rounded-full bg-cyan-500/15 blur-[120px]" />
         <div
           className="absolute inset-0 opacity-[0.12]"
           style={{
@@ -130,22 +130,21 @@ export default function AdminForgotPassword() {
       </div>
 
       {toast && (
-        <div className="fixed top-6 z-50">
+        <div className="fixed top-4 sm:top-6 z-50 max-w-[calc(100vw-2rem)]">
           <div className="px-5 py-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl shadow-lg">
-            <p className="text-sm text-white/90">{toast}</p>
+            <p className="text-sm text-white/90 text-center">{toast}</p>
           </div>
         </div>
       )}
 
       <div className="relative z-10 w-full max-w-md">
         <div className="rounded-[26px] bg-white/10 border border-white/15 backdrop-blur-2xl shadow-[0_25px_90px_rgba(99,102,241,0.18)] overflow-hidden">
-          <div className="px-8 pt-6 pb-5 border-b border-white/10">
-            <div className="flex items-center justify-between gap-3">
+          <div className="px-5 sm:px-8 pt-6 pb-5 border-b border-white/10">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <button
                 type="button"
                 onClick={() => navigate("/admin/login")}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/10 border border-white/10
-                           hover:bg-white/15 hover:border-white/20 transition text-xs text-white/80"
+                className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 hover:border-white/20 transition text-xs text-white/80 w-full sm:w-auto"
               >
                 <span className="h-2 w-2 rounded-full bg-white/60" />
                 Back to Admin Login
@@ -154,17 +153,16 @@ export default function AdminForgotPassword() {
               <button
                 type="button"
                 onClick={() => showToast("Tip: Check spam/promotions tab")}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/5 border border-white/10
-                           hover:bg-white/10 transition text-xs text-white/70"
+                className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition text-xs text-white/70 w-full sm:w-auto"
               >
                 💬 Need help?
               </button>
             </div>
 
             <div className="mt-5 flex items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs tracking-widest text-white/60">TALENTBRIDGE • ADMIN</p>
-                <h1 className="text-3xl font-extrabold mt-2">Password Recovery</h1>
+                <h1 className="text-2xl sm:text-3xl font-extrabold mt-2">Password Recovery</h1>
                 <p className="text-sm text-white/70 mt-1">
                   We’ll send a secure reset link to your admin email.
                 </p>
@@ -188,7 +186,7 @@ export default function AdminForgotPassword() {
             </div>
           </div>
 
-          <div className="px-8 py-7">
+          <div className="px-5 sm:px-8 py-7">
             {(err || msg) && (
               <div
                 className={`mb-4 text-sm rounded-2xl px-4 py-3 border ${
@@ -222,8 +220,7 @@ export default function AdminForgotPassword() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="admin@example.com"
                       required
-                      className="w-full px-4 py-3 rounded-2xl bg-black/25 border border-white/15 placeholder-white/35
-                                 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-white/20"
+                      className="w-full px-4 py-3 rounded-2xl bg-black/25 border border-white/15 placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-white/20"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/60">
                       {email.length ? (emailOk ? "✅" : "⚠️") : "✉️"}
@@ -237,23 +234,18 @@ export default function AdminForgotPassword() {
                 <button
                   type="submit"
                   disabled={loading || !emailOk}
-                  className={`w-full py-3.5 rounded-2xl text-base font-bold transition-all
-                    ${
-                      loading || !emailOk
-                        ? "bg-white/10 border border-white/10 text-white/55 cursor-not-allowed"
-                        : "bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-pink-500 hover:scale-[1.01] hover:shadow-[0_0_55px_rgba(217,70,239,0.30)]"
-                    }`}
+                  className={`w-full py-3.5 rounded-2xl text-base font-bold transition-all ${
+                    loading || !emailOk
+                      ? "bg-white/10 border border-white/10 text-white/55 cursor-not-allowed"
+                      : "bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-pink-500 hover:scale-[1.01] hover:shadow-[0_0_55px_rgba(217,70,239,0.30)]"
+                  }`}
                 >
                   {loading ? "Sending..." : "Send Reset Link"}
                 </button>
 
-                <div className="flex items-center justify-between text-xs text-white/55">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-white/55">
                   <span>Tip: Press Esc to clear messages</span>
-                  <button
-                    type="button"
-                    onClick={clear}
-                    className="hover:text-white/80 transition"
-                  >
+                  <button type="button" onClick={clear} className="hover:text-white/80 transition text-left sm:text-right">
                     Clear
                   </button>
                 </div>
@@ -295,17 +287,16 @@ export default function AdminForgotPassword() {
                   type="button"
                   onClick={submit}
                   disabled={loading || cooldown > 0}
-                  className={`w-full py-3.5 rounded-2xl text-base font-bold transition-all
-                    ${
-                      loading || cooldown > 0
-                        ? "bg-white/10 border border-white/10 text-white/55 cursor-not-allowed"
-                        : "bg-gradient-to-r from-cyan-500 via-indigo-500 to-fuchsia-500 hover:scale-[1.01]"
-                    }`}
+                  className={`w-full py-3.5 rounded-2xl text-base font-bold transition-all ${
+                    loading || cooldown > 0
+                      ? "bg-white/10 border border-white/10 text-white/55 cursor-not-allowed"
+                      : "bg-gradient-to-r from-cyan-500 via-indigo-500 to-fuchsia-500 hover:scale-[1.01]"
+                  }`}
                 >
                   {cooldown > 0 ? `Resend in ${cooldown}s` : loading ? "Resending..." : "Resend Email"}
                 </button>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={clear}
@@ -325,7 +316,7 @@ export default function AdminForgotPassword() {
             )}
           </div>
 
-          <div className="px-8 py-5 border-t border-white/10 bg-black/10">
+          <div className="px-5 sm:px-8 py-5 border-t border-white/10 bg-black/10">
             <p className="text-xs text-white/60">
               Security note: If you request repeatedly, the server may temporarily block requests.
             </p>

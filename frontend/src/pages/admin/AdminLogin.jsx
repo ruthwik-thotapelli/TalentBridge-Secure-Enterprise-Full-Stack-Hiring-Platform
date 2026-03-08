@@ -7,7 +7,9 @@ export default function AdminLogin() {
 
   const [email, setEmail] = useState(() => localStorage.getItem("adminEmail") || "");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(() => localStorage.getItem("adminRemember") === "true");
+  const [remember, setRemember] = useState(
+    () => localStorage.getItem("adminRemember") === "true"
+  );
 
   const [showPass, setShowPass] = useState(false);
   const [capsOn, setCapsOn] = useState(false);
@@ -35,15 +37,16 @@ export default function AdminLogin() {
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Escape") {
-        setErr("");
-      }
+      if (e.key === "Escape") setErr("");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const emailOk = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()), [email]);
+  const emailOk = useMemo(
+    () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()),
+    [email]
+  );
 
   const strength = useMemo(() => {
     const p = password || "";
@@ -67,10 +70,16 @@ export default function AdminLogin() {
   const strengthWidth = useMemo(() => `${(strength / 5) * 100}%`, [strength]);
 
   const securityLevel = useMemo(() => {
-    if (!password) return { badge: "Security", text: "Enter password to evaluate", tone: "neutral" };
-    if (strength <= 2) return { badge: "Security", text: "Improve password strength", tone: "warn" };
-    if (strength === 3) return { badge: "Security", text: "Decent strength detected", tone: "ok" };
-    return { badge: "Security", text: "Strong password detected", tone: "good" };
+    if (!password) {
+      return { text: "Enter password to evaluate", tone: "neutral" };
+    }
+    if (strength <= 2) {
+      return { text: "Improve password strength", tone: "warn" };
+    }
+    if (strength === 3) {
+      return { text: "Decent strength detected", tone: "ok" };
+    }
+    return { text: "Strong password detected", tone: "good" };
   }, [password, strength]);
 
   const helperHints = useMemo(() => {
@@ -79,18 +88,24 @@ export default function AdminLogin() {
     if (email && !emailOk) hints.push({ k: "emailok", t: "Email format looks incorrect" });
     if (!password) hints.push({ k: "pass", t: "Password is required for admin access" });
     if (capsOn) hints.push({ k: "caps", t: "Caps Lock is ON" });
-    if (password && strength <= 2) hints.push({ k: "weak", t: "Add uppercase, number, and symbol to strengthen" });
+    if (password && strength <= 2) {
+      hints.push({ k: "weak", t: "Add uppercase, number, and symbol to strengthen" });
+    }
     return hints;
   }, [email, emailOk, password, capsOn, strength]);
 
   const toneClasses = useMemo(() => {
-    const base = "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs border";
-    if (securityLevel.tone === "good")
+    const base =
+      "inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] sm:text-xs border";
+    if (securityLevel.tone === "good") {
       return { chip: `${base} bg-emerald-500/10 text-emerald-200 border-emerald-400/20` };
-    if (securityLevel.tone === "ok")
+    }
+    if (securityLevel.tone === "ok") {
       return { chip: `${base} bg-indigo-500/10 text-indigo-200 border-indigo-400/20` };
-    if (securityLevel.tone === "warn")
+    }
+    if (securityLevel.tone === "warn") {
       return { chip: `${base} bg-amber-500/10 text-amber-200 border-amber-400/20` };
+    }
     return { chip: `${base} bg-white/5 text-white/70 border-white/10` };
   }, [securityLevel.tone]);
 
@@ -119,6 +134,7 @@ export default function AdminLogin() {
       if (role !== "admin") {
         localStorage.removeItem("admin");
         setErr("Access denied. This portal is for Admin only.");
+        setLoading(false);
         return;
       }
 
@@ -126,7 +142,7 @@ export default function AdminLogin() {
       showToast("Welcome Admin ✅");
       navigate("/admin/dashboard");
     } catch (e2) {
-      const msg = e2.response?.data?.message || e2.message || "Login failed";
+      const msg = e2?.response?.data?.message || e2?.message || "Login failed";
       setErr(msg);
     } finally {
       setLoading(false);
@@ -134,14 +150,11 @@ export default function AdminLogin() {
   };
 
   return (
-    <div
-      className="min-h-screen relative flex items-center justify-center overflow-x-hidden px-6 py-14 text-white
-                 bg-gradient-to-br from-slate-950 via-indigo-950 to-fuchsia-950"
-    >
+    <div className="min-h-screen relative flex items-center justify-center overflow-x-hidden px-4 sm:px-6 py-8 sm:py-12 text-white bg-gradient-to-br from-slate-950 via-indigo-950 to-fuchsia-950">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-28 -left-28 w-[520px] h-[520px] rounded-full bg-indigo-500/25 blur-[120px]" />
-        <div className="absolute top-1/3 -right-28 w-[480px] h-[480px] rounded-full bg-fuchsia-500/20 blur-[120px]" />
-        <div className="absolute -bottom-28 left-1/3 w-[520px] h-[520px] rounded-full bg-cyan-500/15 blur-[120px]" />
+        <div className="absolute -top-20 -left-20 sm:-top-28 sm:-left-28 w-[260px] h-[260px] sm:w-[520px] sm:h-[520px] rounded-full bg-indigo-500/25 blur-[90px] sm:blur-[120px]" />
+        <div className="absolute top-1/3 -right-20 sm:-right-28 w-[240px] h-[240px] sm:w-[480px] sm:h-[480px] rounded-full bg-fuchsia-500/20 blur-[90px] sm:blur-[120px]" />
+        <div className="absolute -bottom-20 left-1/3 w-[260px] h-[260px] sm:w-[520px] sm:h-[520px] rounded-full bg-cyan-500/15 blur-[90px] sm:blur-[120px]" />
         <div
           className="absolute inset-0 opacity-[0.12]"
           style={{
@@ -152,53 +165,54 @@ export default function AdminLogin() {
       </div>
 
       {toast && (
-        <div className="fixed top-6 z-50">
-          <div className="px-5 py-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl shadow-lg">
+        <div className="fixed top-4 sm:top-6 z-50 px-4">
+          <div className="px-4 sm:px-5 py-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl shadow-lg">
             <p className="text-sm text-white/90">{toast}</p>
           </div>
         </div>
       )}
 
       <div className="relative z-10 w-full max-w-md">
-        <div className="rounded-[26px] bg-white/10 border border-white/15 backdrop-blur-2xl shadow-[0_25px_90px_rgba(99,102,241,0.18)] overflow-hidden">
-          <div className="px-8 pt-6 pb-5 border-b border-white/10">
-            <div className="flex items-center justify-between gap-3">
+        <div className="rounded-[22px] sm:rounded-[26px] bg-white/10 border border-white/15 backdrop-blur-2xl shadow-[0_25px_90px_rgba(99,102,241,0.18)] overflow-hidden">
+          <div className="px-4 sm:px-8 pt-5 sm:pt-6 pb-5 border-b border-white/10">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <button
                 type="button"
                 onClick={() => navigate("/login")}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/10 border border-white/10
-                           hover:bg-white/15 hover:border-white/20 transition text-xs text-white/80"
+                className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 hover:border-white/20 transition text-xs text-white/80 w-full sm:w-auto"
               >
                 <span className="h-2 w-2 rounded-full bg-white/60" />
                 Back to User Login
               </button>
 
-              <div className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/5 border border-white/10 text-xs text-white/70">
+              <div className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-2xl bg-white/5 border border-white/10 text-xs text-white/70 w-full sm:w-auto">
                 <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
                 Admin Access Only
               </div>
             </div>
 
             <div className="mt-5 flex items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs tracking-widest text-white/60">TALENTBRIDGE • ADMIN</p>
-                <h1 className="text-3xl font-extrabold mt-2">Admin Portal</h1>
-                <p className="text-sm text-white/70 mt-1">Secure authentication for administrators</p>
+                <h1 className="text-2xl sm:text-3xl font-extrabold mt-2">Admin Portal</h1>
+                <p className="text-sm text-white/70 mt-1">
+                  Secure authentication for administrators
+                </p>
               </div>
 
-              <div className="shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 grid place-items-center shadow-lg shadow-fuchsia-500/20">
-                <span className="text-xl">👑</span>
+              <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 grid place-items-center shadow-lg shadow-fuchsia-500/20">
+                <span className="text-lg sm:text-xl">👑</span>
               </div>
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <span className="px-3 py-1 rounded-full text-xs bg-emerald-500/10 text-emerald-200 border border-emerald-400/20">
+              <span className="px-3 py-1 rounded-full text-[11px] sm:text-xs bg-emerald-500/10 text-emerald-200 border border-emerald-400/20">
                 Protected
               </span>
-              <span className="px-3 py-1 rounded-full text-xs bg-indigo-500/10 text-indigo-200 border border-indigo-400/20">
+              <span className="px-3 py-1 rounded-full text-[11px] sm:text-xs bg-indigo-500/10 text-indigo-200 border border-indigo-400/20">
                 Role-based (RBAC)
               </span>
-              <span className="px-3 py-1 rounded-full text-xs bg-white/5 text-white/70 border border-white/10">
+              <span className="px-3 py-1 rounded-full text-[11px] sm:text-xs bg-white/5 text-white/70 border border-white/10">
                 JWT Session
               </span>
               <span className={toneClasses.chip}>
@@ -208,7 +222,7 @@ export default function AdminLogin() {
             </div>
           </div>
 
-          <div className="px-8 py-7">
+          <div className="px-4 sm:px-8 py-6 sm:py-7">
             {err && (
               <div className="mb-4 text-sm text-rose-100 bg-rose-500/10 border border-rose-400/20 rounded-2xl px-4 py-3">
                 {err}
@@ -239,8 +253,7 @@ export default function AdminLogin() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@company.com"
-                    className="w-full px-4 py-3 rounded-2xl bg-black/25 border border-white/15 placeholder-white/35
-                               focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-white/20"
+                    className="w-full px-4 py-3 rounded-2xl bg-black/25 border border-white/15 placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-white/20"
                     required
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/60">
@@ -256,17 +269,17 @@ export default function AdminLogin() {
                     type={showPass ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    onKeyUp={(e) => setCapsOn(e.getModifierState && e.getModifierState("CapsLock"))}
+                    onKeyUp={(e) =>
+                      setCapsOn(e.getModifierState && e.getModifierState("CapsLock"))
+                    }
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 pr-16 rounded-2xl bg-black/25 border border-white/15 placeholder-white/35
-                               focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-white/20"
+                    className="w-full px-4 py-3 pr-20 rounded-2xl bg-black/25 border border-white/15 placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-white/20"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPass((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 rounded-xl
-                               bg-white/10 border border-white/10 hover:bg-white/15 transition text-xs"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 transition text-xs"
                   >
                     {showPass ? "Hide" : "Show"}
                   </button>
@@ -288,7 +301,7 @@ export default function AdminLogin() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <label className="flex items-center gap-2 text-sm text-white/70 select-none">
                   <input
                     type="checkbox"
@@ -302,7 +315,7 @@ export default function AdminLogin() {
                 <button
                   type="button"
                   onClick={() => navigate("/admin/forgot-password", { state: { email } })}
-                  className="text-sm text-white/75 hover:text-white transition underline underline-offset-4 decoration-white/30 hover:decoration-white/70"
+                  className="text-sm text-white/75 hover:text-white transition underline underline-offset-4 decoration-white/30 hover:decoration-white/70 text-left"
                 >
                   Forgot password?
                 </button>
@@ -311,17 +324,16 @@ export default function AdminLogin() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3.5 rounded-2xl text-base font-bold transition-all
-                  ${
-                    loading
-                      ? "bg-white/10 border border-white/10 text-white/55 cursor-not-allowed"
-                      : "bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-pink-500 hover:scale-[1.01] hover:shadow-[0_0_55px_rgba(217,70,239,0.30)]"
-                  }`}
+                className={`w-full py-3.5 rounded-2xl text-base font-bold transition-all ${
+                  loading
+                    ? "bg-white/10 border border-white/10 text-white/55 cursor-not-allowed"
+                    : "bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-pink-500 hover:scale-[1.01] hover:shadow-[0_0_55px_rgba(217,70,239,0.30)]"
+                }`}
               >
                 {loading ? "Signing in..." : "Continue"}
               </button>
 
-              <div className="pt-1 flex items-center justify-between text-xs text-white/55">
+              <div className="pt-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-white/55">
                 <span className="text-white/50">Tip: Press Esc to clear error</span>
                 <button
                   type="button"
@@ -330,7 +342,7 @@ export default function AdminLogin() {
                     setErr("");
                     showToast("Cleared ✅");
                   }}
-                  className="hover:text-white/80 transition"
+                  className="hover:text-white/80 transition text-left sm:text-right"
                 >
                   Clear
                 </button>
@@ -338,14 +350,17 @@ export default function AdminLogin() {
             </form>
           </div>
 
-          <div className="px-8 py-5 border-t border-white/10 bg-black/10">
+          <div className="px-4 sm:px-8 py-5 border-t border-white/10 bg-black/10">
             <p className="text-xs text-white/60">
-              Only accounts with <b className="text-white/85">role = admin</b> can access this portal.
+              Only accounts with <b className="text-white/85">role = admin</b> can access
+              this portal.
             </p>
           </div>
         </div>
 
-        <p className="text-center text-xs text-white/45 mt-5">TalentBridge • Secure Admin Access</p>
+        <p className="text-center text-xs text-white/45 mt-5">
+          TalentBridge • Secure Admin Access
+        </p>
       </div>
     </div>
   );

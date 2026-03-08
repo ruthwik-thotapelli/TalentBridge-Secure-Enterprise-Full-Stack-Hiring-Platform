@@ -60,12 +60,19 @@ export default function AdminResetPassword() {
     };
   }, [newPassword]);
 
-  const strengthCount = useMemo(() => Object.values(rules).filter(Boolean).length, [rules]);
+  const strengthCount = useMemo(
+    () => Object.values(rules).filter(Boolean).length,
+    [rules]
+  );
 
   const strength = useMemo(() => {
     if (!newPassword) return { label: "—", width: "0%", tone: "text-white/70" };
-    if (strengthCount <= 3) return { label: "Weak", width: "35%", tone: "text-rose-200" };
-    if (strengthCount <= 5) return { label: "Medium", width: "65%", tone: "text-amber-200" };
+    if (strengthCount <= 3) {
+      return { label: "Weak", width: "35%", tone: "text-rose-200" };
+    }
+    if (strengthCount <= 5) {
+      return { label: "Medium", width: "65%", tone: "text-amber-200" };
+    }
     return { label: "Strong", width: "100%", tone: "text-emerald-200" };
   }, [newPassword, strengthCount]);
 
@@ -112,7 +119,7 @@ export default function AdminResetPassword() {
       showToast("Password updated ✅");
       window.setTimeout(() => navigate("/admin/login"), 1100);
     } catch (e2) {
-      setErr(e2.response?.data?.message || "Reset failed");
+      setErr(e2?.response?.data?.message || "Reset failed");
     } finally {
       setLoading(false);
     }
@@ -139,18 +146,15 @@ export default function AdminResetPassword() {
 
   if (!token || !email) {
     return (
-      <div
-        className="min-h-screen relative flex items-center justify-center overflow-x-hidden px-6 py-14 text-white
-                   bg-gradient-to-br from-slate-950 via-indigo-950 to-fuchsia-950"
-      >
+      <div className="min-h-screen relative flex items-center justify-center overflow-x-hidden px-4 sm:px-6 py-8 sm:py-14 text-white bg-gradient-to-br from-slate-950 via-indigo-950 to-fuchsia-950">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-28 -left-28 w-[520px] h-[520px] rounded-full bg-indigo-500/25 blur-[120px]" />
-          <div className="absolute top-1/3 -right-28 w-[480px] h-[480px] rounded-full bg-fuchsia-500/20 blur-[120px]" />
-          <div className="absolute -bottom-28 left-1/3 w-[520px] h-[520px] rounded-full bg-cyan-500/15 blur-[120px]" />
+          <div className="absolute -top-20 -left-20 sm:-top-28 sm:-left-28 w-[260px] h-[260px] sm:w-[520px] sm:h-[520px] rounded-full bg-indigo-500/25 blur-[90px] sm:blur-[120px]" />
+          <div className="absolute top-1/3 -right-20 sm:-right-28 w-[240px] h-[240px] sm:w-[480px] sm:h-[480px] rounded-full bg-fuchsia-500/20 blur-[90px] sm:blur-[120px]" />
+          <div className="absolute -bottom-20 left-1/3 w-[260px] h-[260px] sm:w-[520px] sm:h-[520px] rounded-full bg-cyan-500/15 blur-[90px] sm:blur-[120px]" />
         </div>
 
         <div className="relative z-10 w-full max-w-md">
-          <div className="rounded-[26px] bg-white/10 border border-white/15 backdrop-blur-2xl shadow-[0_25px_90px_rgba(99,102,241,0.18)] px-8 py-8 text-center">
+          <div className="rounded-[22px] sm:rounded-[26px] bg-white/10 border border-white/15 backdrop-blur-2xl shadow-[0_25px_90px_rgba(99,102,241,0.18)] px-5 sm:px-8 py-8 text-center">
             <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 grid place-items-center shadow-lg shadow-fuchsia-500/20">
               <span className="text-2xl">⛔</span>
             </div>
@@ -180,14 +184,11 @@ export default function AdminResetPassword() {
   }
 
   return (
-    <div
-      className="min-h-screen relative flex items-center justify-center overflow-x-hidden px-6 py-14 text-white
-                 bg-gradient-to-br from-slate-950 via-indigo-950 to-fuchsia-950"
-    >
+    <div className="min-h-screen relative flex items-center justify-center overflow-x-hidden px-4 sm:px-6 py-8 sm:py-14 text-white bg-gradient-to-br from-slate-950 via-indigo-950 to-fuchsia-950">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-28 -left-28 w-[520px] h-[520px] rounded-full bg-indigo-500/25 blur-[120px]" />
-        <div className="absolute top-1/3 -right-28 w-[480px] h-[480px] rounded-full bg-fuchsia-500/20 blur-[120px]" />
-        <div className="absolute -bottom-28 left-1/3 w-[520px] h-[520px] rounded-full bg-cyan-500/15 blur-[120px]" />
+        <div className="absolute -top-20 -left-20 sm:-top-28 sm:-left-28 w-[260px] h-[260px] sm:w-[520px] sm:h-[520px] rounded-full bg-indigo-500/25 blur-[90px] sm:blur-[120px]" />
+        <div className="absolute top-1/3 -right-20 sm:-right-28 w-[240px] h-[240px] sm:w-[480px] sm:h-[480px] rounded-full bg-fuchsia-500/20 blur-[90px] sm:blur-[120px]" />
+        <div className="absolute -bottom-20 left-1/3 w-[260px] h-[260px] sm:w-[520px] sm:h-[520px] rounded-full bg-cyan-500/15 blur-[90px] sm:blur-[120px]" />
         <div
           className="absolute inset-0 opacity-[0.12]"
           style={{
@@ -198,7 +199,7 @@ export default function AdminResetPassword() {
       </div>
 
       {toast && (
-        <div className="fixed top-6 z-50">
+        <div className="fixed top-4 sm:top-6 z-50 px-4">
           <div className="px-5 py-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl shadow-lg">
             <p className="text-sm text-white/90">{toast}</p>
           </div>
@@ -206,14 +207,13 @@ export default function AdminResetPassword() {
       )}
 
       <div className="relative z-10 w-full max-w-md">
-        <div className="rounded-[26px] bg-white/10 border border-white/15 backdrop-blur-2xl shadow-[0_25px_90px_rgba(99,102,241,0.18)] overflow-hidden">
-          <div className="px-8 pt-6 pb-5 border-b border-white/10">
-            <div className="flex items-center justify-between gap-3">
+        <div className="rounded-[22px] sm:rounded-[26px] bg-white/10 border border-white/15 backdrop-blur-2xl shadow-[0_25px_90px_rgba(99,102,241,0.18)] overflow-hidden">
+          <div className="px-4 sm:px-8 pt-5 sm:pt-6 pb-5 border-b border-white/10">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <button
                 type="button"
                 onClick={() => navigate("/admin/login")}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/10 border border-white/10
-                           hover:bg-white/15 hover:border-white/20 transition text-xs text-white/80"
+                className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 hover:border-white/20 transition text-xs text-white/80 w-full sm:w-auto"
               >
                 <span className="h-2 w-2 rounded-full bg-white/60" />
                 Back to Login
@@ -222,53 +222,52 @@ export default function AdminResetPassword() {
               <button
                 type="button"
                 onClick={clearAll}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/5 border border-white/10
-                           hover:bg-white/10 transition text-xs text-white/70"
+                className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition text-xs text-white/70 w-full sm:w-auto"
               >
                 ✨ Clear
               </button>
             </div>
 
             <div className="mt-5 flex items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs tracking-widest text-white/60">TALENTBRIDGE • ADMIN</p>
-                <h1 className="text-3xl font-extrabold mt-2">Reset Password</h1>
+                <h1 className="text-2xl sm:text-3xl font-extrabold mt-2">Reset Password</h1>
                 <p className="text-sm text-white/70 mt-1">Set a strong new admin password.</p>
               </div>
 
-              <div className="shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 grid place-items-center shadow-lg shadow-fuchsia-500/20">
-                <span className="text-xl">🛡️</span>
+              <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 grid place-items-center shadow-lg shadow-fuchsia-500/20">
+                <span className="text-lg sm:text-xl">🛡️</span>
               </div>
             </div>
 
             <div className="mt-5 rounded-2xl bg-white/[0.06] border border-white/10 px-4 py-3 flex items-center justify-between gap-3">
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs text-white/60">Resetting for</p>
-                <p className="text-sm font-semibold text-white/85">{maskedEmail}</p>
+                <p className="text-sm font-semibold text-white/85 break-all">{maskedEmail}</p>
               </div>
               <button
                 type="button"
                 onClick={copyEmail}
-                className="px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 transition text-xs"
+                className="px-3 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 transition text-xs shrink-0"
               >
                 Copy
               </button>
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="px-3 py-1 rounded-full text-xs bg-emerald-500/10 text-emerald-200 border border-emerald-400/20">
+              <span className="px-3 py-1 rounded-full text-[11px] sm:text-xs bg-emerald-500/10 text-emerald-200 border border-emerald-400/20">
                 Secure Update
               </span>
-              <span className="px-3 py-1 rounded-full text-xs bg-indigo-500/10 text-indigo-200 border border-indigo-400/20">
+              <span className="px-3 py-1 rounded-full text-[11px] sm:text-xs bg-indigo-500/10 text-indigo-200 border border-indigo-400/20">
                 Policy Checks
               </span>
-              <span className="px-3 py-1 rounded-full text-xs bg-white/5 text-white/70 border border-white/10">
+              <span className="px-3 py-1 rounded-full text-[11px] sm:text-xs bg-white/5 text-white/70 border border-white/10">
                 Esc clears messages
               </span>
             </div>
           </div>
 
-          <div className="px-8 py-7">
+          <div className="px-4 sm:px-8 py-6 sm:py-7">
             {(msg || err) && (
               <div
                 className={`mb-4 text-sm rounded-2xl px-4 py-3 border ${
@@ -292,8 +291,7 @@ export default function AdminResetPassword() {
                     type={showNew ? "text" : "password"}
                     placeholder="Enter new password"
                     required
-                    className="w-full px-4 py-3 pr-16 rounded-2xl bg-black/25 border border-white/15 placeholder-white/35
-                               focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-white/20"
+                    className="w-full px-4 py-3 pr-20 rounded-2xl bg-black/25 border border-white/15 placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-white/20"
                   />
                   <button
                     type="button"
@@ -328,8 +326,7 @@ export default function AdminResetPassword() {
                     type={showConfirm ? "text" : "password"}
                     placeholder="Re-enter password"
                     required
-                    className="w-full px-4 py-3 pr-16 rounded-2xl bg-black/25 border border-white/15 placeholder-white/35
-                               focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-white/20"
+                    className="w-full px-4 py-3 pr-20 rounded-2xl bg-black/25 border border-white/15 placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-white/20"
                   />
                   <button
                     type="button"
@@ -353,7 +350,7 @@ export default function AdminResetPassword() {
                   <span className="text-xs text-white/55">Recommended</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-2 text-xs">
                   <RuleItem ok={rules.length} label="8+ characters" />
                   <RuleItem ok={rules.upper} label="Uppercase" />
                   <RuleItem ok={rules.lower} label="Lowercase" />
@@ -369,22 +366,21 @@ export default function AdminResetPassword() {
 
               <button
                 disabled={loading || !canSubmit}
-                className={`w-full py-3.5 rounded-2xl text-base font-bold transition-all
-                  ${
-                    loading || !canSubmit
-                      ? "bg-white/10 border border-white/10 text-white/55 cursor-not-allowed"
-                      : "bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-pink-500 hover:scale-[1.01] hover:shadow-[0_0_55px_rgba(217,70,239,0.30)]"
-                  }`}
+                className={`w-full py-3.5 rounded-2xl text-base font-bold transition-all ${
+                  loading || !canSubmit
+                    ? "bg-white/10 border border-white/10 text-white/55 cursor-not-allowed"
+                    : "bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-pink-500 hover:scale-[1.01] hover:shadow-[0_0_55px_rgba(217,70,239,0.30)]"
+                }`}
               >
                 {loading ? "Updating..." : "Update Admin Password"}
               </button>
 
-              <div className="flex items-center justify-between text-xs text-white/55">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-white/55">
                 <span>Ctrl/Cmd + K toggles visibility</span>
                 <button
                   type="button"
                   onClick={() => navigate("/admin/forgot-password", { state: { email } })}
-                  className="hover:text-white/80 transition underline underline-offset-4 decoration-white/30 hover:decoration-white/70"
+                  className="hover:text-white/80 transition underline underline-offset-4 decoration-white/30 hover:decoration-white/70 text-left"
                 >
                   Request new link
                 </button>
@@ -400,14 +396,17 @@ export default function AdminResetPassword() {
             </form>
           </div>
 
-          <div className="px-8 py-5 border-t border-white/10 bg-black/10">
+          <div className="px-4 sm:px-8 py-5 border-t border-white/10 bg-black/10">
             <p className="text-xs text-white/60">
-              Security note: After updating, login again. If the link expired, request a new reset email.
+              Security note: After updating, login again. If the link expired,
+              request a new reset email.
             </p>
           </div>
         </div>
 
-        <p className="text-center text-xs text-white/45 mt-5">TalentBridge • Admin Security</p>
+        <p className="text-center text-xs text-white/45 mt-5">
+          TalentBridge • Admin Security
+        </p>
       </div>
     </div>
   );

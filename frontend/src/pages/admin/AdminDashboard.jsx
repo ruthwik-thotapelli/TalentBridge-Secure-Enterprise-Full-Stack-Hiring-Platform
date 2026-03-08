@@ -6,18 +6,13 @@ export default function AdminDashboard() {
   const nav = useNavigate();
 
   const [showNotifications, setShowNotifications] = useState(false);
-
-  // ✅ Loading + auto refresh
   const [loading, setLoading] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(() => {
     const saved = localStorage.getItem("adminAutoRefresh");
     return saved ? saved === "true" : true;
   });
 
-  // ✅ Quick filter on dashboard (for Latest Applications list)
-  const [quickStatus, setQuickStatus] = useState("All"); // All | Pending | Shortlisted | Accepted | Rejected
-
-  // ✅ Notifications (demo)
+  const [quickStatus, setQuickStatus] = useState("All");
   const [notifications, setNotifications] = useState(() => {
     const saved = JSON.parse(localStorage.getItem("adminNotifications") || "null");
     return (
@@ -29,33 +24,22 @@ export default function AdminDashboard() {
     );
   });
 
-  // ✅ NEW: search in notifications
   const [notifSearch, setNotifSearch] = useState("");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const [jobsCount, setJobsCount] = useState(0);
   const [appsCount, setAppsCount] = useState(0);
-
-  // ✅ Status counts
   const [pendingCount, setPendingCount] = useState(0);
   const [shortlistedCount, setShortlistedCount] = useState(0);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
-
-  // ✅ Job status counts
   const [activeJobs, setActiveJobs] = useState(0);
   const [inactiveJobs, setInactiveJobs] = useState(0);
-
-  // ✅ ATS insights
   const [avgAts, setAvgAts] = useState(null);
   const [topAts, setTopAts] = useState(null);
-
-  // ✅ Latest applications
   const [latestApps, setLatestApps] = useState([]);
-
-  // ✅ NEW: Top companies leaderboard
   const [topCompanies, setTopCompanies] = useState([]);
 
-  // ✅ Activity feed
   const [activity, setActivity] = useState(() => {
     const saved = JSON.parse(localStorage.getItem("adminActivity") || "null");
     return saved || [];
@@ -66,7 +50,6 @@ export default function AdminDashboard() {
     setActivity((prev) => [item, ...prev].slice(0, 30));
   };
 
-  // ✅ Push notification helper
   const pushNotification = (text) => {
     setNotifications((prev) => [
       { id: Date.now(), text, read: false, at: new Date().toLocaleString() },
@@ -84,12 +67,10 @@ export default function AdminDashboard() {
       setJobsCount(jobs.length);
       setAppsCount(apps.length);
 
-      // Job status
       const active = jobs.filter((j) => (j.status || "Active") === "Active").length;
       setActiveJobs(active);
       setInactiveJobs(jobs.length - active);
 
-      // App counts by status
       const pending = apps.filter((a) => a.status === "Pending").length;
       const shortlisted = apps.filter((a) => a.status === "Shortlisted").length;
       const accepted = apps.filter((a) => a.status === "Accepted").length;
@@ -100,7 +81,6 @@ export default function AdminDashboard() {
       setAcceptedCount(accepted);
       setRejectedCount(rejected);
 
-      // ATS insights
       const atsList = apps
         .map((a) => (typeof a.atsScore === "number" ? a.atsScore : null))
         .filter((x) => x !== null);
@@ -115,7 +95,6 @@ export default function AdminDashboard() {
         setTopAts(null);
       }
 
-      // Latest applications
       const sortedLatest = [...apps].sort((a, b) => {
         const aT = new Date(a.appliedAt || 0).getTime();
         const bT = new Date(b.appliedAt || 0).getTime();
@@ -123,7 +102,6 @@ export default function AdminDashboard() {
       });
       setLatestApps(sortedLatest);
 
-      // ✅ Top companies by applications (leaderboard)
       const map = {};
       for (const a of apps) {
         const company = (a.company || "Unknown").trim() || "Unknown";
@@ -135,7 +113,6 @@ export default function AdminDashboard() {
         .slice(0, 5);
       setTopCompanies(leaderboard);
 
-      // ✅ Notification if new apps increased
       const prevAppsCount = Number(localStorage.getItem("prevAppsCount") || "0");
       if (apps.length > prevAppsCount) {
         const diff = apps.length - prevAppsCount;
@@ -156,7 +133,6 @@ export default function AdminDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto refresh
   useEffect(() => {
     localStorage.setItem("adminAutoRefresh", String(autoRefresh));
     if (!autoRefresh) return;
@@ -166,7 +142,6 @@ export default function AdminDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoRefresh]);
 
-  // Save notifications + activity
   useEffect(() => {
     localStorage.setItem("adminNotifications", JSON.stringify(notifications));
   }, [notifications]);
@@ -193,21 +168,18 @@ export default function AdminDashboard() {
     localStorage.removeItem("adminActivity");
   };
 
-  // ✅ Notifications search filter
   const filteredNotifications = useMemo(() => {
     const q = notifSearch.toLowerCase().trim();
     if (!q) return notifications;
     return notifications.filter((n) => (n.text || "").toLowerCase().includes(q));
   }, [notifications, notifSearch]);
 
-  // ✅ Quick filter applies to Latest Applications list
   const latestFiltered = useMemo(() => {
     const list = latestApps || [];
     if (quickStatus === "All") return list.slice(0, 8);
     return list.filter((a) => (a.status || "Pending") === quickStatus).slice(0, 8);
   }, [latestApps, quickStatus]);
 
-  // Funnel health
   const funnel = useMemo(() => {
     const total = appsCount || 1;
     const rejRate = Math.round((rejectedCount / total) * 100);
@@ -215,7 +187,6 @@ export default function AdminDashboard() {
     return { rejRate, accRate };
   }, [appsCount, rejectedCount, acceptedCount]);
 
-  // ✅ NEW: simple “today” metric (demo based on appliedAt string parsing may vary)
   const todaysApps = useMemo(() => {
     const today = new Date().toLocaleDateString();
     return (latestApps || []).filter((a) => (a.appliedAt || "").includes(today)).length;
@@ -223,17 +194,37 @@ export default function AdminDashboard() {
 
   const system = { online: true, storage: "LocalStorage (demo)" };
 
+  const closeSidebar = () => setMobileSidebarOpen(false);
+
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-black via-slate-900 to-purple-950 text-white">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white/10 backdrop-blur-xl border-r border-white/20 p-6">
-        <h2 className="text-2xl font-extrabold mb-10 tracking-wide">👑 Admin Panel</h2>
+    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-purple-950 text-white overflow-x-hidden lg:flex">
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+          onClick={closeSidebar}
+        />
+      )}
+
+      <aside
+        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-[280px] shrink-0 bg-white/10 backdrop-blur-xl border-r border-white/20 p-5 sm:p-6 transform transition-transform duration-300 lg:translate-x-0 ${
+          mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between gap-3 mb-8">
+          <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide">👑 Admin Panel</h2>
+          <button
+            onClick={closeSidebar}
+            className="lg:hidden px-3 py-2 rounded-xl bg-white/10 border border-white/10"
+          >
+            ✕
+          </button>
+        </div>
 
         <nav className="space-y-3 text-white/80">
-          <NavItem label="📊 Dashboard" onClick={() => nav("/admin/dashboard")} />
-          <NavItem label="💼 Manage Jobs" onClick={() => nav("/admin/manage-jobs")} />
-          <NavItem label="👥 Applicants" onClick={() => nav("/admin/applicants")} />
-          <NavItem label="⭐ Shortlisted" onClick={() => nav("/admin/shortlisted")} />
+          <NavItem label="📊 Dashboard" onClick={() => { nav("/admin/dashboard"); closeSidebar(); }} />
+          <NavItem label="💼 Manage Jobs" onClick={() => { nav("/admin/manage-jobs"); closeSidebar(); }} />
+          <NavItem label="👥 Applicants" onClick={() => { nav("/admin/applicants"); closeSidebar(); }} />
+          <NavItem label="⭐ Shortlisted" onClick={() => { nav("/admin/shortlisted"); closeSidebar(); }} />
         </nav>
 
         <div className="mt-8 p-4 rounded-2xl bg-white/5 border border-white/10">
@@ -258,6 +249,7 @@ export default function AdminDashboard() {
           onClick={() => {
             localStorage.removeItem("admin");
             nav("/admin/login");
+            closeSidebar();
           }}
           className="mt-10 w-full py-2 rounded-xl text-red-300 border border-red-400/30 hover:bg-red-500/20 transition"
         >
@@ -269,17 +261,23 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main */}
-      <main className="flex-1 p-10 relative">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-10">
-          <div>
-            <h1 className="text-3xl font-extrabold">Admin Dashboard</h1>
-            <p className="text-white/60 text-sm mt-1">Clean analytics + quick actions + notifications.</p>
+      <main className="flex-1 p-4 sm:p-6 lg:p-10 relative lg:ml-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-10">
+          <div className="flex items-start gap-3">
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="lg:hidden px-4 py-3 rounded-xl bg-white/10 border border-white/20"
+            >
+              ☰
+            </button>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold">Admin Dashboard</h1>
+              <p className="text-white/60 text-sm mt-1">Clean analytics + quick actions + notifications.</p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 bg-green-500/20 text-green-300 rounded-full text-sm">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 px-4 py-2 bg-green-500/20 text-green-300 rounded-full text-xs sm:text-sm">
               {system.online ? "🟢 System Online" : "🔴 System Offline"}
             </div>
 
@@ -298,7 +296,7 @@ export default function AdminDashboard() {
                 load();
               }}
               disabled={loading}
-              className={`px-5 py-2 rounded-xl border transition text-sm font-semibold ${
+              className={`px-4 sm:px-5 py-2 rounded-xl border transition text-sm font-semibold ${
                 loading
                   ? "bg-white/5 border-white/10 text-white/40 cursor-not-allowed"
                   : "bg-white/10 border-white/20 hover:bg-white/15"
@@ -309,11 +307,10 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Hero Row (extra attractive) */}
-        <div className="mb-10 rounded-2xl border border-white/15 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-xl p-6">
+        <div className="mb-8 sm:mb-10 rounded-2xl border border-white/15 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-xl p-5 sm:p-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold">🚀 Today Overview</h2>
+              <h2 className="text-lg sm:text-xl font-bold">🚀 Today Overview</h2>
               <p className="text-white/60 text-sm mt-1">
                 {todaysApps} new application(s) today • Active jobs: {activeJobs} • Shortlisted: {shortlistedCount}
               </p>
@@ -348,49 +345,42 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Big Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 sm:gap-8 mb-8 sm:mb-10">
           <StatCard title="Total Jobs" value={jobsCount} glow="purple" />
           <StatCard title="Applicants" value={appsCount} glow="pink" />
           <StatCard title="Shortlisted" value={shortlistedCount} glow="cyan" />
           <StatCard title="Pending" value={pendingCount} glow="yellow" />
         </div>
 
-        {/* Extra stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-10 sm:mb-12">
           <MiniStat title="✅ Accepted" value={acceptedCount} tone="green" />
           <MiniStat title="❌ Rejected" value={rejectedCount} tone="red" />
           <MiniStat title="🟣 Active Jobs" value={activeJobs} tone="purple" />
           <MiniStat title="⚪ Inactive Jobs" value={inactiveJobs} tone="neutral" />
         </div>
 
-        {/* Insights Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-10 sm:mb-12">
           <InsightCard title="ATS Average" value={avgAts === null ? "—" : `${avgAts}/100`} sub="Across candidates with ATS" tone="cyan" />
           <InsightCard title="Top ATS Score" value={topAts === null ? "—" : `${topAts}/100`} sub="Best candidate score" tone="green" />
           <InsightCard title="Funnel Health" value={`${funnel.accRate}% Accepted`} sub={`${funnel.rejRate}% Rejected`} tone="yellow" />
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-10 sm:mb-12">
           <QuickAction title="Manage Jobs" desc="Create / edit / deactivate jobs" icon="💼" onClick={() => nav("/admin/manage-jobs")} />
           <QuickAction title="Review Applicants" desc="Shortlist / accept / reject" icon="👀" onClick={() => nav("/admin/applicants")} />
           <QuickAction title="Shortlisted" desc="View shortlisted candidates" icon="⭐" onClick={() => nav("/admin/shortlisted")} />
           <QuickAction title="Coming Soon" desc="Email alerts, reports" icon="🧩" disabled />
         </div>
 
-        {/* Latest Apps + Leaderboard + Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Latest Applications */}
-          <div className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <div className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 sm:p-6">
+            <div className="flex flex-col gap-4 mb-4">
               <div>
-                <h2 className="text-xl font-bold">🧾 Latest Applications</h2>
+                <h2 className="text-lg sm:text-xl font-bold">🧾 Latest Applications</h2>
                 <p className="text-xs text-white/60 mt-1">Use quick filters to focus on specific status.</p>
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {/* ✅ Quick filter buttons */}
                 <FilterChip label="All" active={quickStatus === "All"} onClick={() => setQuickStatus("All")} />
                 <FilterChip label="Pending" active={quickStatus === "Pending"} onClick={() => setQuickStatus("Pending")} />
                 <FilterChip label="Shortlisted" active={quickStatus === "Shortlisted"} onClick={() => setQuickStatus("Shortlisted")} />
@@ -411,7 +401,7 @@ export default function AdminDashboard() {
                     <div className="min-w-0">
                       <p className="font-semibold truncate">{a.fullName || "Guest User"}</p>
                       <p className="text-xs text-white/60 truncate">{a.userEmail}</p>
-                      <p className="text-xs text-white/50 truncate">
+                      <p className="text-xs text-white/50 break-words">
                         {a.jobTitle || "Job"} • {a.company || "Company"} • {a.appliedAt || ""}
                       </p>
                     </div>
@@ -438,11 +428,9 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Top Companies + Activity */}
           <div className="space-y-6">
-            {/* Leaderboard */}
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
-              <h2 className="text-xl font-bold">🏆 Top Companies</h2>
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-bold">🏆 Top Companies</h2>
               <p className="text-xs text-white/60 mt-1">Companies with most applications</p>
 
               <div className="mt-4 space-y-3">
@@ -450,9 +438,9 @@ export default function AdminDashboard() {
                   <p className="text-white/60 text-sm">No data yet.</p>
                 ) : (
                   topCompanies.map((c, idx) => (
-                    <div key={c.company} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+                    <div key={c.company} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-400/20 flex items-center justify-center text-sm font-bold">
+                        <span className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-400/20 flex items-center justify-center text-sm font-bold shrink-0">
                           {idx + 1}
                         </span>
                         <p className="font-semibold truncate">{c.company}</p>
@@ -473,10 +461,9 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            {/* Activity Feed */}
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-[0_0_40px_rgba(168,85,247,0.2)]">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">🕒 Activity</h2>
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 sm:p-6 shadow-[0_0_40px_rgba(168,85,247,0.2)]">
+              <div className="flex items-center justify-between mb-4 gap-3">
+                <h2 className="text-lg sm:text-xl font-bold">🕒 Activity</h2>
                 <button
                   onClick={clearActivity}
                   className="text-sm px-4 py-2 rounded-xl bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition"
@@ -501,16 +488,14 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Notifications Drawer */}
         {showNotifications && (
           <div className="fixed inset-0 bg-black/60 flex justify-end z-50">
-            <div className="w-96 h-full bg-slate-900 border-l border-white/20 p-6">
-              <div className="flex justify-between items-center mb-4">
+            <div className="w-full sm:w-[420px] h-full bg-slate-900 border-l border-white/20 p-5 sm:p-6">
+              <div className="flex justify-between items-center mb-4 gap-3">
                 <h2 className="text-xl font-bold">🔔 Notifications</h2>
                 <button onClick={() => setShowNotifications(false)}>✖</button>
               </div>
 
-              {/* ✅ Search in notifications */}
               <input
                 value={notifSearch}
                 onChange={(e) => setNotifSearch(e.target.value)}
@@ -519,16 +504,16 @@ export default function AdminDashboard() {
                            focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
 
-              <div className="flex gap-2 mb-4">
+              <div className="flex flex-col sm:flex-row gap-2 mb-4">
                 <button
                   onClick={markAllRead}
-                  className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition text-sm"
+                  className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition text-sm w-full sm:w-auto"
                 >
                   Mark all read
                 </button>
                 <button
                   onClick={clearAllNotifications}
-                  className="px-4 py-2 rounded-xl bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition text-sm"
+                  className="px-4 py-2 rounded-xl bg-red-500/15 text-red-200 border border-red-400/20 hover:bg-red-500/25 transition text-sm w-full sm:w-auto"
                 >
                   Clear all
                 </button>
@@ -561,7 +546,6 @@ export default function AdminDashboard() {
   );
 }
 
-/* Reusable Components */
 function NavItem({ label, onClick }) {
   return (
     <p onClick={onClick} className="cursor-pointer px-4 py-2 rounded-lg hover:bg-white/20 transition">
@@ -579,9 +563,9 @@ function StatCard({ title, value, glow }) {
   };
 
   return (
-    <div className={`bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:scale-[1.03] transition ${glowColor[glow]}`}>
-      <p className="text-white/70 mb-2">{title}</p>
-      <h3 className="text-4xl font-bold">{value}</h3>
+    <div className={`bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 sm:p-6 hover:scale-[1.03] transition ${glowColor[glow]}`}>
+      <p className="text-white/70 mb-2 text-sm sm:text-base">{title}</p>
+      <h3 className="text-3xl sm:text-4xl font-bold break-words">{value}</h3>
     </div>
   );
 }
@@ -599,7 +583,7 @@ function MiniStat({ title, value, tone }) {
   return (
     <div className={`p-5 rounded-2xl border ${toneCls} backdrop-blur-xl`}>
       <p className="text-sm text-white/70">{title}</p>
-      <h3 className="text-3xl font-extrabold mt-1">{value}</h3>
+      <h3 className="text-2xl sm:text-3xl font-extrabold mt-1 break-words">{value}</h3>
     </div>
   );
 }
@@ -628,9 +612,9 @@ function InsightCard({ title, value, sub, tone }) {
       : "border-yellow-400/20 bg-yellow-500/10";
 
   return (
-    <div className={`p-6 rounded-2xl border ${toneCls} backdrop-blur-xl`}>
+    <div className={`p-5 sm:p-6 rounded-2xl border ${toneCls} backdrop-blur-xl`}>
       <p className="text-sm text-white/70">{title}</p>
-      <h3 className="text-3xl font-extrabold mt-1">{value}</h3>
+      <h3 className="text-2xl sm:text-3xl font-extrabold mt-1 break-words">{value}</h3>
       <p className="text-xs text-white/60 mt-2">{sub}</p>
     </div>
   );

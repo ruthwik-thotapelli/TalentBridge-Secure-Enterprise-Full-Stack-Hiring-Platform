@@ -7,16 +7,12 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
-  // Real stats
   const [profileStrength, setProfileStrength] = useState(0);
   const [resumeStatus, setResumeStatus] = useState("Not Uploaded");
   const [atsScore, setAtsScore] = useState(null);
   const [shortlistedCount, setShortlistedCount] = useState(0);
-
-  // Recent apps (optional demo list if none)
   const [recentApps, setRecentApps] = useState([]);
 
-  // Demo job stats (replace later with API)
   const jobStats = useMemo(
     () => ({
       applied: 12,
@@ -25,7 +21,6 @@ export default function Dashboard() {
     []
   );
 
-  // Load user
   useEffect(() => {
     const loadMe = async () => {
       try {
@@ -38,7 +33,6 @@ export default function Dashboard() {
     loadMe();
   }, [navigate]);
 
-  // Profile strength logic (NO RANDOM — 0 by default)
   useEffect(() => {
     const savedResumeName = localStorage.getItem("resumeName");
     const latestATS = localStorage.getItem("latestATS");
@@ -57,7 +51,6 @@ export default function Dashboard() {
         const parsed = JSON.parse(latestATS);
         if (typeof parsed.score === "number") {
           setAtsScore(parsed.score);
-          // ATS can boost strength up to 60 points
           const boost = Math.round((parsed.score / 100) * 60);
           strength = Math.min(100, Math.max(strength, 40 + boost));
         }
@@ -67,7 +60,6 @@ export default function Dashboard() {
     setProfileStrength(strength);
   }, []);
 
-  // Load applications
   useEffect(() => {
     const loadApps = async () => {
       try {
@@ -75,7 +67,6 @@ export default function Dashboard() {
         const accepted = (apps || []).filter((a) => a.status === "Accepted");
         setShortlistedCount(accepted.length);
 
-        // Recent apps (last 5)
         const sorted = (apps || [])
           .slice()
           .sort((a, b) => (b.id || 0) - (a.id || 0))
@@ -92,7 +83,6 @@ export default function Dashboard() {
 
   const strengthMeta = getStrengthMeta(profileStrength);
 
-  // Next steps (interactive)
   const steps = useMemo(() => {
     const hasResume = resumeStatus === "Uploaded";
     const hasATS = atsScore !== null;
@@ -130,30 +120,30 @@ export default function Dashboard() {
   }, [resumeStatus, atsScore, profileStrength, shortlistedCount, navigate]);
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-6 text-white bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-10 sm:pb-16 px-4 sm:px-6 text-white bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 overflow-x-hidden">
       <div className="max-w-6xl mx-auto">
-        {/* ===================== TOP HERO ===================== */}
-        <div className="mb-10">
-          <div className={`${glass} p-8`}>
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="mb-8 sm:mb-10">
+          <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 sm:gap-6">
               <div>
-                <p className="text-white/60 text-sm mb-2">TalentBridge Dashboard</p>
-                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+                <p className="text-white/60 text-xs sm:text-sm mb-2">
+                  TalentBridge Dashboard
+                </p>
+                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight break-words">
                   Welcome{user?.name ? `, ${user.name}` : ""} 👋
                 </h1>
-                <p className="text-white/70 mt-3 text-lg max-w-2xl">
+                <p className="text-white/70 mt-3 text-sm sm:text-base lg:text-lg max-w-2xl">
                   Your resume + ATS insights + shortlisted tracking — all in one place.
                 </p>
 
-                {/* Mini pills */}
-                <div className="mt-5 flex flex-wrap gap-2">
+                <div className="mt-4 sm:mt-5 flex flex-wrap gap-2">
                   <Pill text={`Resume: ${resumeStatus}`} />
                   <Pill text={atsScore !== null ? `ATS: ${atsScore}/100` : "ATS: Not generated"} />
                   <Pill text={`Shortlisted: ${shortlistedCount}`} />
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full lg:w-auto">
                 <PrimaryButton onClick={() => navigate("/jobs")}>
                   Explore Jobs
                 </PrimaryButton>
@@ -168,17 +158,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ===================== MAIN GRID ===================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* LEFT BIG: Strength + ATS */}
-          <div className="lg:col-span-7 space-y-8">
-            {/* Profile Strength big card */}
-            <div className={`${glass} p-8`}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+          <div className="lg:col-span-7 space-y-6 sm:space-y-8">
+            <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-                <div>
-                  <h2 className="text-2xl font-bold">Profile Strength</h2>
-                  <p className="text-white/70 mt-2">
-                    Calculated from your resume upload + ATS analysis (no random values).
+                <div className="min-w-0">
+                  <h2 className="text-xl sm:text-2xl font-bold">Profile Strength</h2>
+                  <p className="text-white/70 mt-2 text-sm sm:text-base">
+                    Calculated from your resume upload + ATS analysis.
                   </p>
 
                   <div className="mt-5">
@@ -189,13 +176,14 @@ export default function Dashboard() {
                         style={{ width: `${profileStrength}%` }}
                       />
                     </div>
-                    <p className="mt-2 text-white/70 text-sm">
-                      {profileStrength}% • <span className="text-white/90 font-semibold">{strengthMeta.label}</span>
+                    <p className="mt-2 text-white/70 text-xs sm:text-sm">
+                      {profileStrength}% •{" "}
+                      <span className="text-white/90 font-semibold">{strengthMeta.label}</span>
                       <span className="text-white/50"> — {strengthMeta.tip}</span>
                     </p>
                   </div>
 
-                  <div className="mt-6 flex flex-wrap gap-2">
+                  <div className="mt-5 sm:mt-6 flex flex-wrap gap-2">
                     <Chip text="Resume uploaded" done={resumeStatus === "Uploaded"} />
                     <Chip text="ATS report ready" done={atsScore !== null} />
                     <Chip text="Keywords improved" done={profileStrength >= 60} />
@@ -203,10 +191,9 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Score badge */}
-                <div className="rounded-3xl bg-white/10 border border-white/10 px-6 py-5 min-w-[220px]">
+                <div className="rounded-3xl bg-white/10 border border-white/10 px-5 py-5 w-full md:w-auto md:min-w-[220px]">
                   <p className="text-white/60 text-sm">Overall</p>
-                  <p className="text-4xl font-extrabold mt-1">
+                  <p className="text-3xl sm:text-4xl font-extrabold mt-1">
                     <span className="text-emerald-300">{profileStrength}</span>%
                   </p>
                   <p className="text-white/60 text-sm mt-1">{strengthMeta.label}</p>
@@ -220,12 +207,11 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* ATS spotlight */}
-            <div className={`${glass} p-8`}>
+            <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
                 <div>
-                  <h2 className="text-2xl font-bold">ATS Spotlight</h2>
-                  <p className="text-white/70 mt-2">
+                  <h2 className="text-xl sm:text-2xl font-bold">ATS Spotlight</h2>
+                  <p className="text-white/70 mt-2 text-sm sm:text-base">
                     Get detailed mistakes + missing keywords and improve instantly.
                   </p>
                 </div>
@@ -235,7 +221,7 @@ export default function Dashboard() {
                 </PrimaryButton>
               </div>
 
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <InfoTile title="ATS Score" value={atsScore !== null ? `${atsScore}/100` : "—"} />
                 <InfoTile title="Resume" value={resumeStatus} />
                 <InfoTile title="Shortlisted" value={`${shortlistedCount}`} />
@@ -243,18 +229,16 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* RIGHT: Next Steps + Shortlisted CTA */}
-          <div className="lg:col-span-5 space-y-8">
-            {/* Next steps (interactive) */}
-            <div className={`${glass} p-8`}>
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Next Steps</h2>
-                <span className="text-white/60 text-sm">
+          <div className="lg:col-span-5 space-y-6 sm:space-y-8">
+            <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-xl sm:text-2xl font-bold">Next Steps</h2>
+                <span className="text-white/60 text-xs sm:text-sm">
                   {steps.filter((s) => s.done).length}/{steps.length} done
                 </span>
               </div>
 
-              <p className="text-white/70 mt-2">
+              <p className="text-white/70 mt-2 text-sm sm:text-base">
                 Follow this checklist to increase your ATS score faster.
               </p>
 
@@ -271,25 +255,22 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Shortlisted CTA big */}
-            <div className={`${glass} p-8`}>
-              <h2 className="text-2xl font-bold">Shortlisted Candidates</h2>
-              <p className="text-white/70 mt-2">
+            <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
+              <h2 className="text-xl sm:text-2xl font-bold">Shortlisted Candidates</h2>
+              <p className="text-white/70 mt-2 text-sm sm:text-base">
                 When admin accepts your application, it will appear here.
               </p>
 
               <div className="mt-6 rounded-2xl bg-white/10 border border-white/10 p-5">
                 <p className="text-white/60 text-sm">You have</p>
-                <p className="text-4xl font-extrabold mt-1">
+                <p className="text-3xl sm:text-4xl font-extrabold mt-1 break-words">
                   <span className="text-purple-300">{shortlistedCount}</span>
-                  <span className="text-white/80 text-2xl"> shortlisted</span>
+                  <span className="text-white/80 text-xl sm:text-2xl"> shortlisted</span>
                 </p>
-                <p className="text-white/60 text-sm mt-2">
-                  Status = Accepted by admin
-                </p>
+                <p className="text-white/60 text-sm mt-2">Status = Accepted by admin</p>
               </div>
 
-              <div className="mt-6 flex gap-3">
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <PrimaryButton onClick={() => navigate("/shortlisted")}>
                   View Shortlisted
                 </PrimaryButton>
@@ -300,14 +281,13 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* BOTTOM: Recent Applications (clean table style) */}
           <div className="lg:col-span-12">
-            <div className={`${glass} p-8`}>
+            <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold">Recent Applications</h2>
-                  <p className="text-white/70 mt-1">
-                    Latest applications from your activity (localStorage demo).
+                  <h2 className="text-xl sm:text-2xl font-bold">Recent Applications</h2>
+                  <p className="text-white/70 mt-1 text-sm sm:text-base">
+                    Latest applications from your activity.
                   </p>
                 </div>
 
@@ -317,7 +297,7 @@ export default function Dashboard() {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[640px]">
                   <thead className="text-left text-white/60 text-sm border-b border-white/10">
                     <tr>
                       <th className="py-3 pr-4">Job</th>
@@ -344,9 +324,7 @@ export default function Dashboard() {
                             <p className="font-semibold">{a.jobTitle || "—"}</p>
                             <p className="text-white/60 text-sm">{a.location || ""}</p>
                           </td>
-                          <td className="py-4 pr-4 text-white/80">
-                            {a.company || "—"}
-                          </td>
+                          <td className="py-4 pr-4 text-white/80">{a.company || "—"}</td>
                           <td className="py-4 pr-4">
                             <StatusPill status={a.status || "Pending"} />
                           </td>
@@ -360,7 +338,7 @@ export default function Dashboard() {
                 </table>
               </div>
 
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-6 flex flex-col sm:flex-row flex-wrap gap-3">
                 <SecondaryButton onClick={() => navigate("/resume")}>
                   Improve ATS
                 </SecondaryButton>
@@ -379,8 +357,6 @@ export default function Dashboard() {
   );
 }
 
-/* ================= UI Helpers ================= */
-
 const glass =
   "rounded-3xl bg-white/[0.07] backdrop-blur-2xl border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.35)]";
 
@@ -388,7 +364,7 @@ function PrimaryButton({ children, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition"
+      className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition"
     >
       {children}
     </button>
@@ -399,7 +375,7 @@ function SecondaryButton({ children, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="px-6 py-3 rounded-xl font-semibold bg-white/10 border border-white/10 hover:bg-white/20 transition"
+      className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold bg-white/10 border border-white/10 hover:bg-white/20 transition"
     >
       {children}
     </button>
@@ -431,7 +407,7 @@ function Chip({ text, done }) {
 
 function MiniStat({ label, value }) {
   return (
-    <div className="flex items-center justify-between text-sm">
+    <div className="flex items-center justify-between text-sm gap-3">
       <span className="text-white/60">{label}</span>
       <span className="text-white/90 font-semibold">{value}</span>
     </div>
@@ -442,14 +418,14 @@ function InfoTile({ title, value }) {
   return (
     <div className="rounded-2xl bg-white/10 border border-white/10 p-5">
       <p className="text-white/60 text-sm">{title}</p>
-      <p className="text-2xl font-extrabold mt-1">{value}</p>
+      <p className="text-xl sm:text-2xl font-extrabold mt-1 break-words">{value}</p>
     </div>
   );
 }
 
 function StepRow({ title, done, actionText, onClick }) {
   return (
-    <div className="rounded-2xl bg-white/10 border border-white/10 p-4 flex items-center justify-between">
+    <div className="rounded-2xl bg-white/10 border border-white/10 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div className="flex items-center gap-3">
         <span className={done ? "text-emerald-300" : "text-white/50"}>
           {done ? "✅" : "⭕"}
@@ -459,7 +435,7 @@ function StepRow({ title, done, actionText, onClick }) {
 
       <button
         onClick={onClick}
-        className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${
+        className={`w-full sm:w-auto px-4 py-2 rounded-xl text-sm font-semibold transition ${
           done
             ? "bg-white/5 text-white/60 border border-white/10 cursor-default"
             : "bg-white/10 hover:bg-white/20 border border-white/10"
@@ -480,11 +456,7 @@ function StatusPill({ status }) {
       ? "bg-red-500/10 text-red-100 border-red-500/20"
       : "bg-yellow-500/10 text-yellow-100 border-yellow-500/20";
 
-  return (
-    <span className={`px-3 py-1 rounded-full text-xs border ${cls}`}>
-      {status}
-    </span>
-  );
+  return <span className={`px-3 py-1 rounded-full text-xs border ${cls}`}>{status}</span>;
 }
 
 function getStrengthMeta(strength) {

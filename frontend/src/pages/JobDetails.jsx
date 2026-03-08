@@ -13,14 +13,11 @@ const JobDetails = () => {
   const [applied, setApplied] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Apply Modal
   const [showApply, setShowApply] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Small UI toast (no alert)
   const [toast, setToast] = useState({ show: false, msg: "", type: "info" });
 
-  // Form data
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -33,7 +30,6 @@ const JobDetails = () => {
   const [resumeFile, setResumeFile] = useState(null);
   const [resumeName, setResumeName] = useState("");
 
-  // ------------------ helpers ------------------
   const showToast = (msg, type = "info") => {
     setToast({ show: true, msg, type });
     window.clearTimeout(showToast._t);
@@ -59,7 +55,6 @@ const JobDetails = () => {
       reader.readAsDataURL(file);
     });
 
-  // ------------------ load job ------------------
   useEffect(() => {
     const load = async () => {
       try {
@@ -86,7 +81,6 @@ const JobDetails = () => {
     load();
   }, [jobId]);
 
-  // ------------------ actions ------------------
   const handleSave = async () => {
     if (!job) return;
     if (saved) return;
@@ -189,13 +183,12 @@ const JobDetails = () => {
     showToast("Application submitted ✅", "success");
   };
 
-  // ------------------ states ------------------
   if (loading) {
     return (
-      <div className="min-h-screen pt-24 pb-16 px-6 text-white bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950">
+      <div className="min-h-screen pt-20 sm:pt-24 pb-10 sm:pb-16 px-4 sm:px-6 text-white bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 overflow-x-hidden">
         <div className="max-w-6xl mx-auto">
           <SkeletonTop />
-          <div className="grid md:grid-cols-3 gap-10 mt-10">
+          <div className="grid md:grid-cols-3 gap-6 sm:gap-10 mt-10">
             <div className="md:col-span-2 space-y-6">
               <SkeletonCard />
               <SkeletonCard />
@@ -210,25 +203,22 @@ const JobDetails = () => {
 
   if (!job) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-xl font-semibold bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 text-white">
+      <div className="min-h-screen flex items-center justify-center text-xl font-semibold bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 text-white px-4">
         Job Not Found
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-6 text-white bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-10 sm:pb-16 px-4 sm:px-6 text-white bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 overflow-x-hidden">
       <div className="max-w-6xl mx-auto">
-        {/* Toast */}
         <Toast toast={toast} onClose={() => setToast((p) => ({ ...p, show: false }))} />
 
-        {/* Header */}
-        <div className={`${glass} p-10 mb-10`}>
-          {/* Top bar */}
+        <div className={`${glass} p-5 sm:p-7 lg:p-10 mb-8 sm:mb-10`}>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <button
               onClick={() => navigate("/jobs")}
-              className="w-fit px-6 py-3 rounded-2xl font-semibold
+              className="w-full sm:w-fit px-5 sm:px-6 py-3 rounded-2xl font-semibold
                          bg-white/[0.08] border border-white/10 backdrop-blur-xl
                          hover:bg-white/[0.14] hover:border-white/20 transition
                          shadow-[0_12px_40px_rgba(0,0,0,0.35)]"
@@ -236,12 +226,12 @@ const JobDetails = () => {
               Back to Jobs
             </button>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleShare}
                 className="px-5 py-3 rounded-2xl font-semibold
                            bg-white/[0.08] border border-white/10
-                           hover:bg-white/[0.14] hover:border-white/20 transition"
+                           hover:bg-white/[0.14] hover:border-white/20 transition w-full sm:w-auto"
               >
                 Share
               </button>
@@ -249,7 +239,7 @@ const JobDetails = () => {
               <button
                 onClick={handleSave}
                 disabled={saved}
-                className={`px-5 py-3 rounded-2xl font-semibold border transition
+                className={`px-5 py-3 rounded-2xl font-semibold border transition w-full sm:w-auto
                   ${
                     saved
                       ? "opacity-60 cursor-not-allowed bg-white/10 border-white/10"
@@ -261,13 +251,12 @@ const JobDetails = () => {
             </div>
           </div>
 
-          {/* Title block */}
-          <div className="flex flex-col md:flex-row md:justify-between gap-10">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-extrabold mb-2 leading-tight">
+          <div className="flex flex-col md:flex-row md:justify-between gap-8 sm:gap-10">
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold mb-2 leading-tight break-words">
                 {job.title}
               </h1>
-              <p className="text-white/70 text-lg">
+              <p className="text-white/70 text-base sm:text-lg break-words">
                 {job.company} • {job.location}
               </p>
 
@@ -277,7 +266,6 @@ const JobDetails = () => {
                 <Tag label={job.salary || "Salary as per company norms"} />
               </div>
 
-              {/* Quick overview mini cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 max-w-3xl">
                 <MiniStat title="Posted" value={job.posted || "Recently"} />
                 <MiniStat title="Applicants" value={`${job.applicants || 0}+`} />
@@ -291,8 +279,7 @@ const JobDetails = () => {
               )}
             </div>
 
-            {/* Apply box */}
-            <div className={`${glass} p-6 w-full md:w-80`}>
+            <div className={`${glass} p-5 sm:p-6 w-full md:w-80`}>
               <button
                 onClick={openApply}
                 disabled={applied}
@@ -320,9 +307,8 @@ const JobDetails = () => {
           </div>
         </div>
 
-        {/* Content */}
-        <div className="grid md:grid-cols-3 gap-10">
-          <div className="md:col-span-2 space-y-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-10">
+          <div className="md:col-span-2 space-y-6 sm:space-y-10">
             <Section title="About This Role">
               <p className="text-white/80 leading-relaxed">
                 {job.about ||
@@ -388,8 +374,7 @@ const JobDetails = () => {
             </Section>
           </div>
 
-          {/* Sidebar */}
-          <div className={`${glass} p-8 h-fit sticky top-28`}>
+          <div className={`${glass} p-5 sm:p-8 h-fit md:sticky md:top-28`}>
             <h3 className="text-xl font-bold mb-4">Job Overview</h3>
             <InfoRow label="Company" value={job.company} />
             <InfoRow label="Location" value={job.location} />
@@ -419,27 +404,26 @@ const JobDetails = () => {
         </div>
       </div>
 
-      {/* APPLY MODAL */}
       {showApply && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center px-4 z-50">
           <div className={`w-full max-w-2xl ${glass} overflow-hidden`}>
-            <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold">Apply for {job.title}</h2>
-                <p className="text-xs text-white/60">
+            <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-lg font-bold truncate">Apply for {job.title}</h2>
+                <p className="text-xs text-white/60 truncate">
                   {job.company} • {job.location}
                 </p>
               </div>
               <button
                 onClick={closeApply}
-                className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition text-white/80"
+                className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition text-white/80 shrink-0"
               >
                 Close
               </button>
             </div>
 
             <form onSubmit={handleApplySubmit}>
-              <div className="px-6 py-5 max-h-[70vh] overflow-y-auto space-y-4">
+              <div className="px-4 sm:px-6 py-5 max-h-[70vh] overflow-y-auto space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Input
                     label="Full Name *"
@@ -490,8 +474,8 @@ const JobDetails = () => {
                                  hover:file:bg-purple-700"
                     />
                     {resumeName ? (
-                      <div className="mt-3 flex items-center justify-between text-sm">
-                        <p className="text-emerald-200">Uploaded: {resumeName}</p>
+                      <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+                        <p className="text-emerald-200 break-all">Uploaded: {resumeName}</p>
                         <button
                           type="button"
                           onClick={() => {
@@ -499,7 +483,7 @@ const JobDetails = () => {
                             setResumeName("");
                             showToast("Removed resume", "info");
                           }}
-                          className="px-3 py-1 rounded-xl bg-white/10 hover:bg-white/20 transition text-white/80"
+                          className="px-3 py-1 rounded-xl bg-white/10 hover:bg-white/20 transition text-white/80 w-full sm:w-auto"
                         >
                           Remove
                         </button>
@@ -532,11 +516,11 @@ const JobDetails = () => {
                 </p>
               </div>
 
-              <div className="px-6 py-4 border-t border-white/10 flex justify-end gap-3">
+              <div className="px-4 sm:px-6 py-4 border-t border-white/10 flex flex-col sm:flex-row sm:justify-end gap-3">
                 <button
                   type="button"
                   onClick={closeApply}
-                  className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition text-sm border border-white/10"
+                  className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition text-sm border border-white/10 w-full sm:w-auto"
                 >
                   Cancel
                 </button>
@@ -544,7 +528,7 @@ const JobDetails = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className={`px-6 py-3 rounded-2xl text-sm font-semibold transition
+                  className={`px-6 py-3 rounded-2xl text-sm font-semibold transition w-full sm:w-auto
                     ${
                       submitting
                         ? "bg-purple-600/50 cursor-not-allowed"
@@ -562,12 +546,11 @@ const JobDetails = () => {
   );
 };
 
-/* UI helpers */
 const glass =
   "rounded-3xl bg-white/[0.07] backdrop-blur-2xl border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.35)]";
 
 const Tag = ({ label }) => (
-  <span className="px-4 py-1 rounded-full bg-white/10 border border-white/10 text-sm text-white/80">
+  <span className="px-3 sm:px-4 py-1 rounded-full bg-white/10 border border-white/10 text-xs sm:text-sm text-white/80">
     {label}
   </span>
 );
@@ -579,8 +562,8 @@ const Pill = ({ label }) => (
 );
 
 const Section = ({ title, children }) => (
-  <div className={`${glass} p-7`}>
-    <h2 className="text-2xl font-bold mb-3">{title}</h2>
+  <div className={`${glass} p-5 sm:p-7`}>
+    <h2 className="text-xl sm:text-2xl font-bold mb-3">{title}</h2>
     <div className="text-white/80 leading-relaxed">{children}</div>
   </div>
 );
@@ -588,14 +571,14 @@ const Section = ({ title, children }) => (
 const InfoRow = ({ label, value }) => (
   <div className="flex justify-between text-sm mb-3 text-white/70 gap-4">
     <span>{label}</span>
-    <span className="font-medium text-white text-right">{value || "-"}</span>
+    <span className="font-medium text-white text-right break-words">{value || "-"}</span>
   </div>
 );
 
 const MiniStat = ({ title, value }) => (
   <div className="rounded-2xl bg-white/[0.06] border border-white/10 p-4">
     <p className="text-xs text-white/60">{title}</p>
-    <p className="text-lg font-semibold mt-1">{value}</p>
+    <p className="text-lg font-semibold mt-1 break-words">{value}</p>
   </div>
 );
 
@@ -625,13 +608,13 @@ const Toast = ({ toast, onClose }) => {
       : "border-white/10 bg-white/10 text-white/80";
 
   return (
-    <div className="fixed top-24 right-6 z-[60]">
+    <div className="fixed top-20 sm:top-24 right-4 sm:right-6 z-[60] max-w-[calc(100vw-2rem)]">
       <div className={`rounded-2xl border px-4 py-3 shadow-xl ${style}`}>
         <div className="flex items-center gap-3">
           <p className="text-sm font-medium">{toast.msg}</p>
           <button
             onClick={onClose}
-            className="ml-2 px-2 py-1 rounded-xl bg-white/10 hover:bg-white/20 transition text-xs"
+            className="ml-2 px-2 py-1 rounded-xl bg-white/10 hover:bg-white/20 transition text-xs shrink-0"
           >
             Close
           </button>
@@ -642,7 +625,7 @@ const Toast = ({ toast, onClose }) => {
 };
 
 const SkeletonTop = () => (
-  <div className={`${glass} p-10`}>
+  <div className={`${glass} p-5 sm:p-10`}>
     <div className="h-12 w-40 rounded-2xl bg-white/10 animate-pulse" />
     <div className="mt-6 h-10 w-3/4 rounded-2xl bg-white/10 animate-pulse" />
     <div className="mt-3 h-6 w-2/3 rounded-2xl bg-white/10 animate-pulse" />
@@ -655,7 +638,7 @@ const SkeletonTop = () => (
 );
 
 const SkeletonCard = ({ className = "" }) => (
-  <div className={`${glass} p-7 ${className}`}>
+  <div className={`${glass} p-5 sm:p-7 ${className}`}>
     <div className="h-6 w-1/2 rounded-xl bg-white/10 animate-pulse" />
     <div className="mt-4 h-4 w-full rounded-xl bg-white/10 animate-pulse" />
     <div className="mt-2 h-4 w-5/6 rounded-xl bg-white/10 animate-pulse" />
