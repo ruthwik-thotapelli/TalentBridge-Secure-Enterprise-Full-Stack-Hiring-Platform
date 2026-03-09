@@ -261,6 +261,7 @@ export default function Dashboard() {
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <PrimaryButton onClick={() => navigate("/jobs")}>Explore Jobs</PrimaryButton>
                 <SecondaryButton onClick={() => navigate("/resume")}>Resume & ATS</SecondaryButton>
+                <SecondaryButton onClick={() => navigate("/shortlisted")}>Shortlisted</SecondaryButton>
               </div>
             </div>
 
@@ -315,7 +316,6 @@ export default function Dashboard() {
         <section className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-6">
           {/* LEFT SIDE */}
           <div className="space-y-6">
-            {/* Profile Overview */}
             <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
                 <div className="flex-1 min-w-0">
@@ -350,7 +350,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Weekly Focus */}
             <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
               <h2 className="text-xl sm:text-2xl font-bold">Weekly Focus</h2>
               <p className="mt-2 text-white/70 text-sm sm:text-base">
@@ -372,7 +371,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Recent Applications */}
             <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
                 <div>
@@ -436,7 +434,6 @@ export default function Dashboard() {
 
           {/* RIGHT SIDE */}
           <div className="space-y-6">
-            {/* Next Steps */}
             <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-xl sm:text-2xl font-bold">Next Steps</h2>
@@ -463,7 +460,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Quick Actions */}
             <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
               <h2 className="text-xl sm:text-2xl font-bold">Quick Actions</h2>
               <p className="mt-2 text-white/70 text-sm sm:text-base">
@@ -484,7 +480,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Achievements */}
             <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
               <h2 className="text-xl sm:text-2xl font-bold">Achievements</h2>
               <p className="mt-2 text-white/70 text-sm sm:text-base">
@@ -508,7 +503,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* ATS Insight */}
             <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
               <h2 className="text-xl sm:text-2xl font-bold">ATS Insight</h2>
               <p className="mt-2 text-white/70 text-sm sm:text-base">
