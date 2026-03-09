@@ -19,6 +19,7 @@ export default function Applicants() {
   const load = async () => {
     try {
       setRefreshing(true);
+
       const data = await getApplications();
 
       const savedNotes = JSON.parse(localStorage.getItem("appNotes") || "{}");
@@ -60,12 +61,7 @@ export default function Applicants() {
   const setStatus = async (id, status) => {
     try {
       const updated = await updateApplicationStatus(id, status);
-      const savedNotes = JSON.parse(localStorage.getItem("appNotes") || "{}");
-      const withNotes = (updated || []).map((a) => ({
-        ...a,
-        note: savedNotes[a.id] || a.note || "",
-      }));
-      setApps(withNotes);
+      setApps(updated);
       setSelected((prev) => {
         const next = new Set(prev);
         next.delete(id);
@@ -85,12 +81,7 @@ export default function Applicants() {
       for (const id of selected) {
         updated = await updateApplicationStatus(id, status);
       }
-      const savedNotes = JSON.parse(localStorage.getItem("appNotes") || "{}");
-      const withNotes = (updated || []).map((a) => ({
-        ...a,
-        note: savedNotes[a.id] || a.note || "",
-      }));
-      setApps(withNotes);
+      setApps(updated);
       setSelected(new Set());
     } catch (e) {
       console.error(e);
@@ -120,7 +111,9 @@ export default function Applicants() {
     if (!w) return alert("Popup blocked. Allow popups to view resume.");
     w.document.title = name;
     w.document.body.style.margin = "0";
-    w.document.body.innerHTML = `<iframe src="${dataUrl}" style="border:0;width:100%;height:100vh;"></iframe>`;
+    w.document.body.innerHTML = `
+      <iframe src="${dataUrl}" style="border:0;width:100%;height:100vh;"></iframe>
+    `;
   };
 
   const openNotes = (app) => {
@@ -140,9 +133,10 @@ export default function Applicants() {
   };
 
   return (
-    <div className="min-h-screen px-4 sm:px-6 py-6 sm:py-10 bg-gradient-to-br from-black via-slate-900 to-purple-950 text-white overflow-x-hidden">
+    <div className="min-h-screen px-4 sm:px-6 py-6 sm:py-10 bg-gradient-to-br from-black via-slate-900 to-purple-950 text-white">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-6">
+        {/* Top Bar */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 mb-6">
           <button
             onClick={() => navigate("/admin/dashboard")}
             className="w-full sm:w-auto px-6 py-3 rounded-xl bg-purple-600/90 hover:bg-purple-700 transition font-semibold"
@@ -150,10 +144,14 @@ export default function Applicants() {
             Back to Dashboard
           </button>
 
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => navigate("/admin/shortlisted")}
-              className="w-full sm:w-auto px-5 py-3 rounded-xl font-semibold bg-gradient-to-r from-fuchsia-600 to-indigo-600 shadow-lg shadow-fuchsia-500/20 hover:from-fuchsia-500 hover:to-indigo-500 hover:shadow-fuchsia-500/30 active:scale-[0.98] transition"
+              className="w-full sm:w-auto px-5 py-3 rounded-xl font-semibold
+                         bg-gradient-to-r from-fuchsia-600 to-indigo-600
+                         shadow-lg shadow-fuchsia-500/20
+                         hover:from-fuchsia-500 hover:to-indigo-500 hover:shadow-fuchsia-500/30
+                         active:scale-[0.98] transition"
             >
               View Shortlisted
             </button>
@@ -161,18 +159,20 @@ export default function Applicants() {
             <button
               onClick={load}
               disabled={refreshing}
-              className={`w-full sm:w-auto px-5 py-3 rounded-xl font-semibold border transition active:scale-[0.98] ${
-                refreshing
-                  ? "bg-white/5 border-white/10 text-white/50 cursor-not-allowed"
-                  : "bg-white/10 border-white/20 hover:bg-white/15 hover:border-white/30"
-              }`}
+              className={`w-full sm:w-auto px-5 py-3 rounded-xl font-semibold border transition active:scale-[0.98]
+                ${
+                  refreshing
+                    ? "bg-white/5 border-white/10 text-white/50 cursor-not-allowed"
+                    : "bg-white/10 border-white/20 hover:bg-white/15 hover:border-white/30"
+                }`}
             >
               {refreshing ? "Refreshing..." : "Refresh"}
             </button>
           </div>
         </div>
 
-        <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 mb-6">
+        {/* Title */}
+        <div className="flex flex-col gap-4 mb-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold">Applicants</h1>
             <p className="text-white/60 text-sm">
@@ -180,18 +180,19 @@ export default function Applicants() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 w-full xl:max-w-2xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search name/email/job..."
-              className="px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500 w-full"
+              className="px-4 py-3 rounded-xl bg-white/10 border border-white/20
+                         focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
 
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none w-full"
+              className="px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none"
             >
               <option>All</option>
               <option>Pending</option>
@@ -202,20 +203,22 @@ export default function Applicants() {
 
             <button
               onClick={selectAllVisible}
-              className="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 transition w-full"
+              className="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 transition"
             >
               Select All Visible
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
           <Stat title="Pending" value={count("Pending")} color="yellow" />
           <Stat title="Shortlisted" value={count("Shortlisted")} color="purple" />
           <Stat title="Accepted" value={count("Accepted")} color="green" />
           <Stat title="Rejected" value={count("Rejected")} color="red" />
         </div>
 
+        {/* Bulk actions */}
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <span className="text-white/70 text-sm">
             Selected: <b className="text-white">{selected.size}</b>
@@ -250,9 +253,10 @@ export default function Applicants() {
           </button>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
+        {/* Desktop Table */}
+        <div className="hidden lg:block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[980px]">
+            <table className="w-full min-w-[1100px]">
               <thead className="bg-white/10 border-b border-white/20">
                 <tr>
                   <th className="p-4 text-left">Select</th>
@@ -277,14 +281,14 @@ export default function Applicants() {
                     </td>
 
                     <td className="p-4">
-                      <div className="flex items-start gap-3 min-w-[260px]">
+                      <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-purple-500/30 flex items-center justify-center font-bold shrink-0">
                           {(a.fullName || a.userEmail || "U")[0]?.toUpperCase()}
                         </div>
                         <div className="min-w-0">
                           <p className="font-semibold break-words">{a.fullName || "Guest User"}</p>
                           <p className="text-xs text-white/60 break-all">{a.userEmail}</p>
-                          <p className="text-xs text-white/40">{a.appliedAt}</p>
+                          <p className="text-xs text-white/40 break-words">{a.appliedAt}</p>
 
                           {typeof a.atsScore === "number" && (
                             <p className="text-xs mt-1 text-green-200">
@@ -328,8 +332,8 @@ export default function Applicants() {
                       </div>
                     </td>
 
-                    <td className="p-4 whitespace-nowrap">{a.jobTitle}</td>
-                    <td className="p-4 whitespace-nowrap">{a.company}</td>
+                    <td className="p-4 break-words">{a.jobTitle}</td>
+                    <td className="p-4 break-words">{a.company}</td>
 
                     <td className="p-4">
                       <span className={`px-4 py-1 rounded-full text-sm whitespace-nowrap ${statusPill(a.status)}`}>
@@ -338,7 +342,7 @@ export default function Applicants() {
                     </td>
 
                     <td className="p-4">
-                      <div className="flex flex-wrap gap-2 min-w-[280px]">
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => setStatus(a.id, "Shortlisted")}
                           className="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-200 hover:bg-purple-500/30 transition"
@@ -376,15 +380,129 @@ export default function Applicants() {
           </div>
         </div>
 
+        {/* Mobile / Tablet Cards */}
+        <div className="lg:hidden space-y-4">
+          {filtered.map((a) => (
+            <div
+              key={a.id}
+              className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4"
+            >
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={selected.has(a.id)}
+                  onChange={() => toggleSelect(a.id)}
+                  className="w-4 h-4 mt-1 accent-purple-500"
+                />
+
+                <div className="w-10 h-10 rounded-full bg-purple-500/30 flex items-center justify-center font-bold shrink-0">
+                  {(a.fullName || a.userEmail || "U")[0]?.toUpperCase()}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold break-words">{a.fullName || "Guest User"}</p>
+                  <p className="text-xs text-white/60 break-all">{a.userEmail}</p>
+                  <p className="text-xs text-white/40 mt-1 break-words">{a.appliedAt}</p>
+
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <div className="rounded-xl bg-white/5 border border-white/10 p-3">
+                      <p className="text-xs text-white/50">Job</p>
+                      <p className="text-white/85 break-words">{a.jobTitle || "—"}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/5 border border-white/10 p-3">
+                      <p className="text-xs text-white/50">Company</p>
+                      <p className="text-white/85 break-words">{a.company || "—"}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${statusPill(a.status)}`}>
+                      {a.status}
+                    </span>
+
+                    {typeof a.atsScore === "number" && (
+                      <span className="px-3 py-1 rounded-full text-xs bg-green-500/20 text-green-300 whitespace-nowrap">
+                        ATS {a.atsScore}/100
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      onClick={() => openResume(a.resumeDataUrl, a.resumeName)}
+                      className="px-3 py-2 rounded-lg text-xs bg-white/10 hover:bg-white/15 border border-white/20 transition"
+                    >
+                      View Resume
+                    </button>
+
+                    <button
+                      onClick={() => openNotes(a)}
+                      className="px-3 py-2 rounded-lg text-xs bg-white/10 hover:bg-white/15 border border-white/20 transition"
+                    >
+                      Notes
+                    </button>
+
+                    {a.linkedin && (
+                      <a
+                        href={a.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-2 rounded-lg text-xs bg-white/10 hover:bg-white/15 border border-white/20 transition"
+                      >
+                        LinkedIn
+                      </a>
+                    )}
+                  </div>
+
+                  {a.note && (
+                    <p className="text-xs text-white/60 mt-3 break-words">
+                      📝 <span className="text-white/70">{a.note}</span>
+                    </p>
+                  )}
+
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button
+                      onClick={() => setStatus(a.id, "Shortlisted")}
+                      className="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-200 hover:bg-purple-500/30 transition"
+                    >
+                      Shortlist
+                    </button>
+
+                    <button
+                      onClick={() => setStatus(a.id, "Accepted")}
+                      className="px-4 py-2 rounded-lg bg-green-500/20 text-green-300 hover:bg-green-500/30 transition"
+                    >
+                      Accept
+                    </button>
+
+                    <button
+                      onClick={() => setStatus(a.id, "Rejected")}
+                      className="px-4 py-2 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 transition"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {filtered.length === 0 && (
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-white/60">
+              No applications found.
+            </div>
+          )}
+        </div>
+
         <p className="text-xs text-white/40 mt-4">
-          Demo mode: Applications & Notes stored in localStorage. Backend API can be
-          added later.
+          Demo mode: Applications & Notes stored in localStorage. Backend API can be added later.
         </p>
       </div>
 
+      {/* Notes Modal */}
       {noteOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
-          <div className="w-full max-w-xl rounded-2xl bg-slate-950 border border-white/10 p-5 sm:p-6">
+          <div className="w-full max-w-xl rounded-2xl bg-slate-950 border border-white/10 p-6">
             <h3 className="text-xl font-bold">Candidate Notes</h3>
             <p className="text-white/60 text-sm mt-1">
               Add internal recruiter notes (stored in browser for now).
@@ -401,13 +519,13 @@ export default function Applicants() {
             <div className="mt-4 flex flex-col sm:flex-row justify-end gap-3">
               <button
                 onClick={() => setNoteOpen(false)}
-                className="px-5 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition w-full sm:w-auto"
+                className="w-full sm:w-auto px-5 py-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={saveNotes}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition font-semibold w-full sm:w-auto"
+                className="w-full sm:w-auto px-5 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 transition font-semibold"
               >
                 Save Notes
               </button>
@@ -437,9 +555,9 @@ function Stat({ title, value, color }) {
       : "text-yellow-300";
 
   return (
-    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4 sm:p-6">
+    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6">
       <p className="text-sm text-white/70">{title}</p>
-      <h2 className={`text-2xl sm:text-4xl font-bold ${c}`}>{value}</h2>
+      <h2 className={`text-4xl font-bold ${c}`}>{value}</h2>
     </div>
   );
 }
