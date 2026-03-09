@@ -13,14 +13,6 @@ export default function Dashboard() {
   const [shortlistedCount, setShortlistedCount] = useState(0);
   const [recentApps, setRecentApps] = useState([]);
 
-  const jobStats = useMemo(
-    () => ({
-      applied: recentApps.length,
-      saved: 5,
-    }),
-    [recentApps]
-  );
-
   useEffect(() => {
     const loadMe = async () => {
       try {
@@ -81,7 +73,24 @@ export default function Dashboard() {
     loadApps();
   }, []);
 
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  }, []);
+
   const strengthMeta = getStrengthMeta(profileStrength);
+
+  const stats = useMemo(
+    () => ({
+      applied: recentApps.length,
+      saved: 5,
+      accepted: shortlistedCount,
+      ats: atsScore !== null ? `${atsScore}/100` : "—",
+    }),
+    [recentApps, shortlistedCount, atsScore]
+  );
 
   const steps = useMemo(() => {
     const hasResume = resumeStatus === "Uploaded";
@@ -91,7 +100,7 @@ export default function Dashboard() {
       {
         key: "resume",
         title: "Upload resume",
-        subtitle: "Add your latest resume to start ATS tracking",
+        desc: "Add your latest resume to unlock ATS analysis.",
         done: hasResume,
         actionText: "Upload",
         onClick: () => navigate("/resume"),
@@ -99,23 +108,23 @@ export default function Dashboard() {
       {
         key: "ats",
         title: "Generate ATS report",
-        subtitle: "Check missing keywords and resume mistakes",
+        desc: "Check missing keywords and formatting issues.",
         done: hasATS,
         actionText: "Check",
         onClick: () => navigate("/resume"),
       },
       {
-        key: "keywords",
-        title: "Improve keywords",
-        subtitle: "Match resume keywords with job descriptions",
-        done: profileStrength >= 60,
+        key: "improve",
+        title: "Improve profile strength",
+        desc: "Boost score by improving ATS and profile sections.",
+        done: profileStrength >= 70,
         actionText: "Improve",
         onClick: () => navigate("/resume"),
       },
       {
-        key: "shortlisted",
+        key: "track",
         title: "Track shortlisted status",
-        subtitle: "Monitor accepted applications from admin",
+        desc: "See accepted applications from admin updates.",
         done: shortlistedCount > 0,
         actionText: "View",
         onClick: () => navigate("/shortlisted"),
@@ -123,29 +132,69 @@ export default function Dashboard() {
     ];
   }, [resumeStatus, atsScore, profileStrength, shortlistedCount, navigate]);
 
+  const profileBreakdown = useMemo(() => {
+    return [
+      {
+        label: "Resume Uploaded",
+        value: resumeStatus === "Uploaded" ? 100 : 20,
+      },
+      {
+        label: "ATS Readiness",
+        value: atsScore !== null ? atsScore : 10,
+      },
+      {
+        label: "Application Progress",
+        value: shortlistedCount > 0 ? 80 : recentApps.length > 0 ? 45 : 15,
+      },
+    ];
+  }, [resumeStatus, atsScore, shortlistedCount, recentApps.length]);
+
+  const quickActions = [
+    {
+      title: "Resume & ATS",
+      desc: "Upload, review, and improve your resume.",
+      onClick: () => navigate("/resume"),
+    },
+    {
+      title: "Explore Jobs",
+      desc: "Discover new roles that match your profile.",
+      onClick: () => navigate("/jobs"),
+    },
+    {
+      title: "Shortlisted",
+      desc: "Track accepted applications and updates.",
+      onClick: () => navigate("/shortlisted"),
+    },
+    {
+      title: "Update Profile",
+      desc: "Keep your details fresh and relevant.",
+      onClick: () => navigate("/profile"),
+    },
+  ];
+
   return (
-    <div className="min-h-screen pt-20 sm:pt-24 pb-10 sm:pb-16 px-4 sm:px-6 text-white bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 text-white px-4 sm:px-6 pt-20 sm:pt-24 pb-10 sm:pb-14 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* HERO */}
-        <div className={`${glass} relative overflow-hidden p-5 sm:p-6 lg:p-8 mb-8`}>
+        <section className={`${glass} relative overflow-hidden px-5 sm:px-7 lg:px-10 py-6 sm:py-8 lg:py-10`}>
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-20 -right-16 w-56 h-56 bg-fuchsia-500/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-20 -left-10 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl" />
+            <div className="absolute -top-20 right-0 w-64 h-64 rounded-full bg-fuchsia-500/10 blur-3xl" />
+            <div className="absolute -bottom-20 left-0 w-72 h-72 rounded-full bg-indigo-500/10 blur-3xl" />
           </div>
 
-          <div className="relative flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
-            <div className="min-w-0">
-              <p className="text-white/60 text-xs sm:text-sm mb-2 tracking-wide">
-                TALENTBRIDGE • USER DASHBOARD
+          <div className="relative grid grid-cols-1 xl:grid-cols-[1.3fr_0.8fr] gap-8 items-center">
+            <div>
+              <p className="text-white/55 text-xs sm:text-sm tracking-[0.2em] uppercase mb-3">
+                TalentBridge Dashboard
               </p>
 
-              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight break-words">
-                Welcome back{user?.name ? `, ${user.name}` : ""} 👋
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight">
+                {greeting}
+                {user?.name ? `, ${user.name}` : ""} 👋
               </h1>
 
-              <p className="text-white/70 mt-3 text-sm sm:text-base lg:text-lg max-w-2xl leading-relaxed">
-                Track your profile strength, ATS score, recent applications, and shortlisted
-                updates in one premium dashboard.
+              <p className="mt-4 text-white/70 text-sm sm:text-base lg:text-lg max-w-2xl leading-relaxed">
+                Keep your profile strong, improve ATS performance, and track application progress from one clean workspace.
               </p>
 
               <div className="mt-5 flex flex-wrap gap-2">
@@ -154,220 +203,100 @@ export default function Dashboard() {
                 <Pill text={`Accepted: ${shortlistedCount}`} />
               </div>
 
-              <div className="mt-6 flex flex-col sm:flex-row flex-wrap gap-3">
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <PrimaryButton onClick={() => navigate("/jobs")}>Explore Jobs</PrimaryButton>
                 <SecondaryButton onClick={() => navigate("/resume")}>Resume & ATS</SecondaryButton>
-                <SecondaryButton onClick={() => navigate("/shortlisted")}>Shortlisted</SecondaryButton>
               </div>
             </div>
 
-            <div className="w-full xl:max-w-sm">
-              <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 sm:p-6">
-                <p className="text-white/60 text-sm">Profile Progress</p>
-
-                <div className="mt-4">
-                  <div className="flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-4xl sm:text-5xl font-extrabold text-emerald-300">
-                        {profileStrength}%
-                      </p>
-                      <p className="text-white/65 text-sm mt-1">{strengthMeta.label}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-white/50 text-xs">ATS Score</p>
-                      <p className="text-lg font-semibold text-white/90">
-                        {atsScore !== null ? `${atsScore}/100` : "—"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 h-3 w-full rounded-full bg-white/10 overflow-hidden">
-                    <div
-                      className="h-3 rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-400 transition-all"
-                      style={{ width: `${profileStrength}%` }}
-                    />
-                  </div>
-
-                  <p className="mt-3 text-sm text-white/60 leading-relaxed">
-                    {strengthMeta.tip}
+            <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 sm:p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-white/55 text-sm">Profile Strength</p>
+                  <p className="mt-2 text-5xl sm:text-6xl font-extrabold text-emerald-300">
+                    {profileStrength}%
                   </p>
-
-                  <div className="mt-5 grid grid-cols-3 gap-3">
-                    <SmallMetric label="Applied" value={jobStats.applied} />
-                    <SmallMetric label="Saved" value={jobStats.saved} />
-                    <SmallMetric label="Accepted" value={shortlistedCount} />
-                  </div>
+                  <p className="mt-2 text-sm text-white/65">{strengthMeta.label}</p>
                 </div>
+
+                <div className="text-right">
+                  <p className="text-white/50 text-xs">ATS Score</p>
+                  <p className="text-xl font-bold text-white/90 mt-1">
+                    {atsScore !== null ? `${atsScore}/100` : "—"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 h-3 rounded-full bg-white/10 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-lime-400 transition-all"
+                  style={{ width: `${profileStrength}%` }}
+                />
+              </div>
+
+              <p className="mt-3 text-sm text-white/60 leading-relaxed">
+                {strengthMeta.tip}
+              </p>
+
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                <MiniBox label="Applied" value={stats.applied} />
+                <MiniBox label="Saved" value={stats.saved} />
+                <MiniBox label="Accepted" value={stats.accepted} />
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* QUICK STATS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 mb-8">
-          <QuickStatCard
-            title="Profile Strength"
-            value={`${profileStrength}%`}
-            subtitle={strengthMeta.label}
-            glow="emerald"
-          />
-          <QuickStatCard
-            title="ATS Score"
-            value={atsScore !== null ? `${atsScore}/100` : "—"}
-            subtitle="Resume analysis"
-            glow="purple"
-          />
-          <QuickStatCard
-            title="Applications"
-            value={jobStats.applied}
-            subtitle="Recent total"
-            glow="indigo"
-          />
-          <QuickStatCard
-            title="Accepted"
-            value={shortlistedCount}
-            subtitle="Approved by admin"
-            glow="pink"
-          />
-        </div>
+        {/* STATS */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <StatPanel title="Profile Strength" value={`${profileStrength}%`} sub={strengthMeta.label} />
+          <StatPanel title="ATS Score" value={stats.ats} sub="Resume quality" />
+          <StatPanel title="Applications" value={stats.applied} sub="Recent total" />
+          <StatPanel title="Accepted" value={stats.accepted} sub="Admin approved" />
+        </section>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8">
-          {/* LEFT */}
-          <div className="xl:col-span-7 space-y-6 sm:space-y-8">
-            <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-xl sm:text-2xl font-bold">Profile Strength</h2>
-                  <p className="text-white/70 mt-2 text-sm sm:text-base">
-                    Calculated from your resume upload and ATS analysis.
+        {/* MAIN */}
+        <section className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-6">
+          {/* LEFT SIDE */}
+          <div className="space-y-6">
+            {/* Profile Overview */}
+            <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl sm:text-2xl font-bold">Profile Overview</h2>
+                  <p className="mt-2 text-white/70 text-sm sm:text-base">
+                    A clean snapshot of your current readiness and job application momentum.
                   </p>
 
-                  <div className="mt-5">
-                    <div className="flex items-center justify-between gap-3 mb-2">
-                      <p className="text-white/60 text-sm">Progress</p>
-                      <p className="text-white/85 text-sm font-semibold">{profileStrength}%</p>
-                    </div>
-
-                    <div className="w-full bg-white/15 rounded-full h-3 overflow-hidden">
-                      <div
-                        className="h-3 rounded-full bg-gradient-to-r from-emerald-400 to-green-500 transition-all"
-                        style={{ width: `${profileStrength}%` }}
-                      />
-                    </div>
-
-                    <p className="mt-3 text-white/70 text-xs sm:text-sm leading-relaxed">
-                      <span className="text-white/90 font-semibold">{strengthMeta.label}</span>
-                      <span className="text-white/50"> — {strengthMeta.tip}</span>
-                    </p>
+                  <div className="mt-6 space-y-4">
+                    {profileBreakdown.map((item) => (
+                      <ProgressRow key={item.label} label={item.label} value={item.value} />
+                    ))}
                   </div>
 
                   <div className="mt-6 flex flex-wrap gap-2">
                     <Chip text="Resume uploaded" done={resumeStatus === "Uploaded"} />
-                    <Chip text="ATS report ready" done={atsScore !== null} />
-                    <Chip text="Keywords improved" done={profileStrength >= 60} />
-                    <Chip text="Mistakes fixed" done={profileStrength >= 80} />
+                    <Chip text="ATS available" done={atsScore !== null} />
+                    <Chip text="Strong keywords" done={profileStrength >= 60} />
+                    <Chip text="High readiness" done={profileStrength >= 80} />
                   </div>
                 </div>
 
-                <div className="rounded-3xl bg-white/10 border border-white/10 px-5 py-5 w-full md:w-auto md:min-w-[230px]">
-                  <p className="text-white/60 text-sm">Current Level</p>
-                  <p className="text-3xl sm:text-4xl font-extrabold mt-1">
-                    <span className="text-emerald-300">{profileStrength}</span>%
-                  </p>
-                  <p className="text-white/60 text-sm mt-1">{strengthMeta.label}</p>
-
-                  <div className="mt-5 space-y-2">
-                    <MiniStat label="Resume Status" value={resumeStatus} />
-                    <MiniStat label="ATS Score" value={atsScore !== null ? `${atsScore}/100` : "—"} />
+                <div className="w-full md:w-[250px] rounded-3xl bg-white/8 border border-white/10 p-5">
+                  <p className="text-sm text-white/55">Current Status</p>
+                  <div className="mt-4 space-y-3">
+                    <MiniStat label="Resume" value={resumeStatus} />
+                    <MiniStat label="ATS" value={atsScore !== null ? `${atsScore}/100` : "—"} />
                     <MiniStat label="Accepted" value={shortlistedCount} />
+                    <MiniStat label="Saved Jobs" value={stats.saved} />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-bold">ATS Spotlight</h2>
-                  <p className="text-white/70 mt-2 text-sm sm:text-base leading-relaxed">
-                    Analyze your resume, find missing keywords, detect formatting issues, and
-                    improve your score instantly.
-                  </p>
-                </div>
-
-                <PrimaryButton onClick={() => navigate("/resume")}>
-                  {atsScore !== null ? "View ATS Report" : "Check ATS Now"}
-                </PrimaryButton>
-              </div>
-
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <InfoTile title="ATS Score" value={atsScore !== null ? `${atsScore}/100` : "—"} />
-                <InfoTile title="Resume" value={resumeStatus} />
-                <InfoTile title="Accepted" value={`${shortlistedCount}`} />
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT */}
-          <div className="xl:col-span-5 space-y-6 sm:space-y-8">
-            <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
-              <div className="flex items-center justify-between gap-4">
-                <h2 className="text-xl sm:text-2xl font-bold">Next Steps</h2>
-                <span className="text-white/60 text-xs sm:text-sm">
-                  {steps.filter((s) => s.done).length}/{steps.length} done
-                </span>
-              </div>
-
-              <p className="text-white/70 mt-2 text-sm sm:text-base">
-                Complete these actions to improve your hiring chances.
-              </p>
-
-              <div className="mt-6 space-y-3">
-                {steps.map((s) => (
-                  <StepRow
-                    key={s.key}
-                    title={s.title}
-                    subtitle={s.subtitle}
-                    done={s.done}
-                    actionText={s.actionText}
-                    onClick={s.onClick}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
-              <h2 className="text-xl sm:text-2xl font-bold">Accepted Applications</h2>
-              <p className="text-white/70 mt-2 text-sm sm:text-base">
-                When admin accepts your application, it appears here.
-              </p>
-
-              <div className="mt-6 rounded-2xl bg-white/10 border border-white/10 p-5">
-                <p className="text-white/60 text-sm">Current status</p>
-                <p className="text-3xl sm:text-4xl font-extrabold mt-2 break-words">
-                  <span className="text-purple-300">{shortlistedCount}</span>
-                  <span className="text-white/80 text-xl sm:text-2xl"> accepted</span>
-                </p>
-                <p className="text-white/60 text-sm mt-2">
-                  Applications approved by admin are shown in your shortlisted page.
-                </p>
-              </div>
-
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <PrimaryButton onClick={() => navigate("/shortlisted")}>
-                  View Shortlisted
-                </PrimaryButton>
-                <SecondaryButton onClick={() => navigate("/jobs")}>
-                  Apply More
-                </SecondaryButton>
-              </div>
-            </div>
-          </div>
-
-          {/* RECENT APPLICATIONS */}
-          <div className="xl:col-span-12">
-            <div className={`${glass} p-5 sm:p-6 lg:p-8`}>
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            {/* Recent Applications */}
+            <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-bold">Recent Applications</h2>
                   <p className="text-white/70 mt-1 text-sm sm:text-base">
@@ -380,71 +309,34 @@ export default function Dashboard() {
                 </SecondaryButton>
               </div>
 
-              {/* desktop */}
-              <div className="hidden md:block overflow-x-auto">
-                <table className="w-full min-w-[640px]">
-                  <thead className="text-left text-white/60 text-sm border-b border-white/10">
-                    <tr>
-                      <th className="py-3 pr-4">Job</th>
-                      <th className="py-3 pr-4">Company</th>
-                      <th className="py-3 pr-4">Status</th>
-                      <th className="py-3 pr-4">Applied</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {(recentApps || []).length === 0 ? (
-                      <tr>
-                        <td className="py-6 text-white/60" colSpan={4}>
-                          No applications yet. Apply to jobs and you’ll see them here.
-                        </td>
-                      </tr>
-                    ) : (
-                      recentApps.map((a) => (
-                        <tr
-                          key={a.id}
-                          className="border-b border-white/10 hover:bg-white/5 transition"
-                        >
-                          <td className="py-4 pr-4">
-                            <p className="font-semibold break-words">{a.jobTitle || "—"}</p>
-                            <p className="text-white/60 text-sm">{a.location || ""}</p>
-                          </td>
-                          <td className="py-4 pr-4 text-white/80 break-words">
-                            {a.company || "—"}
-                          </td>
-                          <td className="py-4 pr-4">
-                            <StatusPill status={a.status || "Pending"} />
-                          </td>
-                          <td className="py-4 pr-4 text-white/60 text-sm">
-                            {a.appliedAt || "—"}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* mobile cards */}
-              <div className="md:hidden space-y-3">
-                {(recentApps || []).length === 0 ? (
+              <div className="space-y-3">
+                {recentApps.length === 0 ? (
                   <div className="rounded-2xl bg-white/5 border border-white/10 p-4 text-white/60 text-sm">
-                    No applications yet. Apply to jobs and you’ll see them here.
+                    No applications yet. Start applying to jobs and they’ll appear here.
                   </div>
                 ) : (
                   recentApps.map((a) => (
                     <div
                       key={a.id}
-                      className="rounded-2xl bg-white/5 border border-white/10 p-4"
+                      className="rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="font-semibold break-words">{a.jobTitle || "—"}</p>
-                          <p className="text-sm text-white/60 break-words">{a.company || "—"}</p>
-                        </div>
-                        <StatusPill status={a.status || "Pending"} />
+                      <div className="min-w-0">
+                        <p className="font-semibold break-words">{a.jobTitle || "—"}</p>
+                        <p className="text-sm text-white/60 break-words">
+                          {a.company || "—"} {a.location ? `• ${a.location}` : ""}
+                        </p>
+                        <p className="text-xs text-white/45 mt-1">{a.appliedAt || "—"}</p>
                       </div>
-                      <p className="text-xs text-white/50 mt-3">{a.appliedAt || "—"}</p>
+
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <StatusPill status={a.status || "Pending"} />
+                        <button
+                          onClick={() => navigate("/jobs")}
+                          className="px-4 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/20 transition"
+                        >
+                          Explore More
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -463,7 +355,85 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-        </div>
+
+          {/* RIGHT SIDE */}
+          <div className="space-y-6">
+            {/* Next Steps */}
+            <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-xl sm:text-2xl font-bold">Next Steps</h2>
+                <span className="text-xs sm:text-sm text-white/55">
+                  {steps.filter((s) => s.done).length}/{steps.length} done
+                </span>
+              </div>
+
+              <p className="mt-2 text-white/70 text-sm sm:text-base">
+                Clear and focused actions to improve your chances faster.
+              </p>
+
+              <div className="mt-5 space-y-3">
+                {steps.map((s) => (
+                  <StepRow
+                    key={s.key}
+                    title={s.title}
+                    desc={s.desc}
+                    done={s.done}
+                    actionText={s.actionText}
+                    onClick={s.onClick}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
+              <h2 className="text-xl sm:text-2xl font-bold">Quick Actions</h2>
+              <p className="mt-2 text-white/70 text-sm sm:text-base">
+                Important shortcuts without extra clutter.
+              </p>
+
+              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {quickActions.map((item) => (
+                  <button
+                    key={item.title}
+                    onClick={item.onClick}
+                    className="text-left rounded-2xl bg-white/6 border border-white/10 p-4 hover:bg-white/10 transition"
+                  >
+                    <p className="font-semibold">{item.title}</p>
+                    <p className="text-sm text-white/60 mt-1 leading-relaxed">{item.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ATS Insight */}
+            <div className={`${glass} p-5 sm:p-6 lg:p-7`}>
+              <h2 className="text-xl sm:text-2xl font-bold">ATS Insight</h2>
+              <p className="mt-2 text-white/70 text-sm sm:text-base">
+                A quick recommendation based on your current progress.
+              </p>
+
+              <div className="mt-5 rounded-2xl bg-white/8 border border-white/10 p-5">
+                <p className="text-sm text-white/55">Recommendation</p>
+                <p className="mt-2 text-lg font-semibold leading-relaxed">
+                  {atsScore === null
+                    ? "Upload your resume and generate an ATS report first."
+                    : atsScore < 60
+                    ? "Your ATS score needs improvement. Focus on missing keywords and formatting."
+                    : atsScore < 80
+                    ? "Good score. Add stronger keywords and project details to improve further."
+                    : "Excellent score. You’re in a strong position to apply confidently."}
+                </p>
+
+                <div className="mt-5">
+                  <PrimaryButton onClick={() => navigate("/resume")}>
+                    {atsScore !== null ? "View ATS Report" : "Check ATS Now"}
+                  </PrimaryButton>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -519,73 +489,76 @@ function Chip({ text, done }) {
 
 function MiniStat({ label, value }) {
   return (
-    <div className="flex items-center justify-between text-sm gap-3">
-      <span className="text-white/60">{label}</span>
-      <span className="text-white/90 font-semibold break-words text-right">{value}</span>
+    <div className="flex items-center justify-between gap-3 text-sm">
+      <span className="text-white/55">{label}</span>
+      <span className="text-white/90 font-semibold text-right break-words">{value}</span>
     </div>
   );
 }
 
-function SmallMetric({ label, value }) {
+function MiniBox({ label, value }) {
   return (
     <div className="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
-      <p className="text-white/50 text-xs">{label}</p>
+      <p className="text-xs text-white/50">{label}</p>
       <p className="text-lg font-bold mt-1">{value}</p>
     </div>
   );
 }
 
-function QuickStatCard({ title, value, subtitle, glow = "purple" }) {
-  const glowMap = {
-    emerald: "shadow-[0_0_35px_rgba(16,185,129,0.16)]",
-    purple: "shadow-[0_0_35px_rgba(168,85,247,0.16)]",
-    indigo: "shadow-[0_0_35px_rgba(99,102,241,0.16)]",
-    pink: "shadow-[0_0_35px_rgba(236,72,153,0.16)]",
-  };
-
+function StatPanel({ title, value, sub }) {
   return (
-    <div className={`${glass} p-5 ${glowMap[glow]}`}>
-      <p className="text-white/60 text-sm">{title}</p>
+    <div className={`${glass} p-5`}>
+      <p className="text-white/55 text-sm">{title}</p>
       <p className="text-2xl sm:text-3xl font-extrabold mt-2 break-words">{value}</p>
-      <p className="text-white/50 text-sm mt-1">{subtitle}</p>
+      <p className="text-white/50 text-sm mt-1">{sub}</p>
     </div>
   );
 }
 
-function InfoTile({ title, value }) {
+function ProgressRow({ label, value }) {
   return (
-    <div className="rounded-2xl bg-white/10 border border-white/10 p-5">
-      <p className="text-white/60 text-sm">{title}</p>
-      <p className="text-xl sm:text-2xl font-extrabold mt-1 break-words">{value}</p>
+    <div>
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <p className="text-sm text-white/70">{label}</p>
+        <p className="text-sm text-white/85 font-semibold">{value}%</p>
+      </div>
+      <div className="h-2.5 rounded-full bg-white/10 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-fuchsia-400 to-indigo-400 transition-all"
+          style={{ width: `${value}%` }}
+        />
+      </div>
     </div>
   );
 }
 
-function StepRow({ title, subtitle, done, actionText, onClick }) {
+function StepRow({ title, desc, done, actionText, onClick }) {
   return (
-    <div className="rounded-2xl bg-white/10 border border-white/10 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-      <div className="flex items-start gap-3 min-w-0">
-        <span className={`mt-0.5 ${done ? "text-emerald-300" : "text-white/50"}`}>
+    <div className="rounded-2xl bg-white/8 border border-white/10 p-4 flex flex-col gap-3">
+      <div className="flex items-start gap-3">
+        <span className={`mt-0.5 ${done ? "text-emerald-300" : "text-white/45"}`}>
           {done ? "✅" : "⭕"}
         </span>
 
         <div className="min-w-0">
           <p className="font-semibold break-words">{title}</p>
-          <p className="text-xs text-white/55 mt-1 break-words">{subtitle}</p>
+          <p className="text-sm text-white/55 mt-1 leading-relaxed break-words">{desc}</p>
         </div>
       </div>
 
-      <button
-        onClick={onClick}
-        className={`w-full sm:w-auto px-4 py-2 rounded-xl text-sm font-semibold transition ${
-          done
-            ? "bg-white/5 text-white/60 border border-white/10 cursor-default"
-            : "bg-white/10 hover:bg-white/20 border border-white/10"
-        }`}
-        disabled={done}
-      >
-        {done ? "Done" : actionText}
-      </button>
+      <div>
+        <button
+          onClick={onClick}
+          disabled={done}
+          className={`w-full sm:w-auto px-4 py-2 rounded-xl text-sm font-semibold transition ${
+            done
+              ? "bg-white/5 text-white/55 border border-white/10 cursor-default"
+              : "bg-white/10 border border-white/10 hover:bg-white/20"
+          }`}
+        >
+          {done ? "Done" : actionText}
+        </button>
+      </div>
     </div>
   );
 }
