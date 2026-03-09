@@ -40,7 +40,7 @@ export default function OAuthSuccess() {
           localStorage.setItem("currentUser", JSON.stringify(realUser));
         }
 
-        navigate("/", { replace: true }); // ✅ go to home page
+        navigate("/home", { replace: true });
       } catch (err) {
         console.error("OAuth /profile/me failed:", err?.response?.data || err.message);
         setError("OAuth login succeeded, but profile fetch failed.");
