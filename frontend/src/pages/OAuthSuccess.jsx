@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import api from "../services/api"; // ✅ your axios instance
+import api from "../services/api";
 
 export default function OAuthSuccess() {
   const { search } = useLocation();
@@ -21,10 +21,8 @@ export default function OAuthSuccess() {
         return;
       }
 
-      // ✅ Save token first (so api interceptor sends it)
       localStorage.setItem("token", token);
 
-      // ✅ Save quick info immediately (optional)
       localStorage.setItem(
         "currentUser",
         JSON.stringify({
@@ -35,7 +33,6 @@ export default function OAuthSuccess() {
       );
 
       try {
-        // ✅ IMPORTANT: fetch real user from backend using token
         const res = await api.get("/profile/me");
         const realUser = res?.data?.user;
 
@@ -43,11 +40,10 @@ export default function OAuthSuccess() {
           localStorage.setItem("currentUser", JSON.stringify(realUser));
         }
 
-        navigate("/dashboard", { replace: true });
+        navigate("/", { replace: true }); // ✅ go to home page
       } catch (err) {
         console.error("OAuth /profile/me failed:", err?.response?.data || err.message);
         setError("OAuth login succeeded, but profile fetch failed.");
-        // token invalid or backend issue
         localStorage.removeItem("token");
         localStorage.removeItem("currentUser");
         navigate("/login?oauth=failed", { replace: true });
@@ -57,7 +53,6 @@ export default function OAuthSuccess() {
     run();
   }, [navigate, search]);
 
-  // ✅ Nice UI while processing (optional)
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white px-6">
       <div className="max-w-md w-full bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
