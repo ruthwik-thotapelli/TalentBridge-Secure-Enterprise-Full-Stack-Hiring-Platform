@@ -38,8 +38,7 @@ const Login = () => {
     } else if (state?.success || state?.email) {
       navigate("/login", { replace: true, state: {} });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [location, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +49,7 @@ const Login = () => {
     try {
       await loginUser(email.trim(), password.trim());
 
-      // ✅ redirect to HOME instead of dashboard
+      // ✅ redirect to Home.jsx
       navigate("/");
 
     } catch (err) {
@@ -117,7 +116,6 @@ const Login = () => {
             </label>
 
             <div className="relative">
-
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
@@ -134,7 +132,6 @@ const Login = () => {
               >
                 {showPassword ? "🙈" : "👁️"}
               </button>
-
             </div>
           </div>
 
@@ -178,18 +175,18 @@ const Login = () => {
           <button
             type="button"
             onClick={handleGoogle}
-            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition text-sm sm:text-base"
+            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition"
           >
-            <img src={googleLogo} alt="Google" className="w-8 h-8 object-contain" />
+            <img src={googleLogo} alt="Google" className="w-8 h-8 object-contain"/>
             Sign in with Google
           </button>
 
           <button
             type="button"
             onClick={handleGithub}
-            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition text-sm sm:text-base"
+            className="w-full py-3 rounded-xl bg-white text-slate-900 font-semibold flex items-center justify-center gap-3 hover:bg-slate-100 transition"
           >
-            <img src={githubLogo} alt="GitHub" className="w-8 h-8 object-contain" />
+            <img src={githubLogo} alt="GitHub" className="w-8 h-8 object-contain"/>
             Sign in with GitHub
           </button>
 
