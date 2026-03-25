@@ -259,7 +259,7 @@ function Navbar() {
             </button>
 
             {mobileMenuOpen && (
-              <div className="absolute top-16 left-0 right-0 border-t border-black/5 bg-white shadow-lg px-4 py-4">
+              <div className="fixed top-16 left-0 right-0 border-t border-black/5 bg-white shadow-lg px-4 py-4 max-h-[calc(100vh-4rem)] overflow-y-auto z-50">
                 <div className="flex flex-col gap-2">
                   <Link
                     to="/home"

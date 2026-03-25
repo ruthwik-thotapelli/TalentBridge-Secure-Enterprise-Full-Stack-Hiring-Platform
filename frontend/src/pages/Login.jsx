@@ -18,8 +18,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const API_BASE =
-    process.env.REACT_APP_API_URL ||
-    "https://talentbridge-secure-enterprise-full-stack-hiring-production.up.railway.app";
+    process.env.REACT_APP_API_URL || "";
+
 
   useEffect(() => {
     const state = location.state;

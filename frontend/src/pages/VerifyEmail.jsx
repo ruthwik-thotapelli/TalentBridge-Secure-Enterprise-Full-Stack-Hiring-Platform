@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://talentbridge-secure-enterprise-full-stack-hiring-production.up.railway.app";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "";
+
 
 export default function VerifyEmail() {
   const { search } = useLocation();

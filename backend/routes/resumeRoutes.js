@@ -12,9 +12,10 @@ import { protectOptional } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ Ensure uploads folder exists
-const uploadDir = path.join(process.cwd(), "uploads");
+// ✅ Ensure uploads folder exists in /tmp (Vercel requirement)
+const uploadDir = path.join("/tmp", "uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
 
 // ✅ Multer storage with safer filenames
 const storage = multer.diskStorage({

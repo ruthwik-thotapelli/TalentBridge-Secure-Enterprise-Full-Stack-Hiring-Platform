@@ -490,7 +490,7 @@ export default function AdminDashboard() {
 
         {showNotifications && (
           <div className="fixed inset-0 bg-black/60 flex justify-end z-50">
-            <div className="w-full sm:w-[420px] h-full bg-slate-900 border-l border-white/20 p-5 sm:p-6">
+            <div className="w-full sm:w-[420px] h-full bg-slate-900 border-l border-white/20 p-5 sm:p-6 overflow-y-auto">
               <div className="flex justify-between items-center mb-4 gap-3">
                 <h2 className="text-xl font-bold">🔔 Notifications</h2>
                 <button onClick={() => setShowNotifications(false)}>✖</button>

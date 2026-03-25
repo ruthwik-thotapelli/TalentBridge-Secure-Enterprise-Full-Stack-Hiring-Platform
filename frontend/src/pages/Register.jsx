@@ -5,9 +5,8 @@ import { registerUser } from "../services/authService";
 import googleLogo from "../assets/GoogleF.png";
 import githubLogo from "../assets/GithubF.png";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://talentbridge-secure-enterprise-full-stack-hiring-production.up.railway.app";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "";
+
 
 const Register = () => {
   const navigate = useNavigate();

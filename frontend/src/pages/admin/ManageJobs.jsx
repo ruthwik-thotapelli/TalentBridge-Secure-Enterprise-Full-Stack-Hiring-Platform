@@ -524,8 +524,8 @@ export default function ManageJobs() {
           </button>
         </div>
 
-        {/* Table */}
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
+        {/* Desktop Table */}
+        <div className="hidden xl:block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[980px] table-auto">
               <thead className="bg-white/10 border-b border-white/20">
@@ -645,6 +645,108 @@ export default function ManageJobs() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Mobile / Tablet Cards */}
+        <div className="xl:hidden space-y-4">
+          {paginatedJobs.map((job) => (
+            <div
+              key={job.id}
+              className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4"
+            >
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={selected.has(job.id)}
+                  onChange={() => toggleSelect(job.id)}
+                  className="w-4 h-4 mt-1 accent-purple-500"
+                />
+
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold break-words text-lg">{job.title}</p>
+                  <p className="text-sm text-white/70 break-words">{job.company}</p>
+                  <p className="text-xs text-white/50 mt-1">
+                    {job.location || "India"} • {job.experience || "0-2 Years"}
+                  </p>
+
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+                    <div className="rounded-xl bg-white/5 border border-white/10 p-3">
+                      <p className="text-xs text-white/50">Type</p>
+                      <p className="text-white/85">{job.type || "Full Time"}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/5 border border-white/10 p-3">
+                      <p className="text-xs text-white/50">Applicants</p>
+                      <p className="text-white/85">{job.applicants || 0}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/5 border border-white/10 p-3">
+                      <p className="text-xs text-white/50">Status</p>
+                      <span className={statusPill(job.status || "Active")}>{job.status || "Active"}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <button
+                      onClick={() => navigate(`/jobs/${job.id}`)}
+                      className="px-3 py-2 rounded-xl text-sm font-semibold
+                                 bg-gradient-to-r from-sky-600 to-cyan-500
+                                 hover:from-sky-500 hover:to-cyan-400 transition"
+                    >
+                      View
+                    </button>
+
+                    <button
+                      onClick={() => openDetails(job)}
+                      className="px-3 py-2 rounded-xl text-sm bg-white/10 border border-white/10 hover:bg-white/20 transition"
+                    >
+                      Details
+                    </button>
+
+                    <button
+                      onClick={() => openEdit(job)}
+                      className="px-3 py-2 rounded-xl text-sm font-semibold
+                                 bg-gradient-to-r from-indigo-600 to-blue-500
+                                 hover:from-indigo-500 hover:to-blue-400 transition"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => duplicateJob(job)}
+                      className="px-3 py-2 rounded-xl text-sm font-semibold
+                                 bg-gradient-to-r from-amber-500 to-orange-500
+                                 hover:from-amber-400 hover:to-orange-400 transition"
+                    >
+                      Duplicate
+                    </button>
+
+                    <button
+                      onClick={() => toggleStatus(job)}
+                      className="px-3 py-2 rounded-xl text-sm font-semibold
+                                 bg-gradient-to-r from-purple-600 to-fuchsia-600
+                                 hover:from-purple-500 hover:to-fuchsia-500 transition"
+                    >
+                      {job.status === "Inactive" ? "Activate" : "Deactivate"}
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(job.id)}
+                      className="px-3 py-2 rounded-xl text-sm font-semibold
+                                 bg-gradient-to-r from-rose-600 to-red-600
+                                 hover:from-rose-500 hover:to-red-500 transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {paginatedJobs.length === 0 && (
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-white/70">
+              No jobs found.
+            </div>
+          )}
         </div>
 
         {/* Pagination */}
