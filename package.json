@@ -4,8 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build",
-    "install": "npm install && cd frontend && npm install && cd ../backend && npm install"
+    "build": "cd frontend && npm run build"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -22,6 +21,15 @@
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "pdf-parse": "^1.1.1",
-    "pdfkit": "^0.17.2"
+    "pdfkit": "^0.17.2",
+    "axios": "^1.13.5",
+    "jspdf": "^4.1.0",
+    "lucide-react": "^0.575.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.13.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
   }
 }
