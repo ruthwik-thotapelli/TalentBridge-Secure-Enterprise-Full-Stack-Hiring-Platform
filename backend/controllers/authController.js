@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import db from "../config/db.js";
 import { signToken } from "../utils/tokenUtil.js";
