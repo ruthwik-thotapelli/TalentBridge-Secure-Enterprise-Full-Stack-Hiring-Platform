@@ -1,5 +1,6 @@
-🚀 TalentBridge – Secure Enterprise Full Stack Hiring Platform
 
+🚀 TalentBridge – Secure Enterprise Full Stack Hiring Platform
+## DEMO LINK: https://talent-bridge-secure-enterprise-ful.vercel.app/
 TalentBridge is a full stack web-based hiring platform designed to streamline the recruitment process for companies and candidates. The platform enables admins and recruiters to post and manage jobs, while candidates can browse opportunities, apply for positions, and track application status through a secure and user-friendly interface.
 
 The system is built with a secure and scalable architecture, featuring role-based access control and authentication to protect user data and ensure authorized access. ApexRecruit also includes an ATS-style resume screening and scoring system to help recruiters automate shortlisting and improve hiring efficiency.
