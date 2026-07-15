@@ -27,29 +27,15 @@
 
 ## 🌟 Vision & Business ROI
 
-<table>
-  <tr>
-    <td width="60%">
-      <h3>The Problem We Solve</h3>
-      <p><b>TalentBridge</b> is a modern, high-performance recruitment ecosystem engineered to solve the most expensive problem in HR: <b>Time-to-Hire (TTH)</b>.</p>
-      <p>By integrating a proprietary <b>Applicant Tracking System (ATS)</b> engine directly into the application pipeline, TalentBridge automatically parses complex PDFs, tokenizes candidate data, and scores them against job descriptions — eliminating manual screening entirely.</p>
-    </td>
-    <td width="40%" align="center">
-      <h3>📊 Impact Metrics</h3>
-      <table>
-        <tr>
-          <td align="center"><h1>60%</h1><sub>Reduced Screening Time</sub></td>
-        </tr>
-        <tr>
-          <td align="center"><h1>3x</h1><sub>Faster Candidate Shortlisting</sub></td>
-        </tr>
-        <tr>
-          <td align="center"><h1>100%</h1><sub>Automated Resume Parsing</sub></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
+**TalentBridge** is a modern, high-performance recruitment ecosystem engineered to solve the most expensive problem in HR: **Time-to-Hire (TTH)**. By integrating a proprietary **Applicant Tracking System (ATS)** engine, it automatically parses complex PDFs, tokenizes candidate data, and scores them against job descriptions — eliminating manual screening entirely.
+
+<div align="center">
+  <img src="https://img.shields.io/badge/⏱_Screening_Time-↓_60%25-10b981?style=for-the-badge" alt="60%" />
+  &nbsp;
+  <img src="https://img.shields.io/badge/⚡_Shortlisting_Speed-3x_Faster-4f46e5?style=for-the-badge" alt="3x" />
+  &nbsp;
+  <img src="https://img.shields.io/badge/🤖_Resume_Parsing-100%25_Automated-f59e0b?style=for-the-badge" alt="100%" />
+</div>
 
 ---
 
