@@ -38,23 +38,23 @@ This sequence illustrates the frictionless, highly secure pipeline a candidate e
 sequenceDiagram
     autonumber
     actor Candidate
-    participant React as React Client (Vercel)
-    participant Auth as Passport.js (Google OAuth)
-    participant API as Express API (Node.js)
-    participant ATS as ATS Engine (pdf-parse)
-    participant DB as MySQL Database
+    participant React as React Client
+    participant Auth as OAuth Provider
+    participant API as Express API
+    participant ATS as Parsing Engine
+    participant DB as Database
     
-    Candidate->>React: Clicks "Login with Google"
-    React->>Auth: Request OAuth Handshake
-    Auth-->>React: Return Secure HttpOnly JWT
-    Candidate->>React: Uploads Resume (Multipart/FormData)
+    Candidate->>React: Authenticate (OAuth 2.0)
+    React->>Auth: Request Token
+    Auth-->>React: Return Secure JWT
+    Candidate->>React: Upload Resume (PDF/DOCX)
     React->>API: POST /api/applications/upload
-    API->>ATS: Pipe file stream to memory
-    Note over ATS: Engine parses PDF,<br>extracts text layers & semantic data
-    ATS->>API: Return parsed tokens & ATS Score (0-100%)
-    API->>DB: Save Application Profile + Match Score
-    DB-->>React: 200 OK Success Response
-    React-->>Candidate: Render Real-Time Tracking Dashboard
+    API->>ATS: Stream file to parser
+    Note over ATS: Extract text layers & semantics
+    ATS->>API: Return ATS Score & Tokens
+    API->>DB: Persist Candidate Data
+    DB-->>React: 200 OK Status
+    React-->>Candidate: Render Real-Time Dashboard
 ```
 
 ### 2. The Recruiter Ecosystem Flow
@@ -62,23 +62,22 @@ How enterprise recruiters manage the influx of applications using automated sort
 
 ```mermaid
 graph LR
-    %% Styling
-    classDef dashboard fill:#4f46e5,stroke:#312e81,stroke-width:2px,color:#fff;
-    classDef db fill:#0f172a,stroke:#334155,stroke-width:2px,color:#fff;
-    classDef decision fill:#f59e0b,stroke:#b45309,stroke-width:2px,color:#fff;
-    classDef success fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff;
-    classDef reject fill:#ef4444,stroke:#b91c1c,stroke-width:2px,color:#fff;
+    classDef dash fill:#4f46e5,stroke:#312e81,stroke-width:2px,color:#fff;
+    classDef dbs fill:#0f172a,stroke:#334155,stroke-width:2px,color:#fff;
+    classDef dec fill:#f59e0b,stroke:#b45309,stroke-width:2px,color:#fff;
+    classDef pass fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff;
+    classDef fail fill:#ef4444,stroke:#b91c1c,stroke-width:2px,color:#fff;
 
-    A[Recruiter Dashboard]:::dashboard -->|Creates Job Posting| B[(MySQL Database)]:::db
-    B --> C{Applications Received}:::decision
+    A[Recruiter Dashboard]:::dash -->|Post Job| B[(Database)]:::dbs
+    B --> C{Review Stage}:::dec
     
-    C -->|ATS Score > 80%| D[Auto-Shortlisted]:::success
-    C -->|ATS Score 50-79%| E[Manual Review Queue]:::decision
-    C -->|ATS Score < 50%| F[Auto-Rejected]:::reject
+    C -->|Score High| D[Auto-Shortlist]:::pass
+    C -->|Score Medium| E[Manual Queue]:::dec
+    C -->|Score Low| F[Auto-Reject]:::fail
     
-    D --> G[1-Click Interview Invite<br>(Nodemailer SMTP)]:::success
-    E --> H[Recruiter Reviews Parsed PDF]:::dashboard
-    F --> I[Send Polite Rejection Email]:::reject
+    D --> G[Email Invite]:::pass
+    E --> H[Recruiter Screen]:::dash
+    F --> I[Rejection Email]:::fail
 ```
 
 ### 3. Global System Architecture
@@ -90,40 +89,40 @@ graph TD
     classDef server fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff;
     classDef data fill:#f59e0b,stroke:#b45309,stroke-width:2px,color:#fff;
 
-    subgraph Frontend Edge Layer
-        Client[React 19 + Tailwind CSS]:::client
-        CDN[Vercel Edge Network]:::client
+    subgraph Frontend_Layer ["Frontend Edge Layer"]
+        C1[React 19 SPA]:::client
+        C2[Vercel CDN Network]:::client
     end
 
-    subgraph Backend Core (Node.js)
-        Auth[JWT & OAuth 2.0 Auth Guard]:::server
-        CoreAPI[Express.js API Router]:::server
-        ATSEngine[mammoth / pdf-parse Engine]:::server
+    subgraph Backend_Layer ["Core Backend API"]
+        S1[Auth Guard JWT]:::server
+        S2[Express.js Router]:::server
+        S3[ATS Parsing Engine]:::server
     end
 
-    subgraph Data & Services Layer
-        DB[(MySQL 8.0 Relational DB)]:::data
-        Mail[Nodemailer SMTP Service]:::data
+    subgraph Data_Layer ["Data & Services Layer"]
+        D1[(MySQL DB)]:::data
+        D2[SMTP Nodemailer]:::data
     end
 
-    Client <-->|RESTful JSON| CDN
-    CDN <--> Auth
-    Auth <--> CoreAPI
-    CoreAPI -->|Parses Docs| ATSEngine
-    CoreAPI <-->|SQL Queries| DB
-    CoreAPI -->|Dispatches Emails| Mail
+    C1 <--> C2
+    C2 <--> S1
+    S1 <--> S2
+    S2 --> S3
+    S2 <--> D1
+    S2 --> D2
 ```
 
 ---
 
 ## 💻 Tech Stack Showcase
 
-<table align="center">
+<table align="center" width="100%">
   <tr>
     <td align="center" width="33%">
       <h3>Frontend</h3>
       <img src="https://skillicons.dev/icons?i=react,tailwind,vite" /><br>
-      <b>React 19, Tailwind CSS, Axios, jsPDF</b><br>
+      <b>React 19, Tailwind CSS, Axios</b><br>
       <i>Optimistic UI, Memoization, Fluid Layouts</i>
     </td>
     <td align="center" width="33%">
@@ -135,8 +134,8 @@ graph TD
     <td align="center" width="33%">
       <h3>Integrations</h3>
       <img src="https://skillicons.dev/icons?i=github,gcp,postman" /><br>
-      <b>Passport.js, Nodemailer, PDF-Parse</b><br>
-      <i>OAuth 2.0, SMTP, Regex Tokenization</i>
+      <b>Passport.js, Nodemailer, ATS</b><br>
+      <i>OAuth 2.0, SMTP, Tokenization</i>
     </td>
   </tr>
 </table>
