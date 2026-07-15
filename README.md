@@ -157,44 +157,71 @@ TalentBridge enforces strict authorization middleware, guaranteeing deep data pr
 
 ## 🛡️ Enterprise Security & Compliance
 
-Handling PII (Personally Identifiable Information) requires zero-trust security.
-- **SQL Injection Prevention**: Parameterized queries via `mysql2` inherently block malicious payloads.
-- **Session Hijacking Defense**: JWTs are strictly configured, preventing XSS and CSRF attacks.
-- **File Upload Security**: `multer` intercepts payloads, enforcing strict MIME-type validation (PDF/DOCX only) and size constraints before hitting the disk.
+> **Handling PII (Personally Identifiable Information) requires zero-trust security architecture.**
+
+| Threat Vector | Mitigation Strategy | Technology Utilized |
+| :--- | :--- | :--- |
+| 💉 **SQL Injection** | Parameterized query layers intercept and sanitize all incoming data streams. | `mysql2` Prepared Statements |
+| 🕵️‍♂️ **Session Hijacking** | Stateless tokens are issued with strict expiration and HTTP-only cookie flags, neutralizing CSRF & XSS. | `jsonwebtoken` & `cors` |
+| 🦠 **Malicious Payloads** | Incoming streams are intercepted; enforcing rigid MIME-type boundaries (PDF/DOCX) & MB limits. | `multer` Middleware |
 
 ---
 
 ## 🚀 Quick Start / Local Deployment
 
-Get the platform running on your local machine in under 3 minutes.
+> Get the entire enterprise platform running locally in under **3 minutes**.
 
-### 1️⃣ Database Setup
-Ensure MySQL is running, then execute:
+<details open>
+<summary><b>🛠️ Step 1: Database Setup</b></summary>
+<br>
+Ensure MySQL is active on port <code>3306</code>, then execute:
+
 ```sql
 CREATE DATABASE talentbridge_db;
 ```
+</details>
 
-### 2️⃣ Backend Initialization
+<details open>
+<summary><b>⚙️ Step 2: Backend Initialization</b></summary>
+<br>
+
 ```bash
 cd backend
 npm install
-cp .env.example .env # Configure your DB and OAuth secrets here
+cp .env.example .env # Inject your local DB & OAuth secrets
 npm run dev
 ```
+</details>
 
-### 3️⃣ Frontend Initialization
+<details open>
+<summary><b>🌐 Step 3: Frontend Initialization</b></summary>
+<br>
+
 ```bash
 cd frontend
 npm install
 npm start
 ```
-*The app securely binds to `http://localhost:3000`.*
+<i>The application will securely mount at <a href="http://localhost:3000">http://localhost:3000</a>.</i>
+</details>
 
 ---
 
+<br>
+
 <div align="center">
-  <b>Architected & Developed with ❤️ by Ruthwik</b><br>
-  <i>Pushing the boundaries of recruitment technology.</i><br><br>
-  <a href="https://github.com/ruthwik-thotapelli/TalentBridge-Secure-Enterprise-Full-Stack-Hiring-Platform/issues">Report a Bug</a> • 
-  <a href="https://talent-bridge-secure-enterprise-ful.vercel.app/">View Live Application</a>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=1&height=100&section=footer" width="100%" alt="Footer" />
+  <h2>✨ Architected & Developed with ❤️ by Ruthwik</h2>
+  <p><i>"Pushing the boundaries of recruitment technology, one line of code at a time."</i></p>
+  
+  <br>
+
+  <a href="https://talent-bridge-secure-enterprise-ful.vercel.app/">
+    <img src="https://img.shields.io/badge/🚀_View_Live_Application-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live App" />
+  </a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/ruthwik-thotapelli/TalentBridge-Secure-Enterprise-Full-Stack-Hiring-Platform/issues">
+    <img src="https://img.shields.io/badge/🐛_Report_A_Bug-ef4444?style=for-the-badge&logo=github&logoColor=white" alt="Report Bug" />
+  </a>
+  <br><br>
 </div>
