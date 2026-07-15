@@ -5,11 +5,17 @@
 
 <div align="center">
   <a href="https://talent-bridge-secure-enterprise-ful.vercel.app/" target="_blank">
-    <img src="https://img.shields.io/badge/Live_Demo-Vercel_Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
+    <img src="https://img.shields.io/badge/🚀_LIVE_DEMO-Click_Here-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
   </a>
+  &nbsp;
   <img src="https://img.shields.io/github/stars/ruthwik-thotapelli/TalentBridge-Secure-Enterprise-Full-Stack-Hiring-Platform?style=for-the-badge&color=yellow" alt="Stars" />
+  &nbsp;
+  <img src="https://img.shields.io/github/last-commit/ruthwik-thotapelli/TalentBridge-Secure-Enterprise-Full-Stack-Hiring-Platform?style=for-the-badge&color=purple" alt="Last Commit" />
+  &nbsp;
   <img src="https://img.shields.io/badge/License-ISC-blue?style=for-the-badge" alt="License" />
 </div>
+
+<br />
 
 <div align="center">
   <a href="https://talent-bridge-secure-enterprise-ful.vercel.app/">
@@ -21,18 +27,48 @@
 
 ## 🌟 Vision & Business ROI
 
-**TalentBridge** is a modern, high-performance recruitment ecosystem engineered to solve the most expensive problem in HR: **Time-to-Hire (TTH)**. 
+<table>
+  <tr>
+    <td width="60%">
+      <h3>The Problem We Solve</h3>
+      <p><b>TalentBridge</b> is a modern, high-performance recruitment ecosystem engineered to solve the most expensive problem in HR: <b>Time-to-Hire (TTH)</b>.</p>
+      <p>By integrating a proprietary <b>Applicant Tracking System (ATS)</b> engine directly into the application pipeline, TalentBridge automatically parses complex PDFs, tokenizes candidate data, and scores them against job descriptions — eliminating manual screening entirely.</p>
+    </td>
+    <td width="40%" align="center">
+      <h3>📊 Impact Metrics</h3>
+      <table>
+        <tr>
+          <td align="center"><h1>60%</h1><sub>Reduced Screening Time</sub></td>
+        </tr>
+        <tr>
+          <td align="center"><h1>3x</h1><sub>Faster Candidate Shortlisting</sub></td>
+        </tr>
+        <tr>
+          <td align="center"><h1>100%</h1><sub>Automated Resume Parsing</sub></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
 
-By integrating a proprietary **Applicant Tracking System (ATS)** engine directly into the application pipeline, TalentBridge automatically parses complex PDFs, tokenizes candidate data, and scores them against job descriptions. This eliminates manual screening, resulting in a **60% reduction in recruiter workload** while offering candidates a frictionless, real-time application experience.
+---
+
+## 🎬 Live Demo & Walkthrough
+
+> 🔗 **Experience TalentBridge live:** [**https://talent-bridge-secure-enterprise-ful.vercel.app/**](https://talent-bridge-secure-enterprise-ful.vercel.app/)
+
+### What You Can Do in the Live Demo:
+- 🔑 **Sign Up / Login** with Google or GitHub OAuth in 1 click
+- 📄 **Upload a Resume** (PDF/DOCX) and watch the ATS engine score it in real-time
+- 🔍 **Browse & Filter Jobs** with semantic search capabilities
+- 📊 **Recruiter Dashboard** — view ranked candidates, manage pipelines, send emails
+- 🛡️ **Admin Panel** — full RBAC control, user management, audit logs
 
 ---
 
 ## 🔄 Core Workflows & System Architecture
 
-To truly understand the power of TalentBridge, here is a visual breakdown of the ecosystem's workflows.
-
 ### 1. The Candidate Journey (End-to-End)
-This sequence illustrates the frictionless, highly secure pipeline a candidate experiences, from OAuth login to AI-powered resume parsing.
 
 ```mermaid
 sequenceDiagram
@@ -58,7 +94,6 @@ sequenceDiagram
 ```
 
 ### 2. The Recruiter Ecosystem Flow
-How enterprise recruiters manage the influx of applications using automated sorting and 1-click email workflows.
 
 ```mermaid
 graph LR
@@ -81,7 +116,6 @@ graph LR
 ```
 
 ### 3. Global System Architecture
-The high-level macro view of how the decoupled Client, Edge Load Balancers, and Core API interact.
 
 ```mermaid
 graph TD
@@ -120,22 +154,22 @@ graph TD
 <table align="center" width="100%">
   <tr>
     <td align="center" width="33%">
-      <h3>Frontend</h3>
-      <img src="https://skillicons.dev/icons?i=react,tailwind,vite" /><br>
-      <b>React 19, Tailwind CSS, Axios</b><br>
-      <i>Optimistic UI, Memoization, Fluid Layouts</i>
+      <h3>🎨 Frontend</h3>
+      <img src="https://skillicons.dev/icons?i=react,tailwind,vite" /><br><br>
+      <b>React 19 &bull; Tailwind CSS &bull; Axios</b><br>
+      <sub>Optimistic UI &bull; Memoization &bull; Fluid Layouts</sub>
     </td>
     <td align="center" width="33%">
-      <h3>Backend</h3>
-      <img src="https://skillicons.dev/icons?i=nodejs,express,mysql" /><br>
-      <b>Node.js, Express 5, MySQL2</b><br>
-      <i>REST API, JWT, Multer, MVC Pattern</i>
+      <h3>⚙️ Backend</h3>
+      <img src="https://skillicons.dev/icons?i=nodejs,express,mysql" /><br><br>
+      <b>Node.js &bull; Express 5 &bull; MySQL2</b><br>
+      <sub>REST API &bull; JWT &bull; Multer &bull; MVC Pattern</sub>
     </td>
     <td align="center" width="33%">
-      <h3>Integrations</h3>
-      <img src="https://skillicons.dev/icons?i=github,gcp,postman" /><br>
-      <b>Passport.js, Nodemailer, ATS</b><br>
-      <i>OAuth 2.0, SMTP, Tokenization</i>
+      <h3>🔗 Integrations</h3>
+      <img src="https://skillicons.dev/icons?i=github,gcp,postman" /><br><br>
+      <b>Passport.js &bull; Nodemailer &bull; ATS</b><br>
+      <sub>OAuth 2.0 &bull; SMTP &bull; Tokenization</sub>
     </td>
   </tr>
 </table>
@@ -151,7 +185,7 @@ TalentBridge enforces strict authorization middleware, guaranteeing deep data pr
 | OAuth (Google/GitHub) 1-Click Auth | Enterprise Email / 2FA Ready | Secure Master Global Login |
 | Advanced Semantic Job Filtering | Create, Edit & Archive Job Postings | Global Job & User Moderation |
 | Encrypted Multi-format Uploads | View AI-Parsed Candidate Insights | System-wide Audit Logs |
-| Real-time WebSocket Status Tracking | Kanban-style Pipeline View | Advanced RBAC Configurations |
+| Real-time Status Tracking | Kanban-style Pipeline View | Advanced RBAC Configurations |
 
 ---
 
@@ -162,8 +196,8 @@ TalentBridge enforces strict authorization middleware, guaranteeing deep data pr
 | Threat Vector | Mitigation Strategy | Technology Utilized |
 | :--- | :--- | :--- |
 | 💉 **SQL Injection** | Parameterized query layers intercept and sanitize all incoming data streams. | `mysql2` Prepared Statements |
-| 🕵️‍♂️ **Session Hijacking** | Stateless tokens are issued with strict expiration and HTTP-only cookie flags, neutralizing CSRF & XSS. | `jsonwebtoken` & `cors` |
-| 🦠 **Malicious Payloads** | Incoming streams are intercepted; enforcing rigid MIME-type boundaries (PDF/DOCX) & MB limits. | `multer` Middleware |
+| 🕵️ **Session Hijacking** | Stateless tokens with strict expiration and HTTP-only cookie flags, neutralizing CSRF & XSS. | `jsonwebtoken` & `cors` |
+| 🦠 **Malicious Payloads** | Incoming streams are intercepted; enforcing rigid MIME-type boundaries & MB limits. | `multer` Middleware |
 
 ---
 
@@ -188,7 +222,7 @@ CREATE DATABASE talentbridge_db;
 ```bash
 cd backend
 npm install
-cp .env.example .env # Inject your local DB & OAuth secrets
+cp .env.example .env   # Inject your local DB & OAuth secrets
 npm run dev
 ```
 </details>
@@ -207,21 +241,80 @@ npm start
 
 ---
 
+## 📂 Project Structure
+
+```text
+TalentBridge/
+├── 📁 backend/                 # Node.js + Express API Core
+│   ├── 📁 config/              # DB & Passport configurations
+│   ├── 📁 controllers/         # Business logic & ATS processing
+│   ├── 📁 middleware/          # JWT Auth, RBAC, Multer
+│   ├── 📁 routes/              # Express Router definitions
+│   ├── 📁 utils/               # Helper utilities
+│   ├── 📁 uploads/             # Temporary parsed file storage
+│   ├── 📄 app.js               # Express app configuration
+│   └── 📄 server.js            # API Entry Point
+│
+├── 📁 frontend/                # React + Tailwind SPA
+│   ├── 📁 public/              # Static Assets
+│   ├── 📁 src/
+│   │   ├── 📁 components/      # Reusable UI Components
+│   │   ├── 📁 pages/           # Page Views & Admin Panel
+│   │   ├── 📁 context/         # React Context Providers
+│   │   ├── 📁 services/        # Axios API Interceptors
+│   │   └── 📄 App.jsx          # Router Topology
+│   └── 📄 tailwind.config.js   # Design System Tokens
+│
+└── 📄 README.md                # You are here
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+```bash
+# 1. Fork the repo
+# 2. Create your feature branch
+git checkout -b feature/AmazingFeature
+
+# 3. Commit your changes
+git commit -m "feat: add AmazingFeature"
+
+# 4. Push to the branch
+git push origin feature/AmazingFeature
+
+# 5. Open a Pull Request
+```
+
+---
+
 <br>
 
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=1&height=100&section=footer" width="100%" alt="Footer" />
-  <h2>✨ Architected & Developed with ❤️ by Ruthwik</h2>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=1&height=120&section=footer" width="100%" alt="Footer" />
+</div>
+
+<div align="center">
+  <h2>✨ Architected & Developed with ❤️ by <a href="https://github.com/ruthwik-thotapelli">Ruthwik</a></h2>
   <p><i>"Pushing the boundaries of recruitment technology, one line of code at a time."</i></p>
   
   <br>
 
   <a href="https://talent-bridge-secure-enterprise-ful.vercel.app/">
-    <img src="https://img.shields.io/badge/🚀_View_Live_Application-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live App" />
+    <img src="https://img.shields.io/badge/🚀_View_Live_App-4f46e5?style=for-the-badge&logoColor=white" alt="Live App" />
   </a>
-  &nbsp;&nbsp;&nbsp;
+  &nbsp;&nbsp;
   <a href="https://github.com/ruthwik-thotapelli/TalentBridge-Secure-Enterprise-Full-Stack-Hiring-Platform/issues">
-    <img src="https://img.shields.io/badge/🐛_Report_A_Bug-ef4444?style=for-the-badge&logo=github&logoColor=white" alt="Report Bug" />
+    <img src="https://img.shields.io/badge/🐛_Report_Bug-ef4444?style=for-the-badge&logoColor=white" alt="Report Bug" />
   </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/ruthwik-thotapelli/TalentBridge-Secure-Enterprise-Full-Stack-Hiring-Platform/pulls">
+    <img src="https://img.shields.io/badge/💡_Request_Feature-10b981?style=for-the-badge&logoColor=white" alt="Request Feature" />
+  </a>
+  
   <br><br>
+  
+  <sub>If you found this project helpful, consider giving it a ⭐ — it means a lot!</sub>
 </div>
