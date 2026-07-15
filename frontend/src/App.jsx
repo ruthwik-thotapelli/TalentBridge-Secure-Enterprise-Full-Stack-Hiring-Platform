@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import ScrollToTop from "./components/ScrollToTop";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PrivateRoute from "./components/PrivateRoute";
@@ -40,6 +41,7 @@ function Layout() {
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
       {!hideNavbar && <Navbar />}
+      <ScrollToTop />
 
       <Routes>
         <Route path="/" element={<Welcome />} />
